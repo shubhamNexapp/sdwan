@@ -1,0 +1,113 @@
+/*
+  Copyright (C) 2024 Nethesis S.r.l.
+  SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
+@import '@xterm/xterm/css/xterm.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: 'Poppins';
+  src: url(/Poppins-Regular.ttf) format('truetype');
+}
+
+@layer base {
+  html {
+    font-family: Poppins, system-ui, sans-serif;
+    @apply h-full;
+  }
+}
+
+body {
+  @apply h-full text-sm text-gray-700 bg-gray-50 dark:bg-gray-900 dark:text-gray-100;
+}
+
+/* fade transition */
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* slide-down transition */
+.slide-down-enter-active,
+.slide-down-leave-active {
+  transition: all 0.3s ease;
+}
+
+.slide-down-enter-from,
+.slide-down-leave-to {
+  transform: translateY(-15px);
+  opacity: 0;
+}
+
+code {
+  @apply block px-1 font-mono bg-gray-500 rounded bg-opacity-20 dark:bg-opacity-40;
+}
+
+hr {
+  @apply border-gray-200 dark:border-gray-700;
+}
+
+/* tailwind theme for tooltip library */
+.tippy-box[data-theme~='tailwind'] {
+  @apply bg-gray-700 border border-gray-700 shadow-2xl text-gray-50 dark:border-gray-200 dark:bg-gray-200 dark:text-gray-700;
+}
+.tippy-box[data-theme~='tailwind'][data-placement^='top'] > .tippy-arrow::before {
+  @apply border-t-gray-700 dark:border-t-gray-200;
+}
+.tippy-box[data-theme~='tailwind'][data-placement^='bottom'] > .tippy-arrow::before {
+  @apply border-b-gray-700 dark:border-b-gray-200;
+}
+.tippy-box[data-theme~='tailwind'][data-placement^='left'] > .tippy-arrow::before {
+  @apply border-l-gray-700 dark:border-l-gray-200;
+}
+.tippy-box[data-theme~='tailwind'][data-placement^='right'] > .tippy-arrow::before {
+  @apply border-r-gray-700 dark:border-r-gray-200;
+}
+
+.to-primary-800 {
+    /* --tw-gradient-to: #293146 var(--tw-gradient-to-position); */
+    background-color: #293146;
+}
+.login-btn{
+  background-color: #ef8b1e !important;
+}
+.login-bg{
+  background-image: url('/public/login-bg.png');
+}
+.login-form{
+  width: 30rem !important ;
+  max-width: 40rem !important;
+}
+.insta{
+  width: 60%;
+  margin: auto;
+  display: block;
+}
+.side-bar{
+  background-color: #4a555f !important;
+}
+.side-bar-grey{
+  color: white !important;
+ }
+.side-bar img{
+  width: 90% !important;
+  height: auto !important;
+}
+
+.hover\:text-gray-900:hover {
+    --tw-text-opacity: 1;
+    color: rgb(17 24 39 / var(--tw-text-opacity)) !important;
+}
+.bg-primary-700{
+
+  background-color: #ef8b1e !important;
+}
