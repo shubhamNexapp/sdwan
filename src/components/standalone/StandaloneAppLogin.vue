@@ -285,7 +285,7 @@ async function verifyOtp() {
                     >{{ t('login.remember_me') }}</label
                   >
                 </div>
-                <div class="text-sm leading-6">
+                <!-- <div class="text-sm leading-6">
                   <NeLink
                     href="https://docs.nethsecurity.org/en/latest/remote_access.html#default-credentials"
                     target="_blank"
@@ -293,7 +293,7 @@ async function verifyOtp() {
                   >
                     {{ t('login.need_help') }}
                   </NeLink>
-                </div>
+                </div> -->
               </div>
               <div>
                 <NeButton

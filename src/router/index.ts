@@ -168,7 +168,7 @@ const standaloneRoutes = [
   {
     path: 'vpn/wire-guard',
     name: 'WireGuard',
-    component: () => import('../views/standalone/vpn/IPsecTunnelView.vue')
+    component: () => import('../views/standalone/vpn/WireGuardView.vue')
   },
   {
     path: 'users-objects/users-database',

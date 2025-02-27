@@ -26,10 +26,10 @@ export const useLoginStore = defineStore('standaloneLogin', () => {
   const router = useRouter()
   const route = useRoute()
 
-  // const isLoggedIn = computed(() => {
-  //   return !isEmpty(username.value)
-  // })
-  const isLoggedIn = computed(() => true)
+  const isLoggedIn = computed(() => {
+    return !isEmpty(username.value)
+  })
+  // const isLoggedIn = computed(() => true)
 
   const loadUserFromStorage = () => {
     const loginInfo = getJsonFromStorage('standaloneLoginInfo')
