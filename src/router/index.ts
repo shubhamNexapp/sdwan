@@ -171,6 +171,16 @@ const standaloneRoutes = [
     component: () => import('../views/standalone/vpn/WireGuardView.vue')
   },
   {
+    path: 'vpn/gre',
+    name: 'GRE',
+    component: () => import('../views/standalone/vpn/GreView.vue')
+  },
+  {
+    path: 'vpn/zero-tier',
+    name: 'ZeroTier',
+    component: () => import('../views/standalone/vpn/ZeroTierView.vue')
+  },
+  {
     path: 'users-objects/users-database',
     name: 'UsersDatabase',
     component: () => import('../views/standalone/users_objects/UsersDatabaseView.vue')

@@ -224,13 +224,14 @@ const navigation: Ref<MenuItem[]> = ref([
       {
         name: 'L2TP',
         to: 'vp/ipsec-tunn'
-      }, {
+      },
+       {
         name: 'GRE',
-        to: 'vp/ipsec-tunne'
+        to: 'vpn/gre'
       },
       {
         name: 'ZeroTier',
-        to: 'vp/ipsec-tunn'
+        to: 'vpn/zero-tier'
       }, {
         name: 'WireGuard',
         to: 'vpn/wire-guard'
