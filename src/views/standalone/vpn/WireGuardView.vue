@@ -255,6 +255,8 @@ loading.value = false;
   />
   <WireGuardDrawer
     :item-to-edit="selectedTunnel"
+    :rule-type="'forward'"  
+    :known-tags="[]" 
     @close="closeModalsAndDrawers"
     @add-edit-tunnel="reloadTunnels"
     :is-shown="showCreateEditDrawer"

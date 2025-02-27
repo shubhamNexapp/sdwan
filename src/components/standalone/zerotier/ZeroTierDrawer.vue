@@ -410,10 +410,11 @@ const validate = () => {
    
   ];
 
+  
   requiredFields.forEach((field) => {
     const validation = validateRequired(field.value.value);
     if (!validation.valid) {
-      errorBag.value.set(field.key, t(validation.errMessage || "error.required"));
+      errorBag.value.set(field.key, t("required"));
       isValid = false;
     }
   });
@@ -422,7 +423,7 @@ const validate = () => {
 };
 
 // ✅ Watch each field separately to clear errors when the user types
-const fieldsToWatch = {
+const fieldsToWatch: Record<string, Ref<string>> = {
   zeroTierID
 };
 

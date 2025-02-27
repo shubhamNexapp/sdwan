@@ -257,6 +257,8 @@ loading.value = false;
   <GreDrawer
     :item-to-edit="selectedTunnel"
     @close="closeModalsAndDrawers"
+    :rule-type="'forward'"  
+    :known-tags="[]" 
     @add-edit-tunnel="reloadTunnels"
     :is-shown="showCreateEditDrawer"
   />

@@ -259,11 +259,6 @@ const zoneOptions = computed(() => {
   return [anyAddress, ...zones]
 })
 
-const isTcpOrUdpProtocolSelected = computed(() => {
-  return protocols.value.some((protocol) => {
-    return protocol.id === 'tcp' || protocol.id === 'udp'
-  })
-})
 
 const objectsComboboxOptions = computed(() => {
   return objectSuggestions.value.map((obj) => {
@@ -875,7 +870,7 @@ const validate = () => {
   requiredFields.forEach((field) => {
     const validation = validateRequired(field.value.value);
     if (!validation.valid) {
-      errorBag.value.set(field.key, t(validation.errMessage || "error.required"));
+      errorBag.value.set(field.key, t("required"));
       isValid = false;
     }
   });
@@ -884,7 +879,7 @@ const validate = () => {
 };
 
 // ✅ Watch each field separately to clear errors when the user types
-const fieldsToWatch = {
+const fieldsToWatch: Record<string, Ref<string>> = {
   localNetwork,
   listenPort,
   listenip,

@@ -140,8 +140,6 @@ try {
     payload: {}
   });
 
-  console.log("response=======",response)
-  
   if(response.data.code === 200){
   loading.value = false;
 //   apiResponse.value = [response.data.data] // Store API response
@@ -149,7 +147,6 @@ try {
 }
 } catch (err) {
   loading.value = false;
-  console.error("Error:====", err);
 } 
 loading.value = false;
 };
@@ -258,6 +255,8 @@ loading.value = false;
   />
   <ZeroTierDrawer
     :item-to-edit="selectedTunnel"
+    :rule-type="'forward'"  
+    :known-tags="[]"        
     @close="closeModalsAndDrawers"
     @add-edit-tunnel="reloadTunnels"
     :is-shown="showCreateEditDrawer"
