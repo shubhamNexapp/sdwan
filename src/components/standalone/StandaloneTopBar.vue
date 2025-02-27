@@ -181,7 +181,7 @@ function openNotificationsDrawer() {
         />
 
         <!-- help -->
-        <NeTooltip triggerEvent="mouseenter focus" placement="bottom">
+        <!-- <NeTooltip triggerEvent="mouseenter focus" placement="bottom">
           <template #trigger>
             <a
               href="https://docs.nethsecurity.org/"
@@ -199,7 +199,7 @@ function openNotificationsDrawer() {
           <template #content>
             {{ t('common.help') }}
           </template>
-        </NeTooltip>
+        </NeTooltip> -->
 
         <!-- notifications -->
         <NeTooltip triggerEvent="mouseenter focus" placement="bottom">
