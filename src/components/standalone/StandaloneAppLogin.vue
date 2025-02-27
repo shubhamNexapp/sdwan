@@ -30,6 +30,7 @@ let usernameRef = ref()
 let password = ref('')
 let passwordRef = ref()
 let rememberMe = ref(false)
+let tacc = ref(false)
 const jwtToken = ref('')
 const twoFaOtp = ref('')
 const twoFaOtpRef = ref()
@@ -283,6 +284,31 @@ async function verifyOtp() {
                     for="remember-me"
                     class="block ml-3 text-sm leading-6 text-gray-900 dark:text-gray-100"
                     >{{ t('login.remember_me') }}</label
+                  >
+                </div>
+                <!-- <div class="text-sm leading-6">
+                  <NeLink
+                    href="https://docs.nethsecurity.org/en/latest/remote_access.html#default-credentials"
+                    target="_blank"
+                    class="font-medium"
+                  >
+                    {{ t('login.need_help') }}
+                  </NeLink>
+                </div> -->
+              </div>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                  <input
+                    id="tacc"
+                    name="tacc"
+                    type="checkbox"
+                    v-model="tacc"
+                    class="w-4 h-4 border-gray-300 rounded text-primary-600 focus:ring-primary-600 dark:border-gray-700 dark:text-primary-600 dark:focus:ring-primary-400"
+                  />
+                  <label
+                    for="tacc"
+                    class="block ml-3 text-sm leading-6 text-gray-900 dark:text-gray-100"
+                    >Tacacs+Auth</label
                   >
                 </div>
                 <!-- <div class="text-sm leading-6">
