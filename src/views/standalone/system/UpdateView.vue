@@ -224,7 +224,7 @@ onMounted(() => {
     </template></NeInlineNotification
   >
 
-  <FormLayout
+  <!-- <FormLayout
     :title="t('standalone.update.bug_security_fixes')"
     :description="t('standalone.update.bug_security_fixes_description')"
     class="max-w-4xl"
@@ -252,7 +252,7 @@ onMounted(() => {
         <template #prefix>
           <font-awesome-icon
             :icon="['fas', 'arrows-rotate']"
-            class="h-4 w-4"
+            class="w-4 h-4"
             aria-hidden="true" /></template
         >{{ t('standalone.update.check_for_fixes') }}</NeButton
       >
@@ -291,26 +291,26 @@ onMounted(() => {
         </NeToggle>
       </div>
     </template>
-  </FormLayout>
+  </FormLayout> -->
   <hr class="my-6" />
   <FormLayout class="max-w-4xl" :title="t('standalone.update.system_update')">
     <template #description>
       <p class="mb-4 text-sm font-normal text-gray-500 dark:text-gray-400">
         {{ t('standalone.update.system_update_description') }}
       </p>
-      <div class="mb-4 flex flex-row items-start gap-x-2">
+      <div class="flex flex-row items-start mb-4 gap-x-2">
         <FontAwesomeIcon
           :icon="['fas', 'circle-info']"
-          class="h-4 w-4 text-indigo-500 dark:text-indigo-300"
+          class="w-4 h-4 text-indigo-500 dark:text-indigo-300"
         />
         <p class="text-sm font-normal text-gray-500 dark:text-gray-400">
           {{ t('standalone.update.system_update_first_tip', { productName: getProductName() }) }}
         </p>
       </div>
-      <div class="mb-4 flex flex-row items-start gap-x-2">
+      <div class="flex flex-row items-start mb-4 gap-x-2">
         <FontAwesomeIcon
           :icon="['fas', 'circle-info']"
-          class="h-4 w-4 text-indigo-500 dark:text-indigo-300"
+          class="w-4 h-4 text-indigo-500 dark:text-indigo-300"
         />
         <p class="text-sm font-normal text-gray-500 dark:text-gray-400">
           {{ t('standalone.update.system_update_second_tip') }}
@@ -369,7 +369,7 @@ onMounted(() => {
           ><template #prefix>
             <font-awesome-icon
               :icon="['fas', 'arrows-rotate']"
-              class="h-4 w-4"
+              class="w-4 h-4"
               aria-hidden="true" /></template
           >{{ t('standalone.update.update_system') }}</NeButton
         >
@@ -377,7 +377,7 @@ onMounted(() => {
           ><template #prefix>
             <font-awesome-icon
               :icon="['fas', 'circle-arrow-up']"
-              class="h-4 w-4"
+              class="w-4 h-4"
               aria-hidden="true" /></template
           >{{ t('standalone.update.update_with_image_file') }}</NeButton
         >
