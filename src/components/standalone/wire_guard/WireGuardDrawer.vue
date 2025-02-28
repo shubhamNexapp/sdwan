@@ -47,7 +47,7 @@ import type { IpsecTunnel } from '@/views/standalone/vpn/IPsecTunnelView.vue'
 const notificationsStore = useNotificationsStore()
 
 const props = defineProps({
-
+  itemToEdit: Object,
   ruleType: {
     type: String as PropType<'forward' | 'input' | 'output'>,
     required: true
@@ -77,7 +77,7 @@ const name = ref('')
 const nameRef = ref()
 const localNetworkRef = ref()
 const listenPortRef = ref()
-const listenipRef = ref()
+// const listenipRef = ref()
 const serverPortRef = ref()
 const peerPublicKeyRef = ref()
 const allowedIPRef = ref()
@@ -87,7 +87,7 @@ const mtuRef = ref()
 const isRuleEnabled = ref(false);
 const localNetwork = ref('');
 const listenPort = ref('');
-const listenip = ref('');
+// const listenip = ref('');
 const serverPort = ref('');
 const peerPublicKey = ref('');
 const allowedIP = ref('');
@@ -530,327 +530,55 @@ async function listProtocols() {
   }
 }
 
-// function validate() {
-//   clearErrors()
-//   errorBag.value.clear()
-//   const ruleNameValidation = validateRequired(name.value)
-//   let isValidationOk = true
+onMounted(() => {
+  getLists()
+})
 
-//   if (!ruleNameValidation.valid) {
-//     errorBag.value.set('localNetwork', [t(String(ruleNameValidation.errMessage))])
-//     isValidationOk = false
-//     focusElement(localNetworkRef)
-//   }
+const apiResponse = ref()
+const getLists = async () => {
 
-//   if (!ruleNameValidation.valid) {
-//     errorBag.value.set('listenPort', [t(String(ruleNameValidation.errMessage))])
-//     isValidationOk = false
-//     focusElement(listenPortRef)
-//   }
+try {
 
-//   if (!ruleNameValidation.valid) {
-//     errorBag.value.set('listenip', [t(String(ruleNameValidation.errMessage))])
-//     isValidationOk = false
-//     focusElement(listenipRef)
-//   }
-
-//   if (!ruleNameValidation.valid) {
-//     errorBag.value.set('serverPort', [t(String(ruleNameValidation.errMessage))])
-//     isValidationOk = false
-//     focusElement(serverPortRef)
-//   }
+  const response = await axios.post(`${getSDControllerApiEndpoint()}/wireguard`, {
+    method: 'get-config',
+    payload: {}
+  });
   
-//   if (!ruleNameValidation.valid) {
-//     errorBag.value.set('peerPublicKey', [t(String(ruleNameValidation.errMessage))])
-//     isValidationOk = false
-//     focusElement(peerPublicKeyRef)
-//   }
+  if(response.data.code === 200){
+  apiResponse.value = [response.data.data] // Store API response
+}
+} catch (err) {
+  console.error("Error:====", err);
+} 
+};
 
-//   if (!ruleNameValidation.valid) {
-//     errorBag.value.set('allowedIP', [t(String(ruleNameValidation.errMessage))])
-//     isValidationOk = false
-//     focusElement(allowedIPRef)
-//   }
+watch(
+  () => props.itemToEdit,
+  (newValue) => {
+    if (newValue) {
+      isRuleEnabled.value = newValue.isRuleEnabled || false;
+      localNetwork.value = newValue.local_network || "";
+      listenPort.value = newValue.listen_port || "";
+      serverPort.value = newValue.server_port || "";
+      peerPublicKey.value = newValue.peer_public_key || "";
+      allowedIP.value = newValue.allowed_ips || "";
+      persistKeepAlive.value = newValue.persistent_keepalive || "";
+      mtu.value = newValue.mtu || "";
+    } else {
+      // Reset fields if itemToEdit is null (adding a new rule)
+      isRuleEnabled.value = false;
+      localNetwork.value = "";
+      listenPort.value = "";
+      serverPort.value = "";
+      peerPublicKey.value = "";
+      allowedIP.value = "";
+      persistKeepAlive.value = "";
+      mtu.value = "";
+    }
+  },
+  { immediate: true }
+);
 
-//   if (!ruleNameValidation.valid) {
-//     errorBag.value.set('persistKeepAlive', [t(String(ruleNameValidation.errMessage))])
-//     isValidationOk = false
-//     focusElement(persistKeepAliveRef)
-//   }
-
-//   if (!ruleNameValidation.valid) {
-//     errorBag.value.set('mtu', [t(String(ruleNameValidation.errMessage))])
-//     isValidationOk = false
-//     focusElement(mtuRef)
-//   }
-
-//   sourceAddressesErrors.value = []
-//   sourceAddresses.value.forEach(() => {
-//     sourceAddressesErrors.value.push('')
-//   })
-  
-//   destinationAddressesErrors.value = []
-//   destinationAddresses.value.forEach(() => {
-//     destinationAddressesErrors.value.push('')
-//   })
-
-//   // rule name
-
-//   if (!ruleNameValidation.valid) {
-//     errorBag.value.set('name', [t(String(ruleNameValidation.errMessage))])
-//     isValidationOk = false
-//     focusElement(nameRef)
-//   }
-
-//   // source addresses
-
-//   if (props.ruleType !== 'output') {
-//     if (sourceType.value === 'source_address') {
-//       for (let [index, sourceAddress] of sourceAddresses.value.entries()) {
-//         // required
-
-//         const sourceAddressRequiredValidation = validateRequired(sourceAddress)
-//         if (!sourceAddressRequiredValidation.valid) {
-//           sourceAddressesErrors.value[index] = t(
-//             sourceAddressRequiredValidation.errMessage as string
-//           )
-//           isValidationOk = false
-//         } else {
-//           // ip, cidr or rage
-
-//           const sourceAddressValidation = validateAnyOf(
-//             [validateIpAddress, validateIpCidr, validateIpAddressRange],
-//             sourceAddress,
-//             t('standalone.firewall_rules.invalid_source_address_value', {
-//               value: sourceAddress
-//             })
-//           )
-
-//           if (!sourceAddressValidation.valid) {
-//             sourceAddressesErrors.value[index] = t(sourceAddressValidation.errMessage as string)
-//             isValidationOk = false
-//           }
-//         }
-//       }
-//     } else if (sourceType.value === 'source_object') {
-//       // required
-
-//       const sourceObjectValidation = validateRequired(sourceAddressObject.value)
-//       if (!sourceObjectValidation.valid) {
-//         errorBag.value.set('ns_src', [t(String(sourceObjectValidation.errMessage))])
-//         isValidationOk = false
-//         focusElement(sourceAddressObjectRef)
-//       }
-//     }
-
-//     // source zone
-
-//     const sourceZoneValidation = validateRequired(sourceZone.value)
-//     if (!sourceZoneValidation.valid) {
-//       errorBag.value.set('src', [t(String(sourceZoneValidation.errMessage))])
-//       isValidationOk = false
-//       focusElement(sourceZoneRef)
-//     }
-//   }
-
-//   // destination addresses
-
-//   if (props.ruleType !== 'input') {
-//     if (destinationType.value === 'destination_address') {
-//       for (let [index, destinationAddress] of destinationAddresses.value.entries()) {
-//         // required
-
-//         const destinationAddressRequiredValidation = validateRequired(destinationAddress)
-//         if (!destinationAddressRequiredValidation.valid) {
-//           destinationAddressesErrors.value[index] = t(
-//             destinationAddressRequiredValidation.errMessage as string
-//           )
-//           isValidationOk = false
-//         } else {
-//           // ip, cidr or rage
-
-//           const destinationAddressValidation = validateAnyOf(
-//             [validateIpAddress, validateIpCidr, validateIpAddressRange],
-//             destinationAddress,
-//             t('standalone.firewall_rules.invalid_destination_address_value', {
-//               value: destinationAddress
-//             })
-//           )
-
-//           if (!destinationAddressValidation.valid) {
-//             destinationAddressesErrors.value[index] = t(
-//               destinationAddressValidation.errMessage as string
-//             )
-//             isValidationOk = false
-//           }
-//         }
-//       }
-//     } else if (destinationType.value === 'destination_object') {
-//       // required
-
-//       const destinationObjectValidation = validateRequired(destinationAddressObject.value)
-//       if (!destinationObjectValidation.valid) {
-//         errorBag.value.set('ns_dst', [destinationObjectValidation.errMessage as string])
-//         isValidationOk = false
-//         focusElement(destinationAddressObjectRef)
-//       }
-//     }
-
-//     // destination zone
-
-//     const destinationZoneValidation = validateRequired(destinationZone.value)
-//     if (!destinationZoneValidation.valid) {
-//       errorBag.value.set('dest', [t(String(destinationZoneValidation.errMessage))])
-//       isValidationOk = false
-//       focusElement(destinationZoneRef)
-//     }
-//   }
-
-//   // service
-
-//   const serviceValidation = validateRequired(service.value)
-//   if (!serviceValidation.valid) {
-//     errorBag.value.set('ns_service', [t(String(serviceValidation.errMessage))])
-//     isValidationOk = false
-//     focusElement(serviceRef)
-//   }
-
-//   if (service.value === 'custom') {
-//     // protocols
-
-//     let protocolsValidation = validateRequiredOption(protocols.value)
-//     if (!protocolsValidation.valid) {
-//       errorBag.value.set('proto', [t(String(protocolsValidation.errMessage))])
-//       isValidationOk = false
-//       focusElement(protocolsRef)
-//     }
-
-//     // ports
-
-//     if (isTcpOrUdpProtocolSelected.value) {
-//       let portsValidation = validateRequired(ports.value)
-//       if (!portsValidation.valid) {
-//         errorBag.value.set('dest_port', [t(String(portsValidation.errMessage))])
-//         isValidationOk = false
-//         focusElement(portsRef)
-//       } else {
-//         // check ports syntax
-//         portsValidation = validatePortListOrRange(ports.value)
-//         if (!portsValidation.valid) {
-//           errorBag.value.set('dest_port', [t(String(portsValidation.errMessage))])
-//           isValidationOk = false
-//           focusElement(portsRef)
-//         }
-//       }
-//     }
-//   }
-//   return isValidationOk
-// }
-
-// async function saveRule() {
-//   const isValidationOk = validate()
-
-//   if (!isValidationOk) {
-//     return
-//   }
-
-//   error.value.saveRule = ''
-//   error.value.saveRuleDetails = ''
-//   loading.value.saveRule = true
-
-//   const ruleData: FirewallRule = {
-//     name: name.value,
-//     enabled: isRuleEnabled.value,
-//     src_ip: [],
-//     ns_src: '',
-//     src: '',
-//     dest_ip: [],
-//     ns_dst: '',
-//     dest: '',
-//     ns_service: service.value,
-//     proto: [],
-//     dest_port: [],
-//     target: action.value,
-//     add_to_top: position.value === 'top',
-//     ns_tag: tags.value.map((tag) => {
-//       return tag.id
-//     }),
-//     log: isLoggingEnabled.value,
-//     system_rule: props.currentRule?.system_rule || false
-//   }
-
-//   if (isEditingRule.value && props.currentRule) {
-//     ruleData.id = props.currentRule.id
-//   }
-
-//   if (props.ruleType !== 'output') {
-//     if (sourceType.value === 'source_address') {
-//       // source addresses
-//       ruleData.src_ip = [
-//         ...new Set(
-//           sourceAddresses.value.map((address) => {
-//             return address
-//           })
-//         )
-//       ]
-//     } else if (sourceType.value === 'source_object') {
-//       // source address object
-//       ruleData.ns_src = sourceAddressObject.value
-//     }
-
-//     // source zone
-//     ruleData.src = sourceZone.value
-//   }
-
-//   if (props.ruleType !== 'input') {
-//     if (destinationType.value === 'destination_address') {
-//       // destination addresses
-//       ruleData.dest_ip = [
-//         ...new Set(
-//           destinationAddresses.value.map((address) => {
-//             return address
-//           })
-//         )
-//       ]
-//     } else if (destinationType.value === 'destination_object') {
-//       // destination address object
-//       ruleData.ns_dst = destinationAddressObject.value
-//     }
-
-//     // destination zone
-//     ruleData.dest = destinationZone.value
-//   }
-
-//   // custom service
-//   if (service.value === 'custom') {
-//     ruleData.proto = protocols.value.map((protocol) => {
-//       return protocol.id
-//     })
-
-//     if (isTcpOrUdpProtocolSelected.value) {
-//       // remove whitespace from ports
-//       ruleData.dest_port = ports.value.replace(/\s/g, '').split(',')
-//     }
-//   }
-//   const apiMethod = isEditingRule.value ? 'edit-rule' : 'add-rule'
-
-//   try {
-//     await ubusCall('ns.firewall', apiMethod, ruleData)
-//     emit('reloadData')
-//     closeDrawer()
-//   } catch (err: any) {
-//     console.error(err)
-
-//     if (err instanceof ValidationError) {
-//       errorBag.value = err.errorBag
-//     } else {
-//       error.value.saveRule = t(getAxiosErrorMessage(err))
-//       error.value.saveRuleDetails = err.toString()
-//     }
-//   } finally {
-//     loading.value.saveRule = false
-//   }
-// }
 
 const validate = () => {
   errorBag.value.clear();
@@ -859,7 +587,7 @@ const validate = () => {
   const requiredFields  = [
     { key: 'localNetwork', value: localNetwork, ref: localNetworkRef },
     { key: 'listenPort', value: listenPort, ref: listenPortRef },
-    { key: 'listenip', value: listenip, ref: listenipRef },
+    // { key: 'listenip', value: listenip, ref: listenipRef },
     { key: 'serverPort', value: serverPort, ref: serverPortRef },
     { key: 'peerPublicKey', value: peerPublicKey, ref: peerPublicKeyRef },
     { key: 'allowedIP', value: allowedIP, ref: allowedIPRef },
@@ -882,7 +610,7 @@ const validate = () => {
 const fieldsToWatch: Record<string, Ref<string>> = {
   localNetwork,
   listenPort,
-  listenip,
+  // listenip,
   serverPort,
   peerPublicKey,
   allowedIP,
@@ -899,28 +627,29 @@ Object.keys(fieldsToWatch).forEach((fieldKey) => {
 });
 
 const saveRule = async () => {
+  try {
+    if (!validate()) return;
 
-    try {
-        if (!validate()) return;
-
-        const payload = {
-        isRuleEnabled: isRuleEnabled.value,
-        localNetwork: localNetwork.value,
-        listenPort: listenPort.value,
-        listenip: listenip.value,
-        serverPort: serverPort.value,
-        peerPublicKey: peerPublicKey.value,
-        allowedIP: allowedIP.value,
-        persistKeepAlive: persistKeepAlive.value,
-        mtu: mtu.value,
+    const payload = {
+      isRuleEnabled: isRuleEnabled.value,
+      localNetwork: localNetwork.value,
+      listenPort: listenPort.value,
+      // listenip: listenip.value,
+      serverPort: serverPort.value,
+      peerPublicKey: peerPublicKey.value,
+      allowedIP: allowedIP.value,
+      persistKeepAlive: persistKeepAlive.value,
+      mtu: mtu.value,
     };
 
-  const response = await axios.post(`${getSDControllerApiEndpoint()}/wirguard`, {
-      method: 'set-config',
+    // Always use "set-config" for both adding and updating
+    const response = await axios.post(`${getSDControllerApiEndpoint()}/wireguard`, {
+      method: "set-config",
       payload: {
         service: isRuleEnabled.value,
         local_network: localNetwork.value,
         listen_port: listenPort.value,
+        // listen_ip: listenip.value,
         server_port: serverPort.value,
         peer_public_key: peerPublicKey.value,
         allowed_ips: allowedIP.value,
@@ -931,38 +660,41 @@ const saveRule = async () => {
 
     if (response.data.code === 200) {
       notificationsStore.createNotification({
-        title: 'Success',
-        description: 'Configuration saved successfully.',
-        kind: 'success'
+        title: "Success",
+        description: `Configuration ${props.itemToEdit ? "updated" : "added"} successfully.`,
+        kind: "success",
       });
 
-       // Reset form after successful save
+      // Reload API data after saving
+      getLists();
+
+      // Reset form only if adding a new config
+      if (!props.itemToEdit) {
         isRuleEnabled.value = false;
         localNetwork.value = "";
         listenPort.value = "";
-        listenip.value = "";
+        // listenip.value = "";
         serverPort.value = "";
         peerPublicKey.value = "";
         allowedIP.value = "";
         persistKeepAlive.value = "";
         mtu.value = "";
-        errorBag.value.clear();
+      }
 
+      errorBag.value.clear();
+      emit("save", payload);
 
-        emit('save', payload);
-
-        // ✅ Close the drawer after saving
-        closeDrawer();
-
+      // ✅ Close the drawer after saving
+      closeDrawer();
     } else {
-      throw new Error('Failed to save configuration.');
+      throw new Error("Failed to save configuration.");
     }
-
-    } catch (err) {
+  } catch (err) {
     console.error("Error:====", err);
-  } 
-
+  }
 };
+
+
 
 </script>
 
@@ -1006,13 +738,13 @@ const saveRule = async () => {
           ref="listenPortRef"
         />
          <!-- listen ip or domain -->
-         <NeTextInput
+         <!-- <NeTextInput
           :label="t('standalone.wire_guard.listen_ip')"
           v-model.trim="listenip"
           :invalidMessage="errorBag.getFirstFor('listenip')"
           :disabled="loading.saveRule"
           ref="listenipRef"
-        />
+        /> -->
          <!-- server port -->
          <NeTextInput
           :label="t('standalone.wire_guard.server_port')"

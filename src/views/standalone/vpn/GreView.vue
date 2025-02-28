@@ -135,7 +135,7 @@ const getLists = async () => {
 try {
 
   loading.value = true;
-  const response = await axios.post(`${getSDControllerApiEndpoint()}/wireguard`, {
+  const response = await axios.post(`${getSDControllerApiEndpoint()}/gre`, {
     method: 'get-config',
     payload: {}
   });
@@ -151,6 +151,8 @@ try {
 } 
 loading.value = false;
 };
+
+console.log("apiResponse========",apiResponse)
 
 </script>
 

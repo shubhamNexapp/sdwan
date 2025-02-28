@@ -93,6 +93,26 @@ const navigation: Ref<MenuItem[]> = ref([
         name: 'standalone.certificates.title',
         to: 'system/certificates'
       },
+      {
+        name: 'standalone.smnp.title',
+        to: 'system/smnp'
+      },
+      {
+        name: 'TR069',
+        to: 'system/tr'
+      },
+      {
+        name: 'ICMP Check',
+        to: 'system/icmp-check'
+      },
+      {
+        name: 'Schedule',
+        to: 'system/schedule'
+      },
+      {
+        name: 'Radius',
+        to: 'system/radius'
+      },
       // {
       //   name: 'standalone.controller.title',
       //   to: 'system/controller'
@@ -131,7 +151,27 @@ const navigation: Ref<MenuItem[]> = ref([
       {
         name: 'standalone.qos.title_short',
         to: 'network/qos'
-      }
+      },
+      {
+        name: 'RIP',
+        to: 'network/rip'
+      },
+      {
+        name: 'OSPF',
+        to: 'network/ospf'
+      },
+      {
+        name: 'BGP',
+        to: 'network/bgp'
+      },
+      {
+        name: 'Speed Test',
+        to: 'network/speed-test'
+      },
+      {
+        name: 'Network Test',
+        to: 'network/network-test'
+      },
     ]
   },
   {
@@ -200,7 +240,15 @@ const navigation: Ref<MenuItem[]> = ref([
       {
         name: 'standalone.ips.sidebar_title',
         to: 'security/ips'
-      }
+      },
+      {
+        name: 'SPI Filter',
+        to: 'security/spi-filter'
+      },
+      {
+        name: 'Insta Shield Mac',
+        to: 'security/insta-shield-mac'
+      },
     ],
     expanded: false
   },
@@ -235,6 +283,10 @@ const navigation: Ref<MenuItem[]> = ref([
       }, {
         name: 'WireGuard',
         to: 'vpn/wire-guard'
+      },
+      {
+        name: 'PPTP',
+        to: 'vpn/pptp'
       }
     ]
   },

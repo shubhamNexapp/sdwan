@@ -56,6 +56,36 @@ const standaloneRoutes = [
     component: () => import('../views/standalone/system/CertificatesView.vue')
   },
   {
+    path: 'system/smnp',
+    name: 'SMNP',
+    component: () => import('../views/standalone/system/SMNPView.vue')
+  },
+  {
+    path: 'system/radius',
+    name: 'Radius',
+    component: () => import('../views/standalone/system/Radius.vue')
+  },
+  {
+    path: 'system/tr',
+    name: 'TR069',
+    component: () => import('../views/standalone/system/TR069View.vue')
+  },
+  {
+    path: 'system/icmp-check',
+    name: 'ICMP Check',
+    component: () => import('../views/standalone/system/ICMPCheck.vue')
+  },
+  {
+    path: 'system/schedule',
+    name: 'Schedule',
+    component: () => import('../views/standalone/system/Schedule.vue')
+  },
+  {
+    path: 'system/speed-test',
+    name: 'Speed Test',
+    component: () => import('../views/standalone/system/SpeedTest.vue')
+  },
+  {
     path: 'system/controller',
     name: 'Controller',
     component: () => import('../views/standalone/system/ControllerView.vue')
@@ -94,6 +124,31 @@ const standaloneRoutes = [
     path: 'network/qos',
     name: 'QualityOfService',
     component: () => import('../views/standalone/network/QoSView.vue')
+  },
+  {
+    path: 'network/rip',
+    name: 'RIP',
+    component: () => import('../views/standalone/network/RIPView.vue')
+  },
+  {
+    path: 'network/ospf',
+    name: 'OSPF',
+    component: () => import('../views/standalone/network/OSPFView.vue')
+  },
+  {
+    path: 'network/bgp',
+    name: 'BGP',
+    component: () => import('../views/standalone/network/BGPView.vue')
+  },
+  {
+    path: 'network/speed-test',
+    name: 'Speed Test',
+    component: () => import('../views/standalone/network/SpeedTestView.vue')
+  },
+  {
+    path: 'network/network-test',
+    name: 'Network Test',
+    component: () => import('../views/standalone/network/NetworkTestView.vue')
   },
   {
     path: 'users-objects/objects',
@@ -156,6 +211,11 @@ const standaloneRoutes = [
     component: () => import('../views/standalone/vpn/OpenvpnRoadWarriorView.vue')
   },
   {
+    path: 'vpn/pptp',
+    name: 'PPTP',
+    component: () => import('../views/standalone/vpn/PPTPView.vue')
+  },
+  {
     path: 'vpn/openvpn-tunnel',
     name: 'OpenVPNTunnel',
     component: () => import('../views/standalone/vpn/OpenvpnTunnelView.vue')
@@ -214,7 +274,17 @@ const standaloneRoutes = [
     path: 'security/ips',
     name: 'IPS',
     component: () => import('../views/standalone/security/IpsView.vue')
-  }
+  },
+  {
+    path: 'security/spi-filter',
+    name: 'SPI Filter',
+    component: () => import('../views/standalone/security/SPIFilterView.vue')
+  },
+  {
+    path: 'security/insta-shield-mac',
+    name: 'Insta Shield Mac',
+    component: () => import('../views/standalone/security/InstaShieldMacView.vue')
+  },
 ]
 
 function getStandaloneRoutes() {

@@ -151,6 +151,8 @@ try {
 loading.value = false;
 };
 
+console.log("apiResponse======",apiResponse)
+
 </script>
 
 <template>
@@ -193,7 +195,7 @@ loading.value = false;
         <NeTableHeadCell>Server Port</NeTableHeadCell>
         <NeTableHeadCell>Peer Public Key</NeTableHeadCell>
         <NeTableHeadCell>Allowed IPs</NeTableHeadCell>
-        <!-- <NeTableHeadCell></NeTableHeadCell> -->
+         <NeTableHeadCell></NeTableHeadCell> 
       </NeTableHead>
       <NeTableBody>
   <NeTableRow v-for="(item, index) in apiResponse" :key="index">
@@ -218,7 +220,7 @@ loading.value = false;
     <NeTableCell :data-label="t('standalone.real_time_monitor.interface')">
       {{ item.allowed_ips }}
     </NeTableCell>
-    <!--  <NeTableCell >
+    <NeTableCell >
       <NeButton
           kind="primary"
           size="lg"
@@ -226,7 +228,7 @@ loading.value = false;
         >
           Edit
         </NeButton>
-    </NeTableCell> -->
+    </NeTableCell>
   </NeTableRow>
 </NeTableBody>
     </NeTable>

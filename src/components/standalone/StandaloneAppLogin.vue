@@ -65,7 +65,8 @@ onMounted(() => {
   const usernameFromStorage = getStringFromStorage('standaloneUsername')
 
   if (usernameFromStorage) {
-    rememberMe.value = true
+    // rememberMe.value = true
+    tacc.value = true
     username.value = usernameFromStorage
     focusElement(passwordRef)
   } else {
@@ -81,10 +82,21 @@ async function login() {
   loading.value.login = true
 
   try {
-    jwtToken.value = await loginStore.login(username.value, password.value)
+
+    let taccValue
+    if(tacc.value){
+      taccValue = 1
+    }else{
+      taccValue = 0
+    }
+
+    console.log("tacc.value=====",tacc.value)
+    console.log("taccValue=====",taccValue)
+
+    jwtToken.value = await loginStore.login(username.value, password.value, taccValue)
 
     // set or remove username to/from local storage
-    if (rememberMe.value) {
+    if ( tacc.value) {
       saveToStorage('standaloneUsername', username.value)
     } else {
       deleteFromStorage('standaloneUsername')
@@ -286,15 +298,6 @@ async function verifyOtp() {
                     >{{ t('login.remember_me') }}</label
                   >
                 </div>
-                <!-- <div class="text-sm leading-6">
-                  <NeLink
-                    href="https://docs.nethsecurity.org/en/latest/remote_access.html#default-credentials"
-                    target="_blank"
-                    class="font-medium"
-                  >
-                    {{ t('login.need_help') }}
-                  </NeLink>
-                </div> -->
               </div>
               <div class="flex items-center justify-between">
                 <div class="flex items-center">
@@ -311,15 +314,6 @@ async function verifyOtp() {
                     >Tacacs+Auth</label
                   >
                 </div>
-                <!-- <div class="text-sm leading-6">
-                  <NeLink
-                    href="https://docs.nethsecurity.org/en/latest/remote_access.html#default-credentials"
-                    target="_blank"
-                    class="font-medium"
-                  >
-                    {{ t('login.need_help') }}
-                  </NeLink>
-                </div> -->
               </div>
               <div>
                 <NeButton
