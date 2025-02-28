@@ -73,10 +73,10 @@ const navigation: Ref<MenuItem[]> = ref([
         name: 'standalone.reboot_and_shutdown.title',
         to: 'system/reboot-and-shutdown'
       },
-      // {
-      //   name: 'standalone.update.title',
-      //   to: 'system/update'
-      // },
+      {
+        name: 'standalone.update.title',
+        to: 'system/update'
+      },
       {
         name: 'standalone.openwisp.title',
         to: 'system/sd-controller'
@@ -85,10 +85,10 @@ const navigation: Ref<MenuItem[]> = ref([
         name: 'standalone.storage.title',
         to: 'system/storage'
       },
-      // {
-      //   name: 'standalone.factory_reset.title',
-      //   to: 'system/factory_reset'
-      // },
+      {
+        name: 'standalone.factory_reset.title',
+        to: 'system/factory_reset'
+      },
       {
         name: 'standalone.certificates.title',
         to: 'system/certificates'
