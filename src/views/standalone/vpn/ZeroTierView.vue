@@ -218,7 +218,7 @@ loading.value = false;
     <!-- <NeTableCell :data-label="t('standalone.real_time_monitor.interface')">
       {{ item.allowed_ips }}
     </NeTableCell> -->
-    <!--  <NeTableCell >
+     <NeTableCell >
       <NeButton
           kind="primary"
           size="lg"
@@ -226,7 +226,7 @@ loading.value = false;
         >
           Edit
         </NeButton>
-    </NeTableCell> -->
+    </NeTableCell>
   </NeTableRow>
 </NeTableBody>
     </NeTable>
@@ -238,7 +238,7 @@ loading.value = false;
         >
           <NeButton kind="primary" @click="openCreateEditDrawer(null)">
             <template #prefix>
-              <font-awesome-icon :icon="['fas', 'circle-plus']" class="h-4 w-4" aria-hidden="true" />
+              <font-awesome-icon :icon="['fas', 'circle-plus']" class="w-4 h-4" aria-hidden="true" />
             </template>
             {{ t('standalone.wire_guard.add_wire_guard_tunnel') }}
           </NeButton>
