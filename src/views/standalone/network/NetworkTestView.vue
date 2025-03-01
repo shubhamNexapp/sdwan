@@ -7,16 +7,15 @@
 import { NeHeading, NeTabs } from '@nethesis/vue-components'
 import { useI18n } from 'vue-i18n'
 import { useTabs } from '@/composables/useTabs'
-import Ping from "../../standalone/network/Ping.vue"
-import Trace from "../../standalone/network/Ping.vue"
-import PingIPv6 from "../../standalone/network/Ping.vue"
-import TraceIPv6 from "../../standalone/network/Ping.vue"
-import MTR from "../../standalone/network/Ping.vue"
+import Ping from "./networkComponents/Ping.vue"
+import Trace from "./networkComponents/Trace.vue"
+import PingIPv6 from "./networkComponents/PingIPv6.vue"
+import TraceIPv6 from "./networkComponents/TraceIPv6.vue"
+import MTR from "./networkComponents/MTR.vue"
 
 const { t } = useI18n()
 const { tabs, selectedTab } = useTabs([
   { name: 'disabled_rules', label: t('Ping') },
-  { name: 'mtr', label: t('MTR') },
   { name: 'trace', label: t('Trace') },
   { name: 'PingIPv6', label: t('PingIPv6') },
   { name: 'TraceIPv6', label: t('TraceIPv6') },
