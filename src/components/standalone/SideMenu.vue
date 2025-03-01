@@ -94,8 +94,8 @@ const navigation: Ref<MenuItem[]> = ref([
         to: 'system/certificates'
       },
       {
-        name: 'standalone.smnp.title',
-        to: 'system/smnp'
+        name: 'standalone.snmp.title',
+        to: 'system/snmp'
       },
       {
         name: 'TR069',

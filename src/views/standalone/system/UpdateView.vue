@@ -320,10 +320,10 @@ onMounted(() => {
 
     <NeSkeleton v-if="loading" :lines="5" />
     <template v-else>
-      <p v-if="systemUpdateData?.currentVersion" class="text-sm text-gray-500 dark:text-gray-400">
+      <!-- <p v-if="systemUpdateData?.currentVersion" class="text-sm text-gray-500 dark:text-gray-400">
         {{ t('standalone.update.installed_release', { release: systemUpdateData.currentVersion }) }}
-      </p>
-      <NeInlineNotification
+      </p> -->
+      <!-- <NeInlineNotification
         kind="info"
         class="my-6"
         v-if="scheduleDate"
@@ -354,7 +354,7 @@ onMounted(() => {
         "
         :title="t('standalone.update.new_release_available')"
         :description="systemUpdateData?.lastVersion"
-      />
+      /> -->
       <div class="mt-4">
         <NeButton
           kind="primary"

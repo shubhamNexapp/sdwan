@@ -832,8 +832,8 @@
       "value": "Value",
       "plus_n_others": "+{n} others"
     },
-    "smnp": {
-      "title": "SMNP",
+    "snmp": {
+      "title": "SNMP",
       "description": "This page allows the configuration of X.509 certificates used by the Nginx HTTP proxy server. You can either upload a custom certificate or request a Let's Encrypt certificate for secure connections.",
       "import_certificate": "Import certificate",
       "add_lets_encrypt_certificate": "Add Let's Encrypt certificate",
@@ -875,6 +875,7 @@
       "pending_tooltip": "Certificate pending release from the remote server",
       "key": "Key",
       "value": "Value",
+      "port": "Port",
       "plus_n_others": "+{n} others"
     },
     "controller": {

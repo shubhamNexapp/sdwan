@@ -475,7 +475,7 @@ const saveRule = async () => {
     };
 
   const response = await axios.post(`${getSDControllerApiEndpoint()}/gre`, {
-      method: '"add-config',
+      method: 'add-config',
       payload: {
         service: isRuleEnabled.value,
         tunnel_name: tunnelName.value,

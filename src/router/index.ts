@@ -56,9 +56,9 @@ const standaloneRoutes = [
     component: () => import('../views/standalone/system/CertificatesView.vue')
   },
   {
-    path: 'system/smnp',
-    name: 'SMNP',
-    component: () => import('../views/standalone/system/SMNPView.vue')
+    path: 'system/snmp',
+    name: 'SNMP',
+    component: () => import('../views/standalone/system/SNMP.vue')
   },
   {
     path: 'system/radius',
