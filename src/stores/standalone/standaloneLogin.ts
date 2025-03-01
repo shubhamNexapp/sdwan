@@ -41,10 +41,11 @@ export const useLoginStore = defineStore('standaloneLogin', () => {
     }
   }
 
-  const login = async (user: string, password: string) => {
+  const login = async (user: string, password: string, tacc: Number) => {
     const res = await axios.post(`${getStandaloneApiEndpoint()}/login`, {
       username: user,
-      password
+      password,
+      tacc
     })
     const jwtToken = res.data.token
     tokenRefreshedTime.value = new Date().getTime()

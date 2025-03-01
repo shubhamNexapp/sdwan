@@ -90,9 +90,6 @@ async function login() {
       taccValue = 0
     }
 
-    console.log("tacc.value=====",tacc.value)
-    console.log("taccValue=====",taccValue)
-
     jwtToken.value = await loginStore.login(username.value, password.value, taccValue)
 
     // set or remove username to/from local storage
