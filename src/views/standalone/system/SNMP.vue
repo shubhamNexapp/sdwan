@@ -1,31 +1,33 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
+import { useI18n } from "vue-i18n";
 import {
   NeHeading,
   NeTextInput,
+  NeToggle,
   NeButton,
-} from '@nethesis/vue-components'
-import { onMounted, ref, watch, type Ref } from 'vue'
-import axios from 'axios'
-import { getSDControllerApiEndpoint } from '@/lib/config'
-import { MessageBag } from '@/lib/validation'
-import { useNotificationsStore } from '../../../stores/notifications'
+} from "@nethesis/vue-components";
+import { onMounted, ref, watch, type Ref } from "vue";
+import axios from "axios";
+import { getSDControllerApiEndpoint } from "@/lib/config";
+import { MessageBag } from "@/lib/validation";
+import { useNotificationsStore } from "../../../stores/notifications";
 
-const notificationsStore = useNotificationsStore()
+const notificationsStore = useNotificationsStore();
 
 export type IpsecTunnel = {
-  id: string
-  name: string
-  local: string[]
-  remote: string[]
-  enabled: '0' | '1'
-  connected: boolean
-}
+  id: string;
+  name: string;
+  local: string[];
+  remote: string[];
+  enabled: "0" | "1";
+  connected: boolean;
+};
 
 const t = (key: string) => key; // Mock translation function
 
 // Form Fields
-const snmpService = ref("enable"); // "enable" or "disable"
+
+const snmpService = ref(false); // Initially set to false
 const snmpVersion = ref("2c"); // "2c" or "3"
 const port = ref("");
 const community = ref("");
@@ -36,7 +38,6 @@ const password = ref("");
 const hash = ref("");
 const encryption = ref("");
 const encryptionKey = ref("");
-
 // 🔍 Function to check if a field is empty
 const validateRequired = (value: string) => {
   return value.trim() !== "";
@@ -47,22 +48,21 @@ let loading = ref({
   listObjectSuggestions: false,
   listProtocols: false,
   saveRule: false,
-  fetchRule: false
-})
+  fetchRule: false,
+});
 
 // ✅ Fetch SNMP Configuration
 const fetchSNMPConfig = async () => {
   loading.value.fetchRule = true;
   try {
     const response = await axios.post(`${getSDControllerApiEndpoint()}/snmp`, {
-      method: 'get-config',
-      payload: {}
+      method: "get-config",
+      payload: {},
     });
-
 
     if (response.data) {
       const data = response.data.payload;
-      const dataValue = response.data.data
+      const dataValue = response.data.data;
       snmpService.value = dataValue.service || "";
       snmpVersion.value = dataValue.version || "";
       port.value = dataValue.snmpv2.port || "";
@@ -82,7 +82,7 @@ const fetchSNMPConfig = async () => {
   }
 };
 
-const errorBag = ref(new MessageBag())
+const errorBag = ref(new MessageBag());
 
 // 🛠 Validation Function
 const validate = () => {
@@ -90,7 +90,7 @@ const validate = () => {
   let isValid = true;
 
   const requiredFields = [
-    { key: "snmpService", value: snmpService },
+    // { key: "snmpService", value: snmpService },
     { key: "snmpVersion", value: snmpVersion },
     { key: "port", value: port },
   ];
@@ -107,7 +107,7 @@ const validate = () => {
       { key: "password", value: password },
       { key: "hash", value: hash },
       { key: "encryptionKey", value: encryptionKey },
-      { key: "encryption", value: encryption },
+      { key: "encryption", value: encryption }
     );
   }
 
@@ -123,7 +123,7 @@ const validate = () => {
 
 // ✅ Watch each field separately to clear errors when the user types
 const fieldsToWatch: Record<string, Ref<string>> = {
-  snmpService,
+  // snmpService,
   snmpVersion,
   port,
   community,
@@ -142,34 +142,113 @@ Object.keys(fieldsToWatch).forEach((fieldKey) => {
   });
 });
 
+// const submitForm = async () => {
+// if (validate()) {
+// let v2Data
+// if (snmpVersion.value === "2") {
+// v2Data = {
+// snmpService: snmpService.value,
+// snmpVersion: snmpVersion.value,
+// port: port.value,
+// community: community.value,
+// trapIp: trapIp.value,
+// trapPort: trapPort.value,
+// username: username.value,
+// }
+// } else {
+// v2Data = {
+// snmpService: snmpService.value,
+// snmpVersion: snmpVersion.value,
+// port: port.value,
+
+// }
+// }
+// const payload = v2Data
+
+// const response = await axios.post(${getSDControllerApiEndpoint()}/snmp, {
+// method: 'set-config',
+// v2Data
+// });
+
+// if (response.data.code === 200) {
+// notificationsStore.createNotification({
+// title: 'Success',
+// description: 'Configuration saved successfully.',
+// kind: 'success'
+// });
+// await fetchSNMPConfig();
+// }
+// } else {
+// console.log("Validation failed===");
+// }
+// };
 // 🔥 Submit Form
+
 const submitForm = async () => {
   if (validate()) {
+    let v2Data;
+    let isenable;
+    if (snmpService.value) {
+      isenable = "enable";
+    } else {
+      isenable = "disable";
+    }
 
-    const payload = {
-      snmpService: snmpService.value,
-      snmpVersion: snmpVersion.value,
-      port: port.value,
-      community: community.value,
-      trapIp: trapIp.value,
-      trapPort: trapPort.value,
-      username: username.value,
-      password: password.value,
-      hash: hash.value,
-      encryption: encryption.value,
-      encryptionKey: encryptionKey.value,
-    };
+    console.log("service----------", isenable, snmpService.value);
+    if (snmpVersion.value === "2c") {
+      v2Data = {
+        snmpService: isenable,
+        snmpVersion: snmpVersion.value,
+        snmpv2: {
+          port: port.value,
+          community: community.value,
+          trapIp: trapIp.value,
+          trapPort: trapPort.value,
+        },
+      };
+    } else {
+      v2Data = {
+        snmpService: isenable,
+        snmpVersion: snmpVersion.value,
+        snmpv3: {
+          port: port.value,
+          account: [
+            {
+              username: username.value,
+              password: password.value,
+              hash: hash.value,
+              encryption: encryption.value,
+              encryptionKey: encryptionKey.value,
+            },
+          ],
+        },
+      };
+    }
+    const payload = v2Data;
+    // {
+    //   snmpService: snmpService.value,
+    //   snmpVersion: snmpVersion.value,
+    //   port: port.value,
+    //   community: community.value,
+    //   trapIp: trapIp.value,
+    //   trapPort: trapPort.value,
+    //   username: username.value,
+    //   password: password.value,
+    //   hash: hash.value,
+    //   encryption: encryption.value,
+    //   encryptionKey: encryptionKey.value,
+    // };
 
     const response = await axios.post(`${getSDControllerApiEndpoint()}/snmp`, {
-      method: 'set-config',
-      payload
+      method: "set-config",
+      payload,
     });
 
     if (response.data.code === 200) {
       notificationsStore.createNotification({
-        title: 'Success',
-        description: 'Configuration saved successfully.',
-        kind: 'success'
+        title: "Success",
+        description: "Configuration saved successfully.",
+        kind: "success",
       });
       await fetchSNMPConfig();
     }
@@ -180,7 +259,6 @@ const submitForm = async () => {
 
 // ✅ Fetch data on component mount
 onMounted(fetchSNMPConfig);
-
 </script>
 
 <template>
@@ -189,8 +267,26 @@ onMounted(fetchSNMPConfig);
       <NeHeading tag="h3" class="mb-7">SNMP</NeHeading>
     </div>
     <form>
-      <div class="space-y-6 space-x-6">
-        <div>
+      <div class="space-x-6 space-y-6">
+        <!-- enabled -->
+        <NeToggle
+          class="ml-5"
+          v-model="snmpService"
+          :label="snmpService == true ? 'enable' : 'disable'"
+          :topLabel="'status'"
+          :disabled="loading.saveRule"
+        />
+        <!-- <NeToggle
+          v-model="snmpService"
+          :label="snmpService ? 'enable' : 'disable'"
+          :topLabel="'status'"
+          :disabled="loading.saveRule"
+        /> -->
+        <!-- service -->
+        <!-- <NeToggle v-model="service" :label="service ? t('common.enabled') : t('common.disabled')"
+          :topLabel="t('Service')" :disabled="loading.saveRule" /> -->
+
+        <!-- <div>
           <label>
             <input type="radio" v-model="snmpService" value="enable" />
             Enable
@@ -200,63 +296,119 @@ onMounted(fetchSNMPConfig);
             <input type="radio" v-model="snmpService" value="disable" />
             Disable
           </label>
-        </div>
+        </div> -->
         <div v-if="snmpVersion">
           <h4>Basic Settings</h4>
           <br />
           <div>
             <label class="mr-4">SNMP Version:</label>
-            <select v-model="snmpVersion" style="width: 30%;
-            height: 36px;
-            padding: 6px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 14px;
-            outline: none;
-            transition: border-color 0.3s ease-in-out;">
+            <select
+              v-model="snmpVersion"
+              style="
+                width: 30%;
+                height: 36px;
+                padding: 6px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                font-size: 14px;
+                outline: none;
+                transition: border-color 0.3s ease-in-out;
+              "
+            >
               <option value="2c">2c</option>
               <option value="3">3</option>
             </select>
           </div>
           <br />
-          <NeTextInput :label="t('Port')" type="text" v-model="port" :invalidMessage="errorBag.getFirstFor('port')"
-            :disabled="loading.saveRule" />
+          <NeTextInput
+            :label="t('Port')"
+            type="text"
+            v-model="port"
+            :invalidMessage="errorBag.getFirstFor('port')"
+            :disabled="loading.saveRule"
+          />
         </div>
 
         <div v-if="snmpVersion === '2c'">
-          <NeTextInput :label="t('Community')" type="text" v-model="community"
-            :invalidMessage="errorBag.getFirstFor('community')" :disabled="loading.saveRule" />
+          <NeTextInput
+            :label="t('Community')"
+            type="text"
+            v-model="community"
+            :invalidMessage="errorBag.getFirstFor('community')"
+            :disabled="loading.saveRule"
+          />
 
-          <NeTextInput :label="t('Trap IP')" type="text" v-model="trapIp"
-            :invalidMessage="errorBag.getFirstFor('trapIp')" :disabled="loading.saveRule" />
+          <NeTextInput
+            :label="t('Trap IP')"
+            type="text"
+            v-model="trapIp"
+            :invalidMessage="errorBag.getFirstFor('trapIp')"
+            :disabled="loading.saveRule"
+          />
 
-          <NeTextInput :label="t('Trap Port')" type="text" v-model="trapPort"
-            :invalidMessage="errorBag.getFirstFor('trapPort')" :disabled="loading.saveRule" />
+          <NeTextInput
+            :label="t('Trap Port')"
+            type="text"
+            v-model="trapPort"
+            :invalidMessage="errorBag.getFirstFor('trapPort')"
+            :disabled="loading.saveRule"
+          />
         </div>
 
         <div v-if="snmpVersion === '3'">
           <h1>SNMPv3 Account</h1>
           <br />
 
-          <NeTextInput :label="t('User Name')" type="text" v-model="username"
-            :invalidMessage="errorBag.getFirstFor('username')" :disabled="loading.saveRule" />
+          <NeTextInput
+            :label="t('User Name')"
+            type="text"
+            v-model="username"
+            :invalidMessage="errorBag.getFirstFor('username')"
+            :disabled="loading.saveRule"
+          />
 
-          <NeTextInput :label="t('Password')" type="text" v-model="password"
-            :invalidMessage="errorBag.getFirstFor('password')" :disabled="loading.saveRule" />
+          <NeTextInput
+            :label="t('Password')"
+            type="text"
+            v-model="password"
+            :invalidMessage="errorBag.getFirstFor('password')"
+            :disabled="loading.saveRule"
+          />
 
-          <NeTextInput :label="t('Hash')" type="text" v-model="hash" :invalidMessage="errorBag.getFirstFor('hash')"
-            :disabled="loading.saveRule" />
+          <NeTextInput
+            :label="t('Hash')"
+            type="text"
+            v-model="hash"
+            :invalidMessage="errorBag.getFirstFor('hash')"
+            :disabled="loading.saveRule"
+          />
 
-          <NeTextInput :label="t('Encryption')" type="text" v-model="encryption"
-            :invalidMessage="errorBag.getFirstFor('encryption')" :disabled="loading.saveRule" />
+          <NeTextInput
+            :label="t('Encryption')"
+            type="text"
+            v-model="encryption"
+            :invalidMessage="errorBag.getFirstFor('encryption')"
+            :disabled="loading.saveRule"
+          />
 
-          <NeTextInput :label="t('Encryption Key')" type="text" v-model="encryptionKey"
-            :invalidMessage="errorBag.getFirstFor('encryptionKey')" :disabled="loading.saveRule" />
-
+          <NeTextInput
+            :label="t('Encryption Key')"
+            type="text"
+            v-model="encryptionKey"
+            :invalidMessage="errorBag.getFirstFor('encryptionKey')"
+            :disabled="loading.saveRule"
+          />
         </div>
 
-        <NeButton kind="primary" size="lg" :disabled="loading.saveRule" :loading="loading.saveRule" @click="submitForm">
-          Submit</NeButton>
+        <NeButton
+          kind="primary"
+          size="lg"
+          :disabled="loading.saveRule"
+          :loading="loading.saveRule"
+          @click="submitForm"
+        >
+          Submit</NeButton
+        >
       </div>
     </form>
   </div>
