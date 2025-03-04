@@ -1,1 +1,0 @@
-import{E as h,a as p,r as u,J as r}from"./index-BlEQ5104.js";function l(s,o){const t=h(),n=p(),a=u(s),e=u(""),c=t.path;return r(()=>t.query.tab,()=>{t.path===c&&(e.value=t.query.tab??o??(a.value.length>0?a.value[0].name:""))},{immediate:!0}),r(e,()=>{n.push({path:t.path,query:{tab:e.value}})}),{tabs:a,selectedTab:e}}export{l as u};

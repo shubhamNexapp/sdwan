@@ -78,6 +78,10 @@ const navigation: Ref<MenuItem[]> = ref([
         to: 'system/update'
       },
       {
+        name: 'Tacc Auth',
+        to: 'system/tacc-auth'
+      },
+      {
         name: 'standalone.openwisp.title',
         to: 'system/sd-controller'
       },
