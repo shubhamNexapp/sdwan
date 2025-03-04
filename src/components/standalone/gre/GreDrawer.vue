@@ -71,46 +71,23 @@ const { t } = useI18n()
 const { getObjectIcon } = useObjects()
 
 const firewallConfig = useFirewallStore()
-// const isRuleEnabled = ref(true)
-const name = ref('')
-const nameRef = ref()
-const tunnelNameRef = ref()
-const localVirtulaIPRef = ref()
-const peerVirtulaIPRef = ref()
-const localExternIPRef = ref()
-const peerExternIPRef = ref()
-const keyRef = ref()
-const keepAliveInternalRef = ref()
-const keepAliveRetryRef = ref()
 
-const isRuleEnabled = ref(false);
-const tunnelName = ref('');
-const localVirtulaIP = ref('');
-const peerVirtulaIP = ref('');
-const localExternIP = ref('');
-const peerExternIP = ref('');
-const key = ref('');
-const keepAliveInternal = ref('');
-const keepAliveRetry = ref('');
 
 const sourceType = ref<'source_address' | 'source_object' | 'source_any'>('source_address')
 const destinationType = ref<'destination_address' | 'destination_object' | 'destination_any'>(
   'destination_address'
 )
 const sourceAddresses = ref<string[]>([''])
-const serverPortIP = ref<string[]>([''])
 const destinationAddresses = ref<string[]>([''])
 const sourceAddressObject = ref('')
 const destinationAddressObject = ref('')
-const sourceAddressObjectRef = ref()
-const destinationAddressObjectRef = ref()
+
 const sourceZone = ref('*')
 const sourceZoneRef = ref()
 const destinationZone = ref('*')
 const destinationZoneRef = ref()
 const objectSuggestions = ref<ObjectReference[]>([])
-const service = ref('*')
-const serviceRef = ref()
+
 const serviceSuggestions = ref<NeComboboxOption[]>([])
 const action: Ref<FirewallRuleAction> = ref('DROP')
 const protocols = ref<NeComboboxOption[]>([])
@@ -123,10 +100,32 @@ const isExpandedAdvancedSettings = ref(false)
 const tags: Ref<NeComboboxOption[]> = ref([])
 const isLoggingEnabled = ref(false)
 const errorBag = ref(new MessageBag())
-const sourceAddressesErrors = ref<string[]>([])
-const serverPortIPError = ref<string[]>([])
-const destinationAddressesErrors = ref<string[]>([])
 
+
+const name = ref('')
+const nameRef = ref()
+const tunnelNameRef = ref()
+const localVirtulaIPRef = ref()
+const peerVirtulaIPRef = ref()
+const localExternIPRef = ref()
+const peerExternIPRef = ref()
+const keyRef = ref()
+const interfaceNameRef = ref()
+const mtuRef = ref()
+const netMaskRef = ref()
+
+const netmask = ref()
+const mtu = ref()
+const interfaceName = ref()
+const service = ref(false)
+
+
+const tunnelName = ref('');
+const localVirtulaIP = ref('');
+const peerVirtulaIP = ref('');
+const localExternIP = ref('');
+const peerExternIP = ref('');
+const key = ref('');
 
 let loading = ref({
   listServiceSuggestions: false,
@@ -170,7 +169,6 @@ watch(
 
       if (isCreatingRule.value) {
         // creating rule, reset form to defaults
-        isRuleEnabled.value = true
         name.value = ''
         sourceType.value = 'source_address'
         destinationType.value = 'destination_address'
@@ -180,7 +178,6 @@ watch(
         destinationAddressObject.value = ''
         sourceZone.value = '*'
         destinationZone.value = '*'
-        service.value = '*'
         action.value = 'DROP'
         protocols.value = []
         ports.value = ''
@@ -190,11 +187,9 @@ watch(
         isExpandedAdvancedSettings.value = false
       } else if (props.currentRule) {
         // editing or duplicating rule
-        isRuleEnabled.value = props.currentRule.enabled || false
         // source/destination addresses will be set inside listObjectSuggestions
         sourceZone.value = props.currentRule.src || '*'
         destinationZone.value = props.currentRule.dest || '*'
-        service.value = '*'
         protocols.value = []
         // service, protocols and ports will be set inside listServiceSuggestions
         action.value = props.currentRule.target || 'DROP'
@@ -219,15 +214,6 @@ watch(
           })
         }
       }
-    }
-  }
-)
-
-watch(
-  () => service.value,
-  () => {
-    if (service.value === 'custom') {
-      listProtocols()
     }
   }
 )
@@ -356,12 +342,10 @@ async function listServiceSuggestions() {
 
       if (props.currentRule.ns_service === 'custom') {
         // custom service
-        service.value = 'custom'
         // protocols are set inside listProtocols
         ports.value = props.currentRule.dest_port.join(', ') || ''
       } else {
         // standard service
-        service.value = props.currentRule.ns_service || '*'
         ports.value = ''
         protocols.value = []
       }
@@ -375,58 +359,17 @@ async function listServiceSuggestions() {
   }
 }
 
-async function listProtocols() {
-  loading.value.listProtocols = true
-
-  try {
-    const res = await ubusCall('ns.redirects', 'list-protocols')
-    const filteredProtocols = res.data.protocols.filter((protocol: string) => {
-      return protocol !== 'all'
-    })
-
-    protocolOptions.value = filteredProtocols.map((protocol: string) => {
-      return {
-        id: protocol,
-        label: protocol.toUpperCase()
-      }
-    })
-
-    if (props.currentRule) {
-      // editing or duplicating rule
-
-      if (props.currentRule.proto.length && props.currentRule.ns_service === 'custom') {
-        protocols.value = props.currentRule.proto.map((proto) => {
-          return {
-            id: proto,
-            label: proto.toUpperCase()
-          }
-        })
-      } else {
-        protocols.value = []
-      }
-    }
-  } catch (err: any) {
-    console.error(err)
-    error.value.listProtocols = t(getAxiosErrorMessage(err))
-    error.value.listProtocolsDetails = err.toString()
-  } finally {
-    loading.value.listProtocols = false
-  }
-}
-
 const validate = () => {
   errorBag.value.clear();
   let isValid = true;
 
-  const requiredFields  = [
+  const requiredFields = [
     { key: 'tunnelName', value: tunnelName, ref: tunnelNameRef },
+    { key: 'interfaceName', value: interfaceName, ref: interfaceNameRef },
     { key: 'localVirtulaIP', value: localVirtulaIP, ref: localVirtulaIPRef },
     { key: 'peerVirtulaIP', value: peerVirtulaIP, ref: peerVirtulaIPRef },
     { key: 'localExternIP', value: localExternIP, ref: localExternIPRef },
     { key: 'peerExternIP', value: peerExternIP, ref: peerExternIPRef },
-    { key: 'key', value: key, ref: keyRef },
-    { key: 'keepAliveInternal', value: keepAliveInternal, ref: keepAliveInternalRef },
-    { key: 'keepAliveRetry', value: keepAliveRetry, ref: keepAliveRetryRef },
   ];
 
   requiredFields.forEach((field) => {
@@ -443,13 +386,14 @@ const validate = () => {
 // ✅ Watch each field separately to clear errors when the user types
 const fieldsToWatch: Record<string, Ref<string>> = {
   tunnelName,
+  interfaceName,
   localVirtulaIP,
   peerVirtulaIP,
   localExternIP,
   peerExternIP,
   key,
-  keepAliveInternal,
-  keepAliveRetry,
+  mtu,
+  netmask
 };
 
 Object.keys(fieldsToWatch).forEach((fieldKey) => {
@@ -461,29 +405,32 @@ Object.keys(fieldsToWatch).forEach((fieldKey) => {
 });
 
 const saveRule = async () => {
+  try {
+    if (!validate()) return;
 
-    try {
-        if (!validate()) return;
+    let isService
 
-        const payload = {
-        service: isRuleEnabled.value,
-        tunnel_name: tunnelName.value,
-        Local_virtual_ip: localVirtulaIP.value,
-        peer_virtual_ip: peerVirtulaIP.value,
-        Local_extern_ip: localExternIP.value,
-        peer_extern_ip: peerExternIP.value,
+    if (service.value) {
+      isService = "enable"
+    } else {
+      isService = "disable"
+    }
+    const payload = {
+      service: isService,
+      tunnel_name: tunnelName.value,
+      interface_name: interfaceName.value,
+      Local_virtual_ip: localVirtulaIP.value,
+      peer_virtual_ip: peerVirtulaIP.value,
+      Local_extern_ip: localExternIP.value,
+      peer_extern_ip: peerExternIP.value,
+      mtu: mtu.value,
+      netmask: netmask.value,
+      key: key.value,
     };
 
-  const response = await axios.post(`${getSDControllerApiEndpoint()}/gre`, {
+    const response = await axios.post(`${getSDControllerApiEndpoint()}/gre`, {
       method: 'add-config',
-      payload: {
-        service: isRuleEnabled.value,
-        tunnel_name: tunnelName.value,
-        Local_virtual_ip: localVirtulaIP.value,
-        peer_virtual_ip: peerVirtulaIP.value,
-        Local_extern_ip: localExternIP.value,
-        peer_extern_ip: peerExternIP.value,
-      }
+      payload
     });
 
     if (response.data.code === 200) {
@@ -493,132 +440,71 @@ const saveRule = async () => {
         kind: 'success'
       });
 
-       // Reset form after successful save
-        isRuleEnabled.value = false;
-        errorBag.value.clear();
-        emit('save', payload);
+      // Reset form after successful save
+      errorBag.value.clear();
+      emit('save', payload);
 
-        // ✅ Close the drawer after saving
-        closeDrawer();
+      // ✅ Close the drawer after saving
+      closeDrawer();
 
     } else {
       throw new Error('Failed to save configuration.');
     }
 
-    } catch (err) {
-  } 
+  } catch (err) {
+  }
 
 };
 
 </script>
 
 <template>
-  <NeSideDrawer
-    :isShown="isShown"
-    :title="t('standalone.wire_guard.add_client_tunnel')"
-    :closeAriaLabel="t('standalone.wire_guard.add_client_tunnel')"
-    @close="closeDrawer"
-  >
+  <NeSideDrawer :isShown="isShown" :title="t('standalone.wire_guard.add_client_tunnel')"
+    :closeAriaLabel="t('standalone.wire_guard.add_client_tunnel')" @close="closeDrawer">
     <form>
       <div class="space-y-6">
         <!-- editing system rule warning -->
-        <NeInlineNotification
-          v-if="isEditingRule && props.currentRule?.system_rule"
-          kind="warning"
+        <NeInlineNotification v-if="isEditingRule && props.currentRule?.system_rule" kind="warning"
           :title="t('standalone.firewall_rules.editing_system_rule_warning_title')"
-          :description="t('standalone.firewall_rules.editing_system_rule_warning_description')"
-        />
-        <!-- enabled -->
-        <NeToggle
-          v-model="isRuleEnabled"
-          :label="isRuleEnabled ? t('common.enabled') : t('common.disabled')"
-          :topLabel="t('common.status')"
-          :disabled="loading.saveRule"
-        />
-         <!-- tunnel name -->
-         <NeTextInput
-          :label="t('standalone.gre.tunnel_name')"
-          v-model.trim="tunnelName"
-          :invalidMessage="errorBag.getFirstFor('tunnelName')"
-          :disabled="loading.saveRule"
-          ref="tunnelNameRef"
-        />
+          :description="t('standalone.firewall_rules.editing_system_rule_warning_description')" />
+        <!-- service -->
+        <NeToggle v-model="service" :label="service ? t('common.enabled') : t('common.disabled')"
+          :topLabel="t('Service')" :disabled="loading.saveRule" />
+        <!-- tunnel name -->
+        <NeTextInput :label="t('standalone.gre.tunnel_name')" v-model.trim="tunnelName"
+          :invalidMessage="errorBag.getFirstFor('tunnelName')" :disabled="loading.saveRule" ref="tunnelNameRef" />
+        <!-- interface name -->
+        <NeTextInput :label="t('standalone.gre.interface_name')" v-model.trim="interfaceName"
+          :invalidMessage="errorBag.getFirstFor('interfaceName')" :disabled="loading.saveRule" ref="interfaceNameRef" />
         <!-- local virtual ip -->
-        <NeTextInput
-          :label="t('standalone.gre.local_virtual_ip')"
-          v-model.trim="localVirtulaIP"
-          :invalidMessage="errorBag.getFirstFor('localVirtulaIP')"
-          :disabled="loading.saveRule"
-          ref="localVirtulaIPRef"
-        />
+        <NeTextInput :label="t('standalone.gre.local_virtual_ip')" v-model.trim="localVirtulaIP"
+          :invalidMessage="errorBag.getFirstFor('localVirtulaIP')" :disabled="loading.saveRule"
+          ref="localVirtulaIPRef" />
         <!-- peer virtual ip -->
-        <NeTextInput
-          :label="t('standalone.gre.peer_virtual_ip')"
-          v-model.trim="peerVirtulaIP"
-          :invalidMessage="errorBag.getFirstFor('peerVirtulaIP')"
-          :disabled="loading.saveRule"
-          ref="peerVirtulaIPRef"
-        />
-         <!-- local extern ip -->
-         <NeTextInput
-          :label="t('standalone.gre.local_extern_ip')"
-          v-model.trim="localExternIP"
-          :invalidMessage="errorBag.getFirstFor('localExternIP')"
-          :disabled="loading.saveRule"
-          ref="localExternIPRef"
-        />
+        <NeTextInput :label="t('standalone.gre.peer_virtual_ip')" v-model.trim="peerVirtulaIP"
+          :invalidMessage="errorBag.getFirstFor('peerVirtulaIP')" :disabled="loading.saveRule" ref="peerVirtulaIPRef" />
+        <!-- local extern ip -->
+        <NeTextInput :label="t('standalone.gre.local_extern_ip')" v-model.trim="localExternIP"
+          :invalidMessage="errorBag.getFirstFor('localExternIP')" :disabled="loading.saveRule" ref="localExternIPRef" />
         <!-- peer extern ip -->
-        <NeTextInput
-          :label="t('standalone.gre.peer_extern_ip')"
-          v-model.trim="peerExternIP"
-          :invalidMessage="errorBag.getFirstFor('peerExternIP')"
-          :disabled="loading.saveRule"
-          ref="peerExternIPRef"
-        />
+        <NeTextInput :label="t('standalone.gre.peer_extern_ip')" v-model.trim="peerExternIP"
+          :invalidMessage="errorBag.getFirstFor('peerExternIP')" :disabled="loading.saveRule" ref="peerExternIPRef" />
         <!-- key -->
-        <NeTextInput
-          :label="t('standalone.gre.key')"
-          v-model.trim="key"
-          :invalidMessage="errorBag.getFirstFor('key')"
-          :disabled="loading.saveRule"
-          ref="keyRef"
-        />
-         <!-- keep alive internal -->
-         <NeTextInput
-          :label="t('standalone.gre.keep_alive_internal')"
-          v-model.trim="keepAliveInternal"
-          :invalidMessage="errorBag.getFirstFor('keepAliveInternal')"
-          :disabled="loading.saveRule"
-          ref="keepAliveInternalRef"
-        />
-         <!-- keep alive retry -->
-         <NeTextInput
-          :label="t('standalone.gre.keep_alive_retry')"
-          v-model.trim="keepAliveRetry"
-          :invalidMessage="errorBag.getFirstFor('keepAliveRetry')"
-          :disabled="loading.saveRule"
-          ref="keepAliveRetryRef"
-        />
+        <NeTextInput :label="t('standalone.gre.key')" v-model.trim="key" :invalidMessage="errorBag.getFirstFor('key')"
+          :disabled="loading.saveRule" ref="keyRef" />
+        <NeTextInput :label="t('standalone.gre.mtu')" v-model.trim="mtu" :invalidMessage="errorBag.getFirstFor('mtu')"
+          :disabled="loading.saveRule" ref="mtuRef" />
+        <NeTextInput :label="t('standalone.gre.net_mask')" v-model.trim="netmask"
+          :invalidMessage="errorBag.getFirstFor('netmask')" :disabled="loading.saveRule" ref="netMaskRef" />
       </div>
       <!-- footer -->
       <hr class="my-8 border-gray-200 dark:border-gray-700" />
       <div class="flex justify-end">
-        <NeButton
-          kind="tertiary"
-          size="lg"
-          @click.prevent="closeDrawer"
-          :disabled="loading.saveRule"
-          class="mr-3"
-        >
+        <NeButton kind="tertiary" size="lg" @click.prevent="closeDrawer" :disabled="loading.saveRule" class="mr-3">
           {{ t('common.cancel') }}
         </NeButton>
-        <NeButton
-          kind="primary"
-          size="lg"
-          @click.prevent="saveRule"
-          :disabled="loading.saveRule"
-          :loading="loading.saveRule"
-        >
+        <NeButton kind="primary" size="lg" @click.prevent="saveRule" :disabled="loading.saveRule"
+          :loading="loading.saveRule">
           {{
             isCreatingRule
               ? t('standalone.wire_guard.save')

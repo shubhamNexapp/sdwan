@@ -66,6 +66,9 @@ const props = defineProps({
   }
 })
 
+console.log("props====", props.itemToEdit)
+
+
 const emit = defineEmits(['close', 'reloadData', 'save'])
 
 const { t } = useI18n()
@@ -75,22 +78,12 @@ const firewallConfig = useFirewallStore()
 // const isRuleEnabled = ref(true)
 const name = ref('')
 const nameRef = ref()
-const localNetworkRef = ref()
-const listenPortRef = ref()
-// const listenipRef = ref()
-const serverPortRef = ref()
-const serverIPRef = ref()
-const peerPublicKeyRef = ref()
-const allowedIPRef = ref()
-const persistKeepAliveRef = ref()
 const mtuRef = ref()
 
 const isRuleEnabled = ref(false);
 const localNetwork = ref('');
 const listenPort = ref('');
-// const listenip = ref('');
 const serverPort = ref('');
-const serverIP = ref('');
 const peerPublicKey = ref('');
 const allowedIP = ref('');
 const persistKeepAlive = ref('');
@@ -112,7 +105,7 @@ const sourceZoneRef = ref()
 const destinationZone = ref('*')
 const destinationZoneRef = ref()
 const objectSuggestions = ref<ObjectReference[]>([])
-const service = ref('*')
+
 const serviceRef = ref()
 const serviceSuggestions = ref<NeComboboxOption[]>([])
 const action: Ref<FirewallRuleAction> = ref('DROP')
@@ -126,6 +119,48 @@ const isExpandedAdvancedSettings = ref(false)
 const tags: Ref<NeComboboxOption[]> = ref([])
 const isLoggingEnabled = ref(false)
 const errorBag = ref(new MessageBag())
+
+const service = ref('')
+const tunnelName = ref('');
+const interfaceName = ref('');
+const localVirtulaIP = ref('');
+const peerVirtulaIP = ref('');
+const localExternIP = ref('');
+const peerExternIP = ref('');
+const key = ref('');
+const netmask = ref('');
+
+
+const tunnelNameRef = ref('');
+const interfaceNameRef = ref('');
+const localVirtulaIPRef = ref('');
+const peerVirtulaIPRef = ref('');
+const localExternIPRef = ref('');
+const peerExternIPRef = ref('');
+const keyRef = ref('');
+const netmaskRef = ref('');
+
+// Watch for changes in `itemToEdit` and populate fields
+watch(
+  () => props.itemToEdit,
+  (newValue) => {
+    if (newValue) {
+
+      // Convert service value to a boolean
+      service.value = newValue.service; // true if "enable", false if anything else
+      tunnelName.value = newValue.tunnel_name || "";
+      localVirtulaIP.value = newValue.config?.Local_virtual_ip || "";
+      interfaceName.value = newValue.config?.interface_name || "";
+      peerVirtulaIP.value = newValue.config?.peer_virtual_ip || "";
+      localExternIP.value = newValue.config?.Local_extern_ip || "";
+      peerExternIP.value = newValue.config?.peer_extern_ip || "";
+      mtu.value = newValue.config?.mtu || "";
+      key.value = newValue.config?.key || "";
+      netmask.value = newValue.config?.netmask || "";
+    }
+  },
+  { deep: true, immediate: true }
+);
 
 let loading = ref({
   listServiceSuggestions: false,
@@ -151,67 +186,6 @@ const isCreatingRule = computed(() => {
 
 const isEditingRule = computed(() => {
   return !!props.currentRule && !props.isDuplicatingRule
-})
-
-const drawerTitle = computed(() => {
-  if (isEditingRule.value) {
-    return t('standalone.firewall_rules.edit_rule')
-  } else if (props.isDuplicatingRule) {
-    return t('standalone.firewall_rules.duplicate_rule')
-  } else {
-    switch (props.ruleType) {
-      case 'forward':
-        return t('standalone.firewall_rules.add_forward_rule')
-      case 'input':
-        return t('standalone.firewall_rules.add_input_rule')
-      case 'output':
-        return t('standalone.firewall_rules.add_output_rule')
-      default:
-        return ''
-    }
-  }
-})
-
-const serviceOptions = computed(() => {
-  const staticOptions: NeComboboxOption[] = [
-    {
-      id: '*',
-      label: t('common.any')
-    },
-    {
-      id: 'custom',
-      label: t('standalone.firewall_rules.custom_service')
-    }
-  ]
-  return [...staticOptions, ...serviceSuggestions.value]
-})
-
-const zoneOptions = computed(() => {
-  const anyAddress = {
-    id: '*',
-    label: t('common.any')
-  }
-
-  const zones: NeComboboxOption[] = firewallConfig.zones.map((zone) => {
-    return {
-      id: zone.name,
-      label: zone.name.toUpperCase(),
-      description: zone.interfaces?.join(', ')
-    }
-  })
-  return [anyAddress, ...zones]
-})
-
-
-const objectsComboboxOptions = computed(() => {
-  return objectSuggestions.value.map((obj) => {
-    return {
-      id: obj.id,
-      label: obj.name,
-      description: t(`standalone.objects.subtype_${obj.subtype}`),
-      icon: getObjectIcon(obj.subtype)
-    }
-  })
 })
 
 watch(
@@ -473,72 +447,17 @@ async function listProtocols() {
   }
 }
 
-onMounted(() => {
-  getLists()
-})
-
-const apiResponse = ref()
-const getLists = async () => {
-
-try {
-
-  const response = await axios.post(`${getSDControllerApiEndpoint()}/wireguard`, {
-    method: 'get-config',
-    payload: {}
-  });
-  
-  if(response.data.code === 200){
-  apiResponse.value = [response.data.data] // Store API response
-}
-} catch (err) {
-  console.error("Error:====", err);
-} 
-};
-
-watch(
-  () => props.itemToEdit,
-  (newValue) => {
-    if (newValue) {
-      isRuleEnabled.value = newValue.isRuleEnabled || false;
-      localNetwork.value = newValue.local_network || "";
-      listenPort.value = newValue.listen_port || "";
-      serverIP.value = newValue.server_port || "";
-      serverPort.value = newValue.server_port || "";
-      peerPublicKey.value = newValue.peer_public_key || "";
-      allowedIP.value = newValue.allowed_ips || "";
-      persistKeepAlive.value = newValue.persistent_keepalive || "";
-      mtu.value = newValue.mtu || "";
-    } else {
-      // Reset fields if itemToEdit is null (adding a new rule)
-      isRuleEnabled.value = false;
-      localNetwork.value = "";
-      listenPort.value = "";
-      serverIP.value = "";
-      serverPort.value = "";
-      peerPublicKey.value = "";
-      allowedIP.value = "";
-      persistKeepAlive.value = "";
-      mtu.value = "";
-    }
-  },
-  { immediate: true }
-);
-
-
 const validate = () => {
   errorBag.value.clear();
   let isValid = true;
 
-  const requiredFields  = [
-    { key: 'localNetwork', value: localNetwork, ref: localNetworkRef },
-    { key: 'listenPort', value: listenPort, ref: listenPortRef },
-    // { key: 'listenip', value: listenip, ref: listenipRef },
-    { key: 'serverIP', value: serverIP, ref: serverIPRef },
-    { key: 'serverPort', value: serverPort, ref: serverPortRef },
-    { key: 'peerPublicKey', value: peerPublicKey, ref: peerPublicKeyRef },
-    { key: 'allowedIP', value: allowedIP, ref: allowedIPRef },
-    { key: 'persistKeepAlive', value: persistKeepAlive, ref: persistKeepAliveRef },
-    { key: 'mtu', value: mtu, ref: mtuRef },
+  const requiredFields = [
+    { key: 'tunnelName', value: tunnelName, ref: tunnelNameRef },
+    { key: 'interfaceName', value: interfaceName, ref: interfaceNameRef },
+    { key: 'localVirtulaIP', value: localVirtulaIP, ref: localVirtulaIPRef },
+    { key: 'peerVirtulaIP', value: peerVirtulaIP, ref: peerVirtulaIPRef },
+    { key: 'localExternIP', value: localExternIP, ref: localExternIPRef },
+    { key: 'peerExternIP', value: peerExternIP, ref: peerExternIPRef },
   ];
 
   requiredFields.forEach((field) => {
@@ -554,15 +473,12 @@ const validate = () => {
 
 // ✅ Watch each field separately to clear errors when the user types
 const fieldsToWatch: Record<string, Ref<string>> = {
-  localNetwork,
-  listenPort,
-  // listenip,
-  serverIP,
-  serverPort,
-  peerPublicKey,
-  allowedIP,
-  persistKeepAlive,
-  mtu,
+  tunnelName,
+  interfaceName,
+  localVirtulaIP,
+  peerVirtulaIP,
+  localExternIP,
+  peerExternIP,
 };
 
 Object.keys(fieldsToWatch).forEach((fieldKey) => {
@@ -573,199 +489,109 @@ Object.keys(fieldsToWatch).forEach((fieldKey) => {
   });
 });
 
-const saveRule = async () => {
+async function saveRule() {
   try {
     if (!validate()) return;
 
+    let isService
+
+    if (service.value) {
+      isService = "enable"
+    } else {
+      isService = "disable"
+    }
     const payload = {
-      isRuleEnabled: isRuleEnabled.value,
-      localNetwork: localNetwork.value,
-      listenPort: listenPort.value,
-      // listenip: listenip.value,
-      serverPort: serverPort.value,
-      serverIP: serverIP.value,
-      peerPublicKey: peerPublicKey.value,
-      allowedIP: allowedIP.value,
-      persistKeepAlive: persistKeepAlive.value,
+      service: isService,
+      tunnel_name: tunnelName.value,
+      interface_name: interfaceName.value,
+      Local_virtual_ip: localVirtulaIP.value,
+      peer_virtual_ip: peerVirtulaIP.value,
+      Local_extern_ip: localExternIP.value,
+      peer_extern_ip: peerExternIP.value,
       mtu: mtu.value,
+      netmask: netmask.value,
+      key: key.value,
     };
 
-    // Always use "set-config" for both adding and updating
-    const response = await axios.post(`${getSDControllerApiEndpoint()}/wireguard`, {
-      method: "set-config",
-      payload: {
-        service: isRuleEnabled.value,
-        local_network: localNetwork.value,
-        listen_port: listenPort.value,
-        // listen_ip: listenip.value,
-        server_port: serverPort.value,
-        server_ip: serverIP.value,
-        peer_public_key: peerPublicKey.value,
-        allowed_ips: allowedIP.value,
-        persistent_keepalive: persistKeepAlive.value,
-        mtu: mtu.value,
-      }
+    const response = await axios.post(`${getSDControllerApiEndpoint()}/gre`, {
+      method: 'add-config',
+      payload
     });
 
     if (response.data.code === 200) {
       notificationsStore.createNotification({
-        title: "Success",
-        description: `Configuration ${props.itemToEdit ? "updated" : "added"} successfully.`,
-        kind: "success",
+        title: 'Success',
+        description: 'Configuration updated successfully.',
+        kind: 'success'
       });
 
-      // Reload API data after saving
-      getLists();
-
-      // Reset form only if adding a new config
-      if (!props.itemToEdit) {
-        isRuleEnabled.value = false;
-        localNetwork.value = "";
-        listenPort.value = "";
-        // listenip.value = "";
-        serverPort.value = "";
-        serverIP.value = "";
-        peerPublicKey.value = "";
-        allowedIP.value = "";
-        persistKeepAlive.value = "";
-        mtu.value = "";
-      }
-
+      // Reset form after successful save
       errorBag.value.clear();
-      emit("save", payload);
+      emit('save', payload);
 
       // ✅ Close the drawer after saving
       closeDrawer();
+
     } else {
-      throw new Error("Failed to save configuration.");
+      throw new Error('Failed to save configuration.');
     }
+
   } catch (err) {
-    console.error("Error:====", err);
   }
-};
-
-
+}
 
 </script>
 
 <template>
-  <NeSideDrawer
-    :isShown="isShown"
-    :title="t('standalone.wire_guard.add_client_tunnel')"
-    :closeAriaLabel="t('standalone.wire_guard.add_client_tunnel')"
-    @close="closeDrawer"
-  >
+  <NeSideDrawer :isShown="isShown" :title="t('standalone.gre.edit_tunnel')"
+    :closeAriaLabel="t('standalone.wire_guard.add_client_tunnel')" @close="closeDrawer">
     <form>
       <div class="space-y-6">
-        <!-- editing system rule warning -->
-        <NeInlineNotification
-          v-if="isEditingRule && props.currentRule?.system_rule"
-          kind="warning"
-          :title="t('standalone.firewall_rules.editing_system_rule_warning_title')"
-          :description="t('standalone.firewall_rules.editing_system_rule_warning_description')"
-        />
-        <!-- enabled -->
-        <NeToggle
-          v-model="isRuleEnabled"
-          :label="isRuleEnabled ? t('common.enabled') : t('common.disabled')"
-          :topLabel="t('common.status')"
-          :disabled="loading.saveRule"
-        />
-         <!-- local network -->
-         <NeTextInput
-          :label="t('standalone.wire_guard.local_network')"
-          v-model.trim="localNetwork"
-          :invalidMessage="errorBag.getFirstFor('localNetwork')"
-          :disabled="loading.saveRule"
-          ref="localNetworkRef"
-        />
-         <!-- listen port -->
-         <NeTextInput
-          :label="t('standalone.wire_guard.listen_port')"
-          v-model.trim="listenPort"
-          :invalidMessage="errorBag.getFirstFor('listenPort')"
-          :disabled="loading.saveRule"
-          ref="listenPortRef"
-        />
-         <!-- listen ip or domain -->
-         <!-- <NeTextInput
-          :label="t('standalone.wire_guard.listen_ip')"
-          v-model.trim="listenip"
-          :invalidMessage="errorBag.getFirstFor('listenip')"
-          :disabled="loading.saveRule"
-          ref="listenipRef"
-        /> -->
-         <!-- server port -->
-         <NeTextInput
-          :label="t('standalone.wire_guard.server_port')"
-          v-model.trim="serverPort"
-          :invalidMessage="errorBag.getFirstFor('serverPort')"
-          :disabled="loading.saveRule"
-          ref="serverPortRef"
-        />
 
-         <!-- server IP -->
-         <NeTextInput
-          :label="t('standalone.wire_guard.server_ip')"
-          v-model.trim="serverIP"
-          :invalidMessage="errorBag.getFirstFor('serverIP')"
-          :disabled="loading.saveRule"
-          ref="serverIPRef"
-        />
-        
-        <!-- peer public key -->
-        <NeTextInput
-          :label="t('standalone.wire_guard.peer_public_key')"
-          v-model.trim="peerPublicKey"
-          :invalidMessage="errorBag.getFirstFor('peerPublicKey')"
-          :disabled="loading.saveRule"
-          ref="peerPublicKeyRef"
-        />
-        <!-- allowed ip -->
-        <NeTextInput
-          :label="t('standalone.wire_guard.allowed_ip')"
-          v-model.trim="allowedIP"
-          :invalidMessage="errorBag.getFirstFor('allowedIP')"
-          :disabled="loading.saveRule"
-          ref="allowedIPRef"
-        />
-        <!-- allowed ip -->
-        <NeTextInput
-          :label="t('standalone.wire_guard.persist_keep_alive')"
-          v-model.trim="persistKeepAlive"
-          :invalidMessage="errorBag.getFirstFor('persistKeepAlive')"
-          :disabled="loading.saveRule"
-          ref="persistKeepAliveRef"
-        />
-         <!-- mtu -->
-         <NeTextInput
-          :label="t('standalone.wire_guard.mtu')"
-          v-model.trim="mtu"
-          :invalidMessage="errorBag.getFirstFor('mtu')"
-          :disabled="loading.saveRule"
-          ref="mtuRef"
-        />
-       
+        <NeToggle v-model="service" :label="service ? t('Disable') : t('Enable')" :topLabel="t('Service')"
+          :disabled="loading.saveRule" />
+
+        <NeInlineNotification v-if="isEditingRule && props.currentRule?.system_rule" kind="warning"
+          :title="t('standalone.firewall_rules.editing_system_rule_warning_title')"
+          :description="t('standalone.firewall_rules.editing_system_rule_warning_description')" />
+
+        <NeTextInput :label="t('standalone.gre.tunnel_name')" v-model.trim="tunnelName"
+          :invalidMessage="errorBag.getFirstFor('tunnelName')" :disabled="loading.saveRule" ref="tunnelNameRef" />
+
+        <NeTextInput :label="t('standalone.gre.interface_name')" v-model.trim="interfaceName"
+          :invalidMessage="errorBag.getFirstFor('interfaceName')" :disabled="loading.saveRule" ref="interfaceNameRef" />
+
+        <NeTextInput :label="t('standalone.gre.local_virtual_ip')" v-model.trim="localVirtulaIP"
+          :invalidMessage="errorBag.getFirstFor('localVirtulaIP')" :disabled="loading.saveRule"
+          ref="localVirtulaIPRef" />
+
+        <NeTextInput :label="t('standalone.gre.peer_virtual_ip')" v-model.trim="peerVirtulaIP"
+          :invalidMessage="errorBag.getFirstFor('peerVirtulaIP')" :disabled="loading.saveRule" ref="peerVirtulaIPRef" />
+
+        <NeTextInput :label="t('standalone.gre.local_extern_ip')" v-model.trim="localExternIP"
+          :invalidMessage="errorBag.getFirstFor('localExternIP')" :disabled="loading.saveRule" ref="localExternIPRef" />
+
+        <NeTextInput :label="t('standalone.gre.peer_extern_ip')" v-model.trim="peerExternIP"
+          :invalidMessage="errorBag.getFirstFor('peerExternIP')" :disabled="loading.saveRule" ref="peerExternIPRef" />
+
+        <NeTextInput :label="t('standalone.gre.key')" v-model.trim="key" :invalidMessage="errorBag.getFirstFor('key')"
+          :disabled="loading.saveRule" ref="keyRef" />
+
+        <NeTextInput :label="t('standalone.gre.mtu')" v-model.trim="mtu" :invalidMessage="errorBag.getFirstFor('mtu')"
+          :disabled="loading.saveRule" ref="mtuRef" />
+
+        <NeTextInput :label="t('standalone.gre.net_mask')" v-model.trim="netmask"
+          :invalidMessage="errorBag.getFirstFor('netmask')" :disabled="loading.saveRule" ref="netmaskRef" />
+
       </div>
       <!-- footer -->
       <hr class="my-8 border-gray-200 dark:border-gray-700" />
       <div class="flex justify-end">
-        <NeButton
-          kind="tertiary"
-          size="lg"
-          @click.prevent="closeDrawer"
-          :disabled="loading.saveRule"
-          class="mr-3"
-        >
+        <NeButton kind="tertiary" size="lg" @click.prevent="closeDrawer" :disabled="loading.saveRule" class="mr-3">
           {{ t('common.cancel') }}
         </NeButton>
-        <NeButton
-          kind="primary"
-          size="lg"
-          @click.prevent="saveRule"
-          :disabled="loading.saveRule"
-          :loading="loading.saveRule"
-        >
+        <NeButton kind="primary" size="lg" @click.prevent="saveRule" :disabled="loading.saveRule"
+          :loading="loading.saveRule">
           {{
             isCreatingRule
               ? t('standalone.wire_guard.save')
@@ -774,8 +600,5 @@ const saveRule = async () => {
         </NeButton>
       </div>
     </form>
-
-    
-
   </NeSideDrawer>
 </template>

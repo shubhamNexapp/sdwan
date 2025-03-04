@@ -132,26 +132,25 @@ onUnmounted(() => {
 const apiResponse = ref()
 const getLists = async () => {
 
-try {
+  try {
 
-  loading.value = true;
-  const response = await axios.post(`${getSDControllerApiEndpoint()}/wireguard`, {
-    method: 'get-config',
-    payload: {}
-  });
-  
-  if(response.data.code === 200){
+    loading.value = true;
+    const response = await axios.post(`${getSDControllerApiEndpoint()}/wireguard`, {
+      method: 'get-config',
+      payload: {}
+    });
+
+    if (response.data.code === 200) {
+      loading.value = false;
+      apiResponse.value = [response.data.data] // Store API response
+    }
+  } catch (err) {
+    loading.value = false;
+    console.error("Error:====", err);
+  }
   loading.value = false;
-  apiResponse.value = [response.data.data] // Store API response
-}
-} catch (err) {
-  loading.value = false;
-  console.error("Error:====", err);
-} 
-loading.value = false;
 };
 
-console.log("apiResponse======",apiResponse)
 
 </script>
 
@@ -171,12 +170,8 @@ console.log("apiResponse======",apiResponse)
         </p>
       </div>
 
-      <NeInlineNotification
-        kind="error"
-        :title="error.notificationTitle"
-        :description="error.notificationDescription"
-        v-if="error.notificationTitle"
-      >
+      <NeInlineNotification kind="error" :title="error.notificationTitle" :description="error.notificationDescription"
+        v-if="error.notificationTitle">
         <template #details v-if="error.notificationDetails">
           {{ error.notificationDetails }}
         </template>
@@ -184,85 +179,84 @@ console.log("apiResponse======",apiResponse)
 
       <NeSkeleton v-if="loading" :lines="8" size="lg" />
 
+
+
       <template v-else>
-        <!-- Show table if apiresponse has values -->
-        <NeTable v-if="apiResponse.length > 0" cardBreakpoint="md" class="mt-2">
-      <NeTableHead>
-        <NeTableHeadCell>Local Public Key</NeTableHeadCell>
-        <NeTableHeadCell>Local Network</NeTableHeadCell>
-        <NeTableHeadCell>Listen Port</NeTableHeadCell>
-        <NeTableHeadCell>Server IP</NeTableHeadCell>
-        <NeTableHeadCell>Server Port</NeTableHeadCell>
-        <NeTableHeadCell>Peer Public Key</NeTableHeadCell>
-        <NeTableHeadCell>Allowed IPs</NeTableHeadCell>
-         <NeTableHeadCell></NeTableHeadCell> 
-      </NeTableHead>
-      <NeTableBody>
-  <NeTableRow v-for="(item, index) in apiResponse" :key="index">
-    <NeTableCell :data-label="t('standalone.real_time_monitor.interface')">
-      {{ item.local_public_key }}
-    </NeTableCell>
-    <NeTableCell :data-label="t('standalone.real_time_monitor.interface')">
-      {{ item.local_network }}
-    </NeTableCell>
-    <NeTableCell :data-label="t('standalone.real_time_monitor.interface')">
-      {{ item.listen_port }}
-    </NeTableCell>
-    <NeTableCell :data-label="t('standalone.real_time_monitor.interface')">
-      {{ item.server_ip }}
-    </NeTableCell>
-    <NeTableCell :data-label="t('standalone.real_time_monitor.interface')">
-      {{ item.server_port }}
-    </NeTableCell>
-    <NeTableCell :data-label="t('standalone.real_time_monitor.interface')">
-      {{ item.peer_public_key }}
-    </NeTableCell>
-    <NeTableCell :data-label="t('standalone.real_time_monitor.interface')">
-      {{ item.allowed_ips }}
-    </NeTableCell>
-    <NeTableCell >
-      <NeButton
-          kind="primary"
-          size="lg"
-          @click.prevent="openCreateEditDrawer(item)"
-        >
-          Edit
-        </NeButton>
-    </NeTableCell>
-  </NeTableRow>
-</NeTableBody>
-    </NeTable>
         <!-- Show "Add WireGuard Tunnel" button if dummyData is empty -->
-        <NeEmptyState
-          v-else
-          :title="t('standalone.wire_guard.no_wire_guard_found')"
-          :icon="['fas', 'globe']"
-        >
-          <NeButton kind="primary" @click="openCreateEditDrawer(null)">
-            <template #prefix>
-              <font-awesome-icon :icon="['fas', 'circle-plus']" class="h-4 w-4" aria-hidden="true" />
-            </template>
-            {{ t('standalone.wire_guard.add_wire_guard_tunnel') }}
-          </NeButton>
-        </NeEmptyState>
+        <NeButton kind="primary" @click="openCreateEditDrawer(null)">
+          <template #prefix>
+            <font-awesome-icon :icon="['fas', 'circle-plus']" class="h-4 w-4" aria-hidden="true" />
+          </template>
+          {{ t('standalone.wire_guard.add_wire_guard_tunnel') }}
+        </NeButton>
+        <!-- Show table if apiresponse has values -->
+        <NeTable cardBreakpoint="md" class="mt-2">
+          <NeTableHead>
+            <NeTableHeadCell>Local Public Key</NeTableHeadCell>
+            <NeTableHeadCell>Local Network</NeTableHeadCell>
+            <NeTableHeadCell>Listen Port</NeTableHeadCell>
+            <NeTableHeadCell>Server IP</NeTableHeadCell>
+            <NeTableHeadCell>Server Port</NeTableHeadCell>
+            <NeTableHeadCell>Peer Public Key</NeTableHeadCell>
+            <NeTableHeadCell>Allowed IPs</NeTableHeadCell>
+            <NeTableHeadCell></NeTableHeadCell>
+          </NeTableHead>
+          <NeTableBody>
+            <NeTableRow v-for="(item, index) in apiResponse" :key="index">
+              <NeTableCell :data-label="t('standalone.real_time_monitor.interface')">
+                {{ item.local_public_key }}
+              </NeTableCell>
+              <NeTableCell :data-label="t('standalone.real_time_monitor.interface')">
+                {{ item.local_network }}
+              </NeTableCell>
+              <NeTableCell :data-label="t('standalone.real_time_monitor.interface')">
+                {{ item.listen_port }}
+              </NeTableCell>
+              <NeTableCell :data-label="t('standalone.real_time_monitor.interface')">
+                {{ item.server_ip }}
+              </NeTableCell>
+              <NeTableCell :data-label="t('standalone.real_time_monitor.interface')">
+                {{ item.server_port }}
+              </NeTableCell>
+              <NeTableCell :data-label="t('standalone.real_time_monitor.interface')">
+                {{ item.peer_public_key }}
+              </NeTableCell>
+              <NeTableCell :data-label="t('standalone.real_time_monitor.interface')">
+                {{ item.allowed_ips }}
+              </NeTableCell>
+              <NeTableCell :data-label="t('common.actions')">
+                <div class="-ml-2.5 flex gap-2 xl:ml-0 xl:justify-end">
+                  <NeButton kind="tertiary" size="lg" :disabled="item.readonly"
+                    @click="openCreateEditDrawer(item)">
+                    <template #prefix>
+                      <font-awesome-icon :icon="['fas', 'pen-to-square']" class="h-4 w-4" aria-hidden="true" />
+                    </template>
+                    {{ t('common.edit') }}
+                  </NeButton>
+                  <!-- <NeButton kind="tertiary" size="lg" :disabled="item.readonly"
+                    @click="openDeleteModal(item.tunnel_name)">
+                    <template #prefix>
+                      <font-awesome-icon :icon="['fas', 'trash']" class="h-4 w-4" aria-hidden="true" />
+                    </template>
+                    {{ t('common.delete') }}
+                  </NeButton> -->
+                </div>
+              </NeTableCell>
+              <!-- <NeTableCell>
+                <NeButton kind="primary" size="lg" @click.prevent="openCreateEditDrawer(item)">
+                  Edit
+                </NeButton>
+              </NeTableCell> -->
+            </NeTableRow>
+          </NeTableBody>
+        </NeTable>
+
       </template>
     </div>
   </div>
 
-  <DeleteTunnelModal
-    :visible="showDeleteModal"
-    :item-to-delete="selectedTunnel"
-    @close="closeModalsAndDrawers"
-    @tunnel-deleted="reloadTunnels"
-  />
-  <WireGuardDrawer
-    :item-to-edit="selectedTunnel"
-    :rule-type="'forward'"  
-    :known-tags="[]" 
-    @close="closeModalsAndDrawers"
-    @add-edit-tunnel="reloadTunnels"
-    :is-shown="showCreateEditDrawer"
-  />
+  <DeleteTunnelModal :visible="showDeleteModal" :item-to-delete="selectedTunnel" @close="closeModalsAndDrawers"
+    @tunnel-deleted="reloadTunnels" />
+  <WireGuardDrawer :item-to-edit="selectedTunnel" :rule-type="'forward'" :known-tags="[]" @close="closeModalsAndDrawers"
+    @add-edit-tunnel="reloadTunnels" :is-shown="showCreateEditDrawer" />
 </template>
-
-
