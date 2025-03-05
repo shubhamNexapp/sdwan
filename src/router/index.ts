@@ -46,6 +46,11 @@ const standaloneRoutes = [
     component: () => import('../views/standalone/openwisp/openw.vue')
   },
   {
+    path: 'system/tacc-auth',
+    name: 'Tacc Auth',
+    component: () => import('../views/standalone/tacc/tacc.vue')
+  },
+  {
     path: 'system/factory_reset',
     name: 'FactoryReset',
     component: () => import('../views/standalone/system/FactoryResetView.vue')
