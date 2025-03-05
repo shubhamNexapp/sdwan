@@ -197,19 +197,19 @@ const submitForm = async () => {
     console.log("service----------", isenable, snmpService.value);
     if (snmpVersion.value === "2c") {
       v2Data = {
-        snmpService: isenable,
-        snmpVersion: snmpVersion.value,
+        service: isenable,
+        version: snmpVersion.value,
         snmpv2: {
           port: port.value,
           community: community.value,
-          trapIp: trapIp.value,
-          trapPort: trapPort.value,
+          trap_ip: trapIp.value,
+          trap_port: trapPort.value,
         },
       };
     } else {
       v2Data = {
-        snmpService: isenable,
-        snmpVersion: snmpVersion.value,
+        service: isenable,
+        version: snmpVersion.value,
         snmpv3: {
           port: port.value,
           account: [
@@ -217,8 +217,8 @@ const submitForm = async () => {
               username: username.value,
               password: password.value,
               hash: hash.value,
-              encryption: encryption.value,
-              encryptionKey: encryptionKey.value,
+              encrypt: encryption.value,
+              key: encryptionKey.value,
             },
           ],
         },
@@ -375,21 +375,60 @@ onMounted(fetchSNMPConfig);
             :disabled="loading.saveRule"
           />
 
-          <NeTextInput
+          <!-- <NeTextInput
             :label="t('Hash')"
             type="text"
             v-model="hash"
             :invalidMessage="errorBag.getFirstFor('hash')"
             :disabled="loading.saveRule"
-          />
+          /> -->
+          <div>
+            <label class="mr-4">Hash :</label>
+            <select
+              v-model="hash"
+              style="
+                width: 30%;
+                height: 36px;
+                padding: 6px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                font-size: 14px;
+                outline: none;
+                transition: border-color 0.3s ease-in-out;
+              "
+            >
+              <option value="MD5">MD5</option>
+              <option value="SHA">SHA</option>
+            </select>
+          </div>
 
-          <NeTextInput
+          <!-- <NeTextInput
             :label="t('Encryption')"
             type="text"
             v-model="encryption"
             :invalidMessage="errorBag.getFirstFor('encryption')"
             :disabled="loading.saveRule"
-          />
+          /> -->
+
+          <div>
+            <label class="mr-4">Encryption :</label>
+            <select
+              v-model="encryption"
+              style="
+                width: 30%;
+                height: 36px;
+                padding: 6px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                font-size: 14px;
+                outline: none;
+                transition: border-color 0.3s ease-in-out;
+              "
+            >
+              <option value="AES">AES</option>
+              <option value="DES">DES</option>
+            </select>
+          </div>
 
           <NeTextInput
             :label="t('Encryption Key')"
