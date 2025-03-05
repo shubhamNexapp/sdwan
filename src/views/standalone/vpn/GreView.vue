@@ -5,7 +5,6 @@ import {
   NeButton,
   NeInlineNotification,
   NeSkeleton,
-  NeEmptyState,
   getAxiosErrorMessage,
   NeTable,
   NeTableHead,
@@ -17,7 +16,6 @@ import {
 import { useUciPendingChangesStore } from '@/stores/standalone/uciPendingChanges'
 import { onMounted, onUnmounted, ref } from 'vue'
 import { ubusCall } from '@/lib/standalone/ubus'
-import TunnelTable from '@/components/standalone/ipsec_tunnel/TunnelTable.vue'
 import DeleteTunnelModal from '@/components/standalone/gre/GreDelete.vue'
 import GreDrawer from '@/components/standalone/gre/GreDrawer.vue'
 import axios from 'axios'
@@ -34,17 +32,6 @@ export type IpsecTunnel = {
   tunnelName: string
 }
 
-export type IpsecTunnel2 = {
-  id: string
-  name: string
-  local: string[]
-  remote: string[]
-  enabled: '0' | '1'
-  connected: boolean
-  tunnelName: string
-  itemToEdit: object
-}
-
 const { t } = useI18n()
 const uciChangesStore = useUciPendingChangesStore()
 
@@ -52,12 +39,8 @@ const RELOAD_INTERVAL = 10000
 const loading = ref(true)
 const tunnels = ref([])
 const selectedTunnel = ref<IpsecTunnel | null>(null)
-const selectedTunnel2 = ref<IpsecTunnel2 | null>(null)
 const showCreateEditDrawer = ref(false)
-const showCreateEditDrawer2 = ref(false)
 const showDeleteModal = ref(false)
-const showEditModal = ref(false)
-const showDeleteModal2 = ref(false)
 const fetchTunnelsIntervalId = ref(0)
 
 const error = ref({
@@ -90,7 +73,6 @@ function openCreateEditDrawer(itemToEdit: IpsecTunnel | null) {
 }
 
 const selectedTunnelName = ref<string | null>(null);
-const iteEdit = ref<object | null>(null);
 
 function openDeleteModal(tunnelName: string) {
   selectedTunnelName.value = tunnelName
@@ -119,21 +101,6 @@ function cleanError() {
   }
 }
 
-async function toggleTunnelEnable(tunnel: IpsecTunnel) {
-  try {
-    cleanError()
-    await ubusCall('ns.ipsectunnel', tunnel.enabled === '1' ? 'disable-tunnel' : 'enable-tunnel', {
-      id: tunnel.id
-    })
-    await reloadTunnels()
-  } catch (err: any) {
-    error.value.notificationTitle = t(
-      tunnel.enabled ? 'error.cannot_disable_tunnel' : 'error.cannot_enable_tunnel'
-    )
-    error.value.notificationDescription = t(getAxiosErrorMessage(err))
-    error.value.notificationDetails = err.toString()
-  }
-}
 
 async function reloadTunnels() {
   cleanError()

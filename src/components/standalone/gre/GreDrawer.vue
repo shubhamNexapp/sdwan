@@ -5,39 +5,28 @@
 
 <script setup lang="ts">
 import {
-  NeCombobox,
   type NeComboboxOption,
-  NeTooltip,
   NeInlineNotification,
   NeSideDrawer,
   NeButton,
-  NeRadioSelection,
   NeTextInput,
   getAxiosErrorMessage,
   NeToggle,
   focusElement
 } from '@nethesis/vue-components'
-import { ref, computed, type PropType, type Ref, watch, nextTick, onMounted } from 'vue'
+import { ref, computed, type PropType, type Ref, watch, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import {
-  useFirewallStore,
   type RuleService,
   type RuleHost,
   type FirewallRuleAction,
   type FirewallRule
 } from '@/stores/standalone/firewall'
-import { ValidationError, ubusCall } from '@/lib/standalone/ubus'
+import { ubusCall } from '@/lib/standalone/ubus'
 import {
   MessageBag,
-  validateIpAddressRange,
-  validateIpAddress,
-  validateIpCidr,
-  validatePortListOrRange,
   validateRequired,
-  validateRequiredOption,
-  validateAnyOf
 } from '@/lib/validation'
-import NeMultiTextInput from '../NeMultiTextInput.vue'
 import { useObjects, type ObjectReference } from '@/composables/useObjects'
 import { getSDControllerApiEndpoint } from '@/lib/config';
 import axios from 'axios';
@@ -68,10 +57,6 @@ const props = defineProps({
 const emit = defineEmits(['close', 'reloadData', 'save'])
 
 const { t } = useI18n()
-const { getObjectIcon } = useObjects()
-
-const firewallConfig = useFirewallStore()
-
 
 const sourceType = ref<'source_address' | 'source_object' | 'source_any'>('source_address')
 const destinationType = ref<'destination_address' | 'destination_object' | 'destination_any'>(
@@ -83,24 +68,18 @@ const sourceAddressObject = ref('')
 const destinationAddressObject = ref('')
 
 const sourceZone = ref('*')
-const sourceZoneRef = ref()
 const destinationZone = ref('*')
-const destinationZoneRef = ref()
 const objectSuggestions = ref<ObjectReference[]>([])
 
 const serviceSuggestions = ref<NeComboboxOption[]>([])
 const action: Ref<FirewallRuleAction> = ref('DROP')
 const protocols = ref<NeComboboxOption[]>([])
-const protocolsRef = ref()
-const protocolOptions = ref<NeComboboxOption[]>([])
 const ports = ref('')
-const portsRef = ref()
 const position = ref('bottom')
 const isExpandedAdvancedSettings = ref(false)
 const tags: Ref<NeComboboxOption[]> = ref([])
 const isLoggingEnabled = ref(false)
 const errorBag = ref(new MessageBag())
-
 
 const name = ref('')
 const nameRef = ref()
@@ -118,7 +97,6 @@ const netmask = ref()
 const mtu = ref()
 const interfaceName = ref()
 const service = ref(false)
-
 
 const tunnelName = ref('');
 const localVirtulaIP = ref('');
@@ -152,7 +130,6 @@ const isCreatingRule = computed(() => {
 const isEditingRule = computed(() => {
   return !!props.currentRule && !props.isDuplicatingRule
 })
-
 
 watch(
   () => props.isShown,
@@ -453,7 +430,6 @@ const saveRule = async () => {
 
   } catch (err) {
   }
-
 };
 
 </script>

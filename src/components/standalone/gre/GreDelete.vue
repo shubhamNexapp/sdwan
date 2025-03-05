@@ -30,21 +30,6 @@ const isDeleting = ref(false)
 
 async function deleteTunnel() {
   if (itemToDelete.value) {
-    // try {
-    //   error.value = {
-    //     notificationDescription: '',
-    //     notificationDetails: ''
-    //   }
-    //   isDeleting.value = true
-    //   await ubusCall('ns.ipsectunnel', 'delete-tunnel', { id: itemToDelete.value.id })
-    //   emit('tunnel-deleted')
-    //   emit('close')
-    // } catch (err: any) {
-    //   error.value.notificationDescription = t(getAxiosErrorMessage(err))
-    //   error.value.notificationDetails = err.toString()
-    // } finally {
-    //   isDeleting.value = false
-    // }
     try {
 
       const payload = {
