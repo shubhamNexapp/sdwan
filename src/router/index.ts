@@ -231,6 +231,11 @@ const standaloneRoutes = [
     component: () => import('../views/standalone/vpn/IPsecTunnelView.vue')
   },
   {
+    path: 'vpn/l2tp',
+    name: 'L2TP',
+    component: () => import('../views/standalone/vpn/L2TPView.vue')
+  },
+  {
     path: 'vpn/wire-guard',
     name: 'WireGuard',
     component: () => import('../views/standalone/vpn/WireGuardView.vue')

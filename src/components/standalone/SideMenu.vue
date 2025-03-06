@@ -275,7 +275,7 @@ const navigation: Ref<MenuItem[]> = ref([
       },
       {
         name: 'L2TP',
-        to: 'vp/ipsec-tunn'
+        to: 'vpn/l2tp'
       },
        {
         name: 'GRE',
