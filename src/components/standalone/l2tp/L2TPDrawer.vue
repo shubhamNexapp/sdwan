@@ -377,8 +377,6 @@ const saveRule = async () => {
             password: password.value
         }]
 
-        console.log('Payload======:', payload, null, 2); // Debugging
-
         const response = await axios.post(`${getSDControllerApiEndpoint()}/l2tp`, {
             method: 'set-config',
             payload
