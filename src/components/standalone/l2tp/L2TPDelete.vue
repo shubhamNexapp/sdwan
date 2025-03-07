@@ -33,10 +33,10 @@ async function deleteTunnel() {
     try {
 
       const payload = {
-        tunnel_name: itemToDelete.value,
+        interface_name: itemToDelete.value,
       };
 
-      const response = await axios.post(`${getSDControllerApiEndpoint()}/gre`, {
+      const response = await axios.post(`${getSDControllerApiEndpoint()}/l2tp`, {
         method: "delete-config",
         payload
       });

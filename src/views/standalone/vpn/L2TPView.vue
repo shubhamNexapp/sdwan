@@ -127,7 +127,7 @@ const getLists = async () => {
   try {
 
     loading.value = true;
-    const response = await axios.post(`${getSDControllerApiEndpoint()}/gre`, {
+    const response = await axios.post(`${getSDControllerApiEndpoint()}/l2tp`, {
       method: 'get-config',
       payload: {}
     });
@@ -202,7 +202,7 @@ const getLists = async () => {
                     {{ t('common.edit') }}
                   </NeButton>
                   <NeButton kind="tertiary" size="lg" :disabled="item.readonly"
-                    @click="openDeleteModal(item.tunnel_name)">
+                    @click="openDeleteModal(item.interface_name)">
                     <template #prefix>
                       <font-awesome-icon :icon="['fas', 'trash']" class="h-4 w-4" aria-hidden="true" />
                     </template>

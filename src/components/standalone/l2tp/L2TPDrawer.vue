@@ -367,25 +367,24 @@ const saveRule = async () => {
     try {
         if (!validate()) return;
 
-        let isService
+        let isService = service.value ? "enable" : "disable";
 
-        if (service.value) {
-            isService = "enable"
-        } else {
-            isService = "disable"
-        }
-        const payload = {
+        const payload = [{
             service: isService,
-            interface_name: interfaceName,
-            server: serverIP,
-            username: userName,
-            password: password
-        }
+            interface_name: interfaceName.value,
+            server: serverIP.value,
+            username: userName.value,
+            password: password.value
+        }]
+
+        console.log('Payload======:', payload, null, 2); // Debugging
 
         const response = await axios.post(`${getSDControllerApiEndpoint()}/l2tp`, {
             method: 'set-config',
             payload
         });
+
+        console.log('Response:', response.data); // Debugging
 
         if (response.data.code === 200) {
             notificationsStore.createNotification({

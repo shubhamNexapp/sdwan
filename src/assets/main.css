@@ -111,3 +111,6 @@ hr {
 
   background-color: #ef8b1e !important;
 }
+.peer:checked ~ .peer-checked\:bg-primary-600 {
+  background-color: rgb(0, 165, 255) !important;
+}

@@ -119,7 +119,7 @@ watch(
             // Convert service value to a boolean
             service.value = newValue.service; // true if "enable", false if anything else
             interfaceName.value = newValue.interface_name || "";
-            serverIP.value = newValue.Local_virtual_ip || "";
+            serverIP.value = newValue.server || "";
             userName.value = newValue.username || "";
             password.value = newValue.password || "";
 
@@ -455,25 +455,22 @@ async function saveRule() {
     try {
         if (!validate()) return;
 
-        let isService
+        let isService = service.value ? "enable" : "disable";
 
-        if (service.value) {
-            isService = "enable"
-        } else {
-            isService = "disable"
-        }
-        const payload = {
+        const payload = [{
             service: isService,
-            interface_name: interfaceName,
-            server: serverIP,
-            username: userName,
-            password: password
-        };
+            interface_name: interfaceName.value,
+            server: serverIP.value,
+            username: userName.value,
+            password: password.value
+        }]
 
-        const response = await axios.post(`${getSDControllerApiEndpoint()}/gre`, {
-            method: 'add-config',
+        const response = await axios.post(`${getSDControllerApiEndpoint()}/l2tp`, {
+            method: 'set-config',
             payload
         });
+
+        console.log("response========", response)
 
         if (response.data.code === 200) {
             notificationsStore.createNotification({
