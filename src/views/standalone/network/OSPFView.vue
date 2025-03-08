@@ -1,182 +1,262 @@
-<!--
-  Copyright (C) 2024 Nethesis S.r.l.
-  SPDX-License-Identifier: GPL-3.0-or-later
--->
-
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
 import {
   NeHeading,
   NeButton,
-  NeInlineNotification,
-  NeSkeleton,
-  NeEmptyState,
-  getAxiosErrorMessage
+  NeTable,
+  NeTableHead,
+  NeTableHeadCell,
+  NeTableBody,
+  NeTableRow,
+  NeTableCell,
+  NeToggle,
+  NeTextInput
 } from '@nethesis/vue-components'
-import { ref } from 'vue'
-import { useUciPendingChangesStore } from '@/stores/standalone/uciPendingChanges'
-import { onMounted } from 'vue'
-import { ubusCall } from '@/lib/standalone/ubus'
-import QoSInterfaceTable from '@/components/standalone/qos/QoSInterfaceTable.vue'
-import DeleteQoSInterfaceModal from '@/components/standalone/qos/DeleteQoSInterfaceModal.vue'
-import CreateOrEditQoSInterfaceDrawer from '@/components/standalone/qos/CreateOrEditQoSInterfaceDrawer.vue'
-import { useFirewallStore } from '@/stores/standalone/firewall'
+import { onMounted, ref, watch } from 'vue'
+import axios from 'axios'
+import { getSDControllerApiEndpoint } from '@/lib/config'
 
-export type QoSInterface = {
-  interface: string
-  device: string
-  disabled: boolean
-  upload: number
-  download: number
-}
+const loading = ref({ saveRule: false })
 
-const { t } = useI18n()
-const uciChangesStore = useUciPendingChangesStore()
-const firewallConfig = useFirewallStore()
+const service = ref(false);
+const redistributeConnect = ref(false);
+const redistributeStatic = ref(false);
+const redistributeKernel = ref(false);
 
-const error = ref({
-  notificationTitle: '',
-  notificationDescription: '',
-  notificationDetails: ''
-})
-const fetchError = ref(false)
-const qosInterfaces = ref<QoSInterface[]>([])
-const selectedInterface = ref<QoSInterface>()
-const loading = ref(false)
-const showDeleteInterfaceModal = ref(false)
-const showCreateOrEditInterfaceDrawer = ref(false)
+let apiResponse = ref()
+const newNeighbours = ref<{ neighbor_ip: string }[]>([])
+const newNetwork = ref<{ network: string, area_number: string }[]>([])
+const interfaceNew = ref<{ interface_name: string, cost: string, network_type: string }[]>([])
 
-function openCreateEditInterfaceDrawer(itemToEdit?: QoSInterface) {
-  selectedInterface.value = itemToEdit
-  showCreateOrEditInterfaceDrawer.value = true
-}
+watch(
+  () => apiResponse.value,
+  (newValue) => {
+    if (newValue) {
+      service.value = newValue.service === 'enable';
+      redistributeConnect.value = newValue.rdb_connected === 'enable';
+      redistributeStatic.value = newValue.rdb_static === 'enable';
+      redistributeKernel.value = newValue.rdb_kernel === 'enable';
+      newNeighbours.value = newValue.neighbor || [];
+      newNetwork.value = newValue.network_conf || [];
+      // interfaceNew.value = newValue.interface_conf || [];
 
-function openDeleteInterfaceModal(itemToDelete: QoSInterface) {
-  selectedInterface.value = itemToDelete
-  showDeleteInterfaceModal.value = true
-}
+      // Ensure interface values are mapped correctly
+      interfaceNew.value = newValue.interface_conf?.map((item: any) => ({
+        interface_name: item.interface_name || '',
+        cost: item.cost || '',
+        network_type: item.network_type || ''
+      })) || [];
 
-async function fetchInterfaces() {
-  error.value.notificationDescription = ''
-  error.value.notificationDetails = ''
-
-  if (firewallConfig.loading || firewallConfig.error) {
-    firewallConfig.fetch()
-  }
-
-  try {
-    loading.value = true
-    qosInterfaces.value = (await ubusCall('ns.qos', 'list')).data.rules
-  } catch (err: any) {
-    error.value.notificationTitle = t('error.cannot_retrieve_qos_interfaces')
-    error.value.notificationDescription = t(getAxiosErrorMessage(err))
-    error.value.notificationDetails = err.toString()
-    fetchError.value = true
-  } finally {
-    loading.value = false
-  }
-}
-
-async function toggleInterfaceEnable(qosInterface: QoSInterface) {
-  try {
-    await ubusCall('ns.qos', 'set-status', {
-      interface: qosInterface.interface,
-      disabled: !qosInterface.disabled
-    })
-    await refreshInterfaces()
-  } catch (err: any) {
-    error.value.notificationTitle = qosInterface.disabled
-      ? t('error.cannot_enable_qos_interface')
-      : t('error.cannot_disable_qos_interface')
-    error.value.notificationDescription = t(getAxiosErrorMessage(err))
-    error.value.notificationDetails = err.toString()
-  }
-}
-
-async function refreshInterfaces() {
-  await uciChangesStore.getChanges()
-  fetchInterfaces()
-}
+    }
+  },
+  { deep: true, immediate: true }
+);
 
 onMounted(() => {
-  fetchInterfaces()
-})
+  getLists();
+});
+
+const getLists = async () => {
+  try {
+    const response = await axios.post(`${getSDControllerApiEndpoint()}/ospf`, {
+      method: 'get-config',
+      payload: {}
+    });
+    if (response.data.code === 200) {
+      apiResponse.value = response.data.data;
+    }
+  } catch (err) {
+    console.error("Error fetching data:", err);
+  }
+};
+
+const addNeighbour = () => {
+  newNeighbours.value.push({ neighbor_ip: '' });
+};
+
+const addNetwork = () => {
+  newNetwork.value.push({ network: '', area_number: '' });
+};
+
+const addInterFace = () => {
+  interfaceNew.value.push({
+    interface_name: 'br-lan',  // Default to 'br-lan'
+    cost: '',
+    network_type: 'broadcast'  // Default to 'broadcast'
+  });
+};
+
+const deleteNeighbour = (index: number) => {
+  newNeighbours.value.splice(index, 1);
+};
+
+const deleteNetwork = (index: number) => {
+  newNetwork.value.splice(index, 1);
+};
+
+const deleteInterface = (index: number) => {
+  interfaceNew.value.splice(index, 1);
+};
+
+const saveNetworkConfig = async () => {
+  loading.value.saveRule = true;
+  try {
+    const payload = {
+      method: "set-config",
+      payload: {
+        service: service.value ? "enable" : "disable",
+        rdb_connected: redistributeConnect.value ? "enable" : "disable",
+        rdb_static: redistributeStatic.value ? "enable" : "disable",
+        rdb_kernel: redistributeKernel.value ? "enable" : "disable",
+        neighbor: newNeighbours.value,
+        network_conf: newNetwork.value,
+        interface_conf: interfaceNew.value
+      }
+    };
+
+    await axios.post(`${getSDControllerApiEndpoint()}/ospf`, payload);
+    getLists(); // Refresh list after saving
+  } catch (err) {
+    console.error("Error saving data:", err);
+  } finally {
+    loading.value.saveRule = false;
+  }
+};
+
 </script>
 
 <template>
-  <NeHeading tag="h3" class="mb-7">OISPF View</NeHeading>
+  <NeHeading tag="h3" class="mb-7">OSPF</NeHeading>
   <div class="flex flex-col gap-y-6">
-    <div class="flex flex-row items-center justify-between">
-      <p class="max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
-        {{ t('standalone.qos.description') }}
-      </p>
-      <NeButton
-        kind="secondary"
-        @click="openCreateEditInterfaceDrawer()"
-        v-if="qosInterfaces.length > 0"
-        ><template #prefix>
-          <font-awesome-icon
-            :icon="['fas', 'circle-plus']"
-            class="h-4 w-4"
-            aria-hidden="true"
-          /> </template
-        >{{ t('standalone.qos.add_qos_interface') }}</NeButton
-      >
+    <div>
+      <div class="flex flex-col items-start mb-4">
+        <NeToggle v-model="service" label="OSPF Service" />
+        <div class="w-full flex flex-col gap-3 mt-4">
+          <NeToggle v-model="redistributeConnect" label="Redisribute Connect" />
+          <NeToggle v-model="redistributeStatic" label="Redisribute Static" />
+          <NeToggle v-model="redistributeKernel" label="Redisribute Kernel" />
+        </div>
+      </div>
+
+      <!-- Neighbours Table -->
+      <div class="flex flex-row items-center justify-between mt-4">
+        <p class="max-w-2xl font-bold text-black dark:text-gray-400">Neighbour</p>
+        <NeButton kind="primary" size="lg" @click="addNeighbour">
+          <template #prefix>
+            <font-awesome-icon :icon="['fas', 'plus']" class="h-4 w-4" aria-hidden="true" />
+          </template>
+          Add
+        </NeButton>
+      </div>
+
+      <NeTable cardBreakpoint="md" class="mt-2" ariaLabel="Neighbour Table">
+        <NeTableHead>
+          <NeTableHeadCell>Neighbor</NeTableHeadCell>
+          <NeTableHeadCell>Operations</NeTableHeadCell>
+        </NeTableHead>
+        <NeTableBody>
+          <NeTableRow v-for="(item, index) in newNeighbours" :key="`new-${index}`">
+            <NeTableCell>
+              <NeTextInput v-model.trim="item.neighbor_ip" placeholder="Neighbour" />
+            </NeTableCell>
+            <NeTableCell>
+              <NeButton size="sm" class="mt-5" @click=deleteNeighbour(index)>
+                <font-awesome-icon :icon="['fas', 'trash']" class="h-4 w-4" aria-hidden="true" />
+              </NeButton>
+            </NeTableCell>
+            <!-- <NeButton kind="danger" size="sm" @click="deleteNeighbour(index)">Delete</NeButton> -->
+          </NeTableRow>
+        </NeTableBody>
+      </NeTable>
+
+      <!-- Networks Table -->
+      <div class="flex flex-row items-center justify-between mt-6">
+        <p class="max-w-2xl font-bold text-black dark:text-gray-400">Network</p>
+        <NeButton kind="primary" size="lg" @click="addNetwork">
+          <template #prefix>
+            <font-awesome-icon :icon="['fas', 'plus']" class="h-4 w-4" aria-hidden="true" />
+          </template>
+          Add
+        </NeButton>
+      </div>
+
+      <NeTable cardBreakpoint="md" class="mt-2" ariaLabel="Network Table">
+        <NeTableHead>
+          <NeTableHeadCell>Network</NeTableHeadCell>
+          <NeTableHeadCell>Area Number</NeTableHeadCell>
+          <NeTableHeadCell>Operations</NeTableHeadCell>
+        </NeTableHead>
+        <NeTableBody>
+          <NeTableRow v-for="(item, index) in newNetwork" :key="`new-${index}`">
+            <NeTableCell>
+              <NeTextInput v-model.trim="item.network" placeholder="Network" />
+            </NeTableCell>
+            <NeTableCell>
+              <NeTextInput v-model.trim="item.area_number" placeholder="Network" />
+            </NeTableCell>
+            <NeTableCell>
+              <NeButton size="sm" @click="deleteNetwork(index)">
+                <font-awesome-icon :icon="['fas', 'trash']" class="h-4 w-4" aria-hidden="true" />
+              </NeButton>
+              <!-- <NeButton kind="danger" size="sm" @click="deleteNetwork(index)">Delete</NeButton> -->
+            </NeTableCell>
+          </NeTableRow>
+        </NeTableBody>
+      </NeTable>
+
+      <!-- Interface Table -->
+      <div class="flex flex-row items-center justify-between mt-6">
+        <p class="max-w-2xl font-bold text-black dark:text-gray-400">Interface</p>
+        <NeButton kind="primary" size="lg" @click="addInterFace">
+          <template #prefix>
+            <font-awesome-icon :icon="['fas', 'plus']" class="h-4 w-4" aria-hidden="true" />
+          </template>
+          Add
+        </NeButton>
+      </div>
+
+      <NeTable cardBreakpoint="md" class="mt-2" ariaLabel="Interface Table">
+        <NeTableHead>
+          <NeTableHeadCell>Interface</NeTableHeadCell>
+          <NeTableHeadCell>Cost</NeTableHeadCell>
+          <NeTableHeadCell>Network Type</NeTableHeadCell>
+          <NeTableHeadCell>Operations</NeTableHeadCell>
+        </NeTableHead>
+        <NeTableBody>
+          <NeTableRow v-for="(item, index) in interfaceNew" :key="`new-${index}`">
+            <NeTableCell>
+              <select v-model="item.interface_name">
+                <option value="br-lan">br-lan</option>
+                <option value="br-wan">br-wan</option>
+                <option value="eth5">ETH5</option>
+                <option value="eth1">ETH1</option>
+              </select>
+            </NeTableCell>
+            <NeTableCell>
+              <NeTextInput v-model.trim="item.cost" placeholder="Cost" />
+            </NeTableCell>
+            <NeTableCell>
+              <select v-model="item.network_type">
+                <option value="broadcast">Broadcast</option>
+                <option value="non-broadcast">Non-Broadcast</option>
+                <option value="point-to-multipoint">Point-to-Multipoint</option>
+                <option value="point-to-point">Point-to-Point</option>
+              </select>
+            </NeTableCell>
+            <NeTableCell>
+              <NeButton size="sm" @click="deleteInterface(index)">
+                <font-awesome-icon :icon="['fas', 'trash']" class="h-4 w-4" aria-hidden="true" />
+              </NeButton>
+            </NeTableCell>
+          </NeTableRow>
+        </NeTableBody>
+      </NeTable>
+
+      <!-- Save Button -->
+      <div class="mt-4 flex justify-end">
+        <NeButton kind="primary" size="lg" @click="saveNetworkConfig" :disabled="loading.saveRule">
+          Save
+        </NeButton>
+      </div>
     </div>
-    <NeInlineNotification
-      v-if="error.notificationDescription || firewallConfig.error"
-      :title="
-        firewallConfig.error ? t('error.cannot_load_firewall_config') : error.notificationTitle
-      "
-      :description="
-        firewallConfig.error
-          ? t(getAxiosErrorMessage(firewallConfig.error))
-          : error.notificationDescription
-      "
-      class="mb-6"
-      kind="error"
-    >
-      <template #details v-if="error.notificationDetails">
-        {{ firewallConfig.error ? firewallConfig.error.toString() : error.notificationDetails }}
-      </template></NeInlineNotification
-    >
-    <NeSkeleton v-if="loading" :lines="10" />
-    <template v-else-if="!fetchError">
-      <NeEmptyState
-        v-if="qosInterfaces.length == 0"
-        :title="t('standalone.qos.no_interface_found')"
-        :icon="['fas', 'chart-simple']"
-        ><NeButton kind="secondary" @click="openCreateEditInterfaceDrawer()"
-          ><template #prefix>
-            <font-awesome-icon
-              :icon="['fas', 'circle-plus']"
-              class="h-4 w-4"
-              aria-hidden="true"
-            /> </template
-          >{{ t('standalone.qos.add_qos_interface') }}</NeButton
-        ></NeEmptyState
-      >
-      <QoSInterfaceTable
-        v-else
-        :qos-interfaces="qosInterfaces"
-        :firewall-zones="firewallConfig.zones"
-        @edit="openCreateEditInterfaceDrawer"
-        @delete="openDeleteInterfaceModal"
-        @enable-disable="toggleInterfaceEnable"
-      />
-    </template>
   </div>
-  <DeleteQoSInterfaceModal
-    :visible="showDeleteInterfaceModal"
-    :item-to-delete="selectedInterface"
-    @close="showDeleteInterfaceModal = false"
-    @qos-interface-deleted="refreshInterfaces"
-  />
-  <CreateOrEditQoSInterfaceDrawer
-    :is-shown="showCreateOrEditInterfaceDrawer"
-    :item-to-edit="selectedInterface"
-    :configured-interfaces="qosInterfaces.map((x) => x.interface)"
-    @close="showCreateOrEditInterfaceDrawer = false"
-    @add-edit-qos-interface="refreshInterfaces"
-  />
 </template>
