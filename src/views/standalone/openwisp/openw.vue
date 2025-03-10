@@ -123,7 +123,8 @@ async function saveSettings() {
       <NeTextInput v-model="verifySSL"  type="checkbox"
         class="w-4 h-4 border-gray-300 rounded text-primary-600 focus:ring-primary-600 dark:border-gray-700 dark:text-primary-600 dark:focus:ring-primary-400" />
 
-      <NeButton :loading="saving" kind="primary" @click="saveSettings" class="ml-2.5">Save</NeButton>
     </div>
+    <NeButton :loading="saving" kind="primary" @click="saveSettings" class="mt-5 ml-1">Save</NeButton>
+
   </FormLayout>
 </template>

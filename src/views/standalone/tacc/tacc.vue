@@ -87,7 +87,7 @@ async function saveSettings() {
       <NeTextInput v-model="serverAddress" label="Server Address" />
       <NeTextInput v-model="sharedSecret" label="Secret" type="password" />
     </div>
-    <NeButton :loading="saving" kind="primary" @click="saveSettings" class="ml-2.5">Save</NeButton>
+    <NeButton :loading="saving" kind="primary" @click="saveSettings" class="mt-5 ml-1">Save</NeButton>
 
   </FormLayout>
 </template>
