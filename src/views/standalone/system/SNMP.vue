@@ -373,6 +373,7 @@ onMounted(fetchSNMPConfig);
             v-model="password"
             :invalidMessage="errorBag.getFirstFor('password')"
             :disabled="loading.saveRule"
+            class="mb-5"
           />
 
           <!-- <NeTextInput
@@ -382,8 +383,9 @@ onMounted(fetchSNMPConfig);
             :invalidMessage="errorBag.getFirstFor('hash')"
             :disabled="loading.saveRule"
           /> -->
+          <label class="mt-4 mr-4">Hash :</label>
           <div>
-            <label class="mr-4">Hash :</label>
+            
             <select
               v-model="hash"
               style="
@@ -393,6 +395,8 @@ onMounted(fetchSNMPConfig);
                 border: 1px solid #ccc;
                 border-radius: 5px;
                 font-size: 14px;
+                margin-top: 20px;
+                margin-bottom: 10px;
                 outline: none;
                 transition: border-color 0.3s ease-in-out;
               "
@@ -409,9 +413,9 @@ onMounted(fetchSNMPConfig);
             :invalidMessage="errorBag.getFirstFor('encryption')"
             :disabled="loading.saveRule"
           /> -->
-
+          <label class="mr-4 ">Encryption :</label>
           <div>
-            <label class="mr-4">Encryption :</label>
+          
             <select
               v-model="encryption"
               style="
@@ -422,6 +426,8 @@ onMounted(fetchSNMPConfig);
                 border-radius: 5px;
                 font-size: 14px;
                 outline: none;
+                margin-top: 20px;
+                margin-bottom: 10px;
                 transition: border-color 0.3s ease-in-out;
               "
             >
