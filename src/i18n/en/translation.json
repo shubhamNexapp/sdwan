@@ -2182,6 +2182,7 @@
       "no_wire_guard_found": "No client tunnel found",
       "name": "Name",
       "zero_tier_id": "ZeroTier ID",
+      "join": "Join",
       "local_networks": "Local networks",
       "remote_networks": "Remote networks",
       "received": "Received",
@@ -2414,6 +2415,14 @@
       "description": "Measure round-trip time and packet delivery rates by pinging network hosts. Add one or more hosts, including VPN IPs to monitor tunnel quality. Latency and packet delivery charts are available under Monitoring > Real-time monitor > WAN uplinks.",
       "add_host": "Add host",
       "host_to_monitor": "Hosts to monitor"
+    },
+    "ping_traceroot": {
+      "title": "Ping and Traceroute",
+      "description": "Measure round-trip time and packet delivery rates by pinging network hosts. Add one or more hosts, including VPN IPs to monitor tunnel quality. Latency and packet delivery charts are available under Monitoring > Real-time monitor > WAN uplinks.",
+      "add_host": "Add host",
+      "host_to_monitor": "Hosts to monitor",
+      "ping_title": "Ping",
+      "trace_root_title": "Trace Route"
     },
     "account_management": {
       "title": "Account settings for '{name}'",

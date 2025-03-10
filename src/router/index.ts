@@ -266,6 +266,11 @@ const standaloneRoutes = [
     component: () => import('../views/standalone/monitoring/RealTimeMonitoringView.vue')
   },
   {
+    path: 'monitoring/ping-traceroot',
+    name: 'Ping and Traceroot',
+    component: () => import('../views/standalone/monitoring/PingTraceRoot.vue')
+  },
+  {
     path: 'monitoring/netify-informatics',
     name: 'NetifyInformatics',
     component: () => import('../views/standalone/monitoring/NetifyInformaticsView.vue')

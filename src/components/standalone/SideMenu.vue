@@ -51,6 +51,10 @@ const navigation: Ref<MenuItem[]> = ref([
       {
         name: 'standalone.ping_latency_monitor.title',
         to: 'monitoring/ping-latency-monitor'
+      },
+      {
+        name: 'standalone.ping_traceroot.title',
+        to: 'monitoring/ping-traceroot'
       }
     ]
   },
@@ -277,7 +281,7 @@ const navigation: Ref<MenuItem[]> = ref([
         name: 'L2TP',
         to: 'vpn/l2tp'
       },
-       {
+      {
         name: 'GRE',
         to: 'vpn/gre'
       },
@@ -332,63 +336,45 @@ function loadMenuItemsExpanded() {
   <li v-for="item in navigation" :key="item.name">
     <!-- simple link -->
     <template v-if="isEmpty(item.children)">
-      <router-link
-        :to="`${getStandaloneRoutePrefix()}/${item.to}`"
-        :class="[
-          isCurrentRoute(item.to)
-            ? 'border-l-4 border-primary-700 bg-gray-100 text-gray-900 dark:border-primary-500 dark:bg-gray-800 dark:text-gray-50'
-            : 'text-gray-600 side-bar-grey hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-50',
-          'group flex cursor-pointer items-center gap-x-3 rounded-md px-3 py-2 text-sm font-semibold leading-6 hover:bg-gray-100 dark:hover:bg-gray-800'
-        ]"
-      >
-        <font-awesome-icon
-          :icon="[isCurrentRoute(item.to) ? 'fas' : 'fal', item.icon]"
-          class="w-8 h-6 shrink-0"
-          aria-hidden="true"
-        />
+      <router-link :to="`${getStandaloneRoutePrefix()}/${item.to}`" :class="[
+        isCurrentRoute(item.to)
+          ? 'border-l-4 border-primary-700 bg-gray-100 text-gray-900 dark:border-primary-500 dark:bg-gray-800 dark:text-gray-50'
+          : 'text-gray-600 side-bar-grey hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-50',
+        'group flex cursor-pointer items-center gap-x-3 rounded-md px-3 py-2 text-sm font-semibold leading-6 hover:bg-gray-100 dark:hover:bg-gray-800'
+      ]">
+        <font-awesome-icon :icon="[isCurrentRoute(item.to) ? 'fas' : 'fal', item.icon]" class="w-8 h-6 shrink-0"
+          aria-hidden="true" />
         {{ t(item.name) }}
       </router-link>
     </template>
     <!-- open submenu -->
     <template v-else>
-      <a
-        @click="toggleExpand(item)"
-        :class="[
-          isCurrentRoute(item.to)
-            ? 'text-gray-900 dark:text-gray-50'
-            : 'text-gray-600 hover:text-gray-900 side-bar-grey dark:text-gray-300 dark:hover:text-gray-50',
-          'group flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm font-semibold leading-6 hover:bg-gray-100 dark:hover:bg-gray-800'
-        ]"
-      >
+      <a @click="toggleExpand(item)" :class="[
+        isCurrentRoute(item.to)
+          ? 'text-gray-900 dark:text-gray-50'
+          : 'text-gray-600 hover:text-gray-900 side-bar-grey dark:text-gray-300 dark:hover:text-gray-50',
+        'group flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm font-semibold leading-6 hover:bg-gray-100 dark:hover:bg-gray-800'
+      ]">
         <div class="flex items-center gap-x-3">
-          <font-awesome-icon
-            :icon="[isCurrentRoute(item.to) ? 'fas' : 'fal', item.icon]"
-            class="w-8 h-6 shrink-0"
-            aria-hidden="true"
-          />
+          <font-awesome-icon :icon="[isCurrentRoute(item.to) ? 'fas' : 'fal', item.icon]" class="w-8 h-6 shrink-0"
+            aria-hidden="true" />
           <span>
             {{ t(item.name) }}
           </span>
         </div>
-        <font-awesome-icon
-          :icon="['fas', menuExpanded[item.to] ? 'chevron-up' : 'chevron-down']"
-          class="w-3 h-3 ml-2 shrink-0"
-          aria-hidden="true"
-        />
+        <font-awesome-icon :icon="['fas', menuExpanded[item.to] ? 'chevron-up' : 'chevron-down']"
+          class="w-3 h-3 ml-2 shrink-0" aria-hidden="true" />
       </a>
       <Transition name="slide-down">
         <ul v-show="menuExpanded[item.to]" role="list" class="mt-2 space-y-1">
           <li v-for="child in item.children" :key="child.name">
             <div class="ml-10">
-              <router-link
-                :to="`${getStandaloneRoutePrefix()}/${child.to}`"
-                :class="[
-                  isCurrentRoute(child.to)
-                    ? 'border-l-4 border-primary-700 bg-gray-100 text-gray-900 dark:border-primary-500 dark:bg-gray-800 dark:text-gray-50'
-                    : 'text-gray-600 side-bar-grey hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-50',
-                  'group flex cursor-pointer items-center gap-x-3 rounded-md px-3 py-1 text-sm font-semibold leading-6 hover:bg-gray-100 dark:hover:bg-gray-800'
-                ]"
-              >
+              <router-link :to="`${getStandaloneRoutePrefix()}/${child.to}`" :class="[
+                isCurrentRoute(child.to)
+                  ? 'border-l-4 border-primary-700 bg-gray-100 text-gray-900 dark:border-primary-500 dark:bg-gray-800 dark:text-gray-50'
+                  : 'text-gray-600 side-bar-grey hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-50',
+                'group flex cursor-pointer items-center gap-x-3 rounded-md px-3 py-1 text-sm font-semibold leading-6 hover:bg-gray-100 dark:hover:bg-gray-800'
+              ]">
                 {{ t(child.name) }}
               </router-link>
             </div>
