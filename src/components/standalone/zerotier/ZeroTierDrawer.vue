@@ -405,12 +405,12 @@ const validate = () => {
   errorBag.value.clear();
   let isValid = true;
 
-  const requiredFields  = [
+  const requiredFields = [
     { key: 'zeroTierID', value: zeroTierID, ref: zeroTierIDRef },
-   
+
   ];
 
-  
+
   requiredFields.forEach((field) => {
     const validation = validateRequired(field.value.value);
     if (!validation.valid) {
@@ -437,26 +437,24 @@ Object.keys(fieldsToWatch).forEach((fieldKey) => {
 
 const saveRule = async () => {
 
-    try {
-        if (!validate()) return;
+  try {
+    if (!validate()) return;
 
-        const payload = {
-        service: isRuleEnabled.value,
-        join: zeroTierID.value,
+    const payload = {
+      service: isRuleEnabled.value,
+      join: zeroTierID.value,
     };
 
-    console.log("payload=======",payload)
-
-  const response = await axios.post(`${getSDControllerApiEndpoint()}/zerotier`, {
+    const response = await axios.post(`${getSDControllerApiEndpoint()}/zerotier`, {
       method: 'set-config',
       payload: {
-        service: isRuleEnabled.value,
+        service: isRuleEnabled.value ? "enable" : "disable",
         join: zeroTierID.value,
       }
     });
 
 
-    console.log("response======",response)
+    console.log("response======", response)
 
     if (response.data.code === 200) {
       notificationsStore.createNotification({
@@ -465,78 +463,51 @@ const saveRule = async () => {
         kind: 'success'
       });
 
-       // Reset form after successful save
-        isRuleEnabled.value = false;
-      
-        errorBag.value.clear();
-        emit('save', payload);
+      // Reset form after successful save
+      isRuleEnabled.value = false;
 
-        // ✅ Close the drawer after saving
-        closeDrawer();
+      errorBag.value.clear();
+      emit('save', payload);
+
+      // ✅ Close the drawer after saving
+      closeDrawer();
 
     } else {
       throw new Error('Failed to save configuration.');
     }
 
-    } catch (err) {
+  } catch (err) {
     console.error("Error:====", err);
-  } 
+  }
 
 };
 
 </script>
 
 <template>
-  <NeSideDrawer
-    :isShown="isShown"
-    :title="t('standalone.wire_guard.add_client_tunnel')"
-    :closeAriaLabel="t('standalone.wire_guard.add_client_tunnel')"
-    @close="closeDrawer"
-  >
+  <NeSideDrawer :isShown="isShown" :title="t('standalone.wire_guard.add_client_tunnel')"
+    :closeAriaLabel="t('standalone.wire_guard.add_client_tunnel')" @close="closeDrawer">
     <form>
       <div class="space-y-6">
         <!-- editing system rule warning -->
-        <NeInlineNotification
-          v-if="isEditingRule && props.currentRule?.system_rule"
-          kind="warning"
+        <NeInlineNotification v-if="isEditingRule && props.currentRule?.system_rule" kind="warning"
           :title="t('standalone.firewall_rules.editing_system_rule_warning_title')"
-          :description="t('standalone.firewall_rules.editing_system_rule_warning_description')"
-        />
+          :description="t('standalone.firewall_rules.editing_system_rule_warning_description')" />
         <!-- enabled -->
-        <NeToggle
-          v-model="isRuleEnabled"
-          :label="isRuleEnabled ? t('common.enabled') : t('common.disabled')"
-          :topLabel="t('common.status')"
-          :disabled="loading.saveRule"
-        />
-         <!-- zero tier id -->
-         <NeTextInput
-          :label="t('standalone.zero-tier.zero_tier_id')"
-          v-model.trim="zeroTierID"
-          :invalidMessage="errorBag.getFirstFor('zeroTierID')"
-          :disabled="loading.saveRule"
-          ref="zeroTierIDRef"
-        />
+        <NeToggle v-model="isRuleEnabled" :label="isRuleEnabled ? t('common.enabled') : t('common.disabled')"
+          :topLabel="t('common.status')" :disabled="loading.saveRule" />
+        <!-- zero tier id -->
+        <NeTextInput :label="t('standalone.zero-tier.zero_tier_id')" v-model.trim="zeroTierID"
+          :invalidMessage="errorBag.getFirstFor('zeroTierID')" :disabled="loading.saveRule" ref="zeroTierIDRef" />
       </div>
       <!-- footer -->
       <hr class="my-8 border-gray-200 dark:border-gray-700" />
       <div class="flex justify-end">
-        <NeButton
-          kind="tertiary"
-          size="lg"
-          @click.prevent="closeDrawer"
-          :disabled="loading.saveRule"
-          class="mr-3"
-        >
+        <NeButton kind="tertiary" size="lg" @click.prevent="closeDrawer" :disabled="loading.saveRule" class="mr-3">
           {{ t('common.cancel') }}
         </NeButton>
-        <NeButton
-          kind="primary"
-          size="lg"
-          @click.prevent="saveRule"
-          :disabled="loading.saveRule"
-          :loading="loading.saveRule"
-        >
+        <NeButton kind="primary" size="lg" @click.prevent="saveRule" :disabled="loading.saveRule"
+          :loading="loading.saveRule">
           {{
             isCreatingRule
               ? t('standalone.wire_guard.save')

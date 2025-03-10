@@ -132,23 +132,23 @@ onUnmounted(() => {
 const apiResponse = ref()
 const getLists = async () => {
 
-try {
+  try {
 
-  loading.value = true;
-  const response = await axios.post(`${getSDControllerApiEndpoint()}/zerotier`, {
-    method: 'get-config',
-    payload: {}
-  });
+    loading.value = true;
+    const response = await axios.post(`${getSDControllerApiEndpoint()}/zerotier`, {
+      method: 'get-config',
+      payload: {}
+    });
 
-  if(response.data.code === 200){
+    if (response.data.code === 200) {
+      loading.value = false;
+      //   apiResponse.value = [response.data.data] // Store API response
+      apiResponse.value = [response.data.data] // Store API response
+    }
+  } catch (err) {
+    loading.value = false;
+  }
   loading.value = false;
-//   apiResponse.value = [response.data.data] // Store API response
-  apiResponse.value = [response.data.data] // Store API response
-}
-} catch (err) {
-  loading.value = false;
-} 
-loading.value = false;
 };
 
 </script>
@@ -169,12 +169,8 @@ loading.value = false;
         </p>
       </div>
 
-      <NeInlineNotification
-        kind="error"
-        :title="error.notificationTitle"
-        :description="error.notificationDescription"
-        v-if="error.notificationTitle"
-      >
+      <NeInlineNotification kind="error" :title="error.notificationTitle" :description="error.notificationDescription"
+        v-if="error.notificationTitle">
         <template #details v-if="error.notificationDetails">
           {{ error.notificationDetails }}
         </template>
@@ -183,84 +179,60 @@ loading.value = false;
       <NeSkeleton v-if="loading" :lines="8" size="lg" />
 
       <template v-else>
+        <!-- Show "Add WireGuard Tunnel" button if dummyData is empty -->
+        <NeButton kind="primary" @click="openCreateEditDrawer(null)">
+          {{ t('standalone.wire_guard.add_wire_guard_tunnel') }}
+        </NeButton>
         <!-- Show table if apiresponse has values -->
-        <NeTable v-if="apiResponse.length > 0" cardBreakpoint="md" class="mt-2">
-      <NeTableHead>
-        <NeTableHeadCell>Join</NeTableHeadCell>
-        <NeTableHeadCell>ID</NeTableHeadCell>
-        <NeTableHeadCell>Version</NeTableHeadCell>
-        <NeTableHeadCell>Network</NeTableHeadCell>
-        <NeTableHeadCell>MAC</NeTableHeadCell>
-        <NeTableHeadCell>Status</NeTableHeadCell>
-        <!-- <NeTableHeadCell>Connection</NeTableHeadCell> -->
-        <!-- <NeTableHeadCell></NeTableHeadCell> -->
-      </NeTableHead>
-      <NeTableBody>
-  <NeTableRow v-for="(item, index) in apiResponse" :key="index">
-    <NeTableCell :data-label="t('standalone.real_time_monitor.interface')">
-      {{ item.join }}
-    </NeTableCell>
-    <NeTableCell :data-label="t('standalone.real_time_monitor.interface')">
-      {{ item.id }}
-    </NeTableCell>
-    <NeTableCell :data-label="t('standalone.real_time_monitor.interface')">
-      {{ item.version }}
-    </NeTableCell>
-    <NeTableCell :data-label="t('standalone.real_time_monitor.interface')">
-      {{ item.network }}
-    </NeTableCell>
-    <NeTableCell :data-label="t('standalone.real_time_monitor.interface')">
-      {{ item.mac }}
-    </NeTableCell>
-    <NeTableCell :data-label="t('standalone.real_time_monitor.interface')">
-      {{ item.status }}
-    </NeTableCell>
-    <!-- <NeTableCell :data-label="t('standalone.real_time_monitor.interface')">
+        <NeTable cardBreakpoint="md" class="mt-2">
+          <NeTableHead>
+            <NeTableHeadCell>Join</NeTableHeadCell>
+            <NeTableHeadCell>ID</NeTableHeadCell>
+            <NeTableHeadCell>Version</NeTableHeadCell>
+            <NeTableHeadCell>Network</NeTableHeadCell>
+            <NeTableHeadCell>MAC</NeTableHeadCell>
+            <NeTableHeadCell>Status</NeTableHeadCell>
+            <!-- <NeTableHeadCell>Connection</NeTableHeadCell> -->
+            <!-- <NeTableHeadCell></NeTableHeadCell> -->
+          </NeTableHead>
+          <NeTableBody>
+            <NeTableRow v-for="(item, index) in apiResponse" :key="index">
+              <NeTableCell :data-label="t('standalone.real_time_monitor.interface')">
+                {{ item.join }}
+              </NeTableCell>
+              <NeTableCell :data-label="t('standalone.real_time_monitor.interface')">
+                {{ item.id }}
+              </NeTableCell>
+              <NeTableCell :data-label="t('standalone.real_time_monitor.interface')">
+                {{ item.version }}
+              </NeTableCell>
+              <NeTableCell :data-label="t('standalone.real_time_monitor.interface')">
+                {{ item.network }}
+              </NeTableCell>
+              <NeTableCell :data-label="t('standalone.real_time_monitor.interface')">
+                {{ item.mac }}
+              </NeTableCell>
+              <NeTableCell :data-label="t('standalone.real_time_monitor.interface')">
+                {{ item.status }}
+              </NeTableCell>
+              <!-- <NeTableCell :data-label="t('standalone.real_time_monitor.interface')">
       {{ item.allowed_ips }}
     </NeTableCell> -->
-     <NeTableCell >
-      <NeButton
-          kind="primary"
-          size="lg"
-          @click.prevent="openCreateEditDrawer(item)"
-        >
-          Edit
-        </NeButton>
-    </NeTableCell>
-  </NeTableRow>
-</NeTableBody>
-    </NeTable>
-        <!-- Show "Add WireGuard Tunnel" button if dummyData is empty -->
-        <NeEmptyState
-          v-else
-          :title="t('standalone.wire_guard.no_wire_guard_found')"
-          :icon="['fas', 'globe']"
-        >
-          <NeButton kind="primary" @click="openCreateEditDrawer(null)">
-            <template #prefix>
-              <font-awesome-icon :icon="['fas', 'circle-plus']" class="w-4 h-4" aria-hidden="true" />
-            </template>
-            {{ t('standalone.wire_guard.add_wire_guard_tunnel') }}
-          </NeButton>
-        </NeEmptyState>
+              <!-- <NeTableCell>
+                <NeButton kind="primary" size="lg" @click.prevent="openCreateEditDrawer(item)">
+                  Edit
+                </NeButton>
+              </NeTableCell> -->
+            </NeTableRow>
+          </NeTableBody>
+        </NeTable>
+
       </template>
     </div>
   </div>
 
-  <DeleteTunnelModal
-    :visible="showDeleteModal"
-    :item-to-delete="selectedTunnel"
-    @close="closeModalsAndDrawers"
-    @tunnel-deleted="reloadTunnels"
-  />
-  <ZeroTierDrawer
-    :item-to-edit="selectedTunnel"
-    :rule-type="'forward'"  
-    :known-tags="[]"        
-    @close="closeModalsAndDrawers"
-    @add-edit-tunnel="reloadTunnels"
-    :is-shown="showCreateEditDrawer"
-  />
+  <DeleteTunnelModal :visible="showDeleteModal" :item-to-delete="selectedTunnel" @close="closeModalsAndDrawers"
+    @tunnel-deleted="reloadTunnels" />
+  <ZeroTierDrawer :item-to-edit="selectedTunnel" :rule-type="'forward'" :known-tags="[]" @close="closeModalsAndDrawers"
+    @add-edit-tunnel="reloadTunnels" :is-shown="showCreateEditDrawer" />
 </template>
-
-
