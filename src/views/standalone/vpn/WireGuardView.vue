@@ -183,12 +183,22 @@ const getLists = async () => {
 
       <template v-else>
         <!-- Show "Add WireGuard Tunnel" button if dummyData is empty -->
-        <NeButton kind="primary" @click="openCreateEditDrawer(null)">
+        <!-- <NeButton kind="primary" @click="openCreateEditDrawer(null)">
           <template #prefix>
             <font-awesome-icon :icon="['fas', 'circle-plus']" class="h-4 w-4" aria-hidden="true" />
           </template>
           {{ t('standalone.wire_guard.add_wire_guard_tunnel') }}
-        </NeButton>
+        </NeButton> -->
+        <NeButton 
+  v-if="!apiResponse[0]?.local_network" 
+  kind="primary" 
+  @click="openCreateEditDrawer(null)"
+>
+  <template #prefix>
+    <font-awesome-icon :icon="['fas', 'circle-plus']" class="h-4 w-4" aria-hidden="true" />
+  </template>
+  {{ t('standalone.wire_guard.add_wire_guard_tunnel') }}
+</NeButton>
         <!-- Show table if apiresponse has values -->
         <NeTable cardBreakpoint="md" class="mt-2">
           <NeTableHead>

@@ -72,12 +72,10 @@ const { t } = useI18n()
 const { getObjectIcon } = useObjects()
 
 const firewallConfig = useFirewallStore()
-// const isRuleEnabled = ref(true)
 const name = ref('')
 const nameRef = ref()
 const localNetworkRef = ref()
 const listenPortRef = ref()
-// const listenipRef = ref()
 const serverPortRef = ref()
 const serverIPRef = ref()
 const peerPublicKeyRef = ref()
@@ -95,6 +93,7 @@ const peerPublicKey = ref('');
 const allowedIP = ref('');
 const persistKeepAlive = ref('');
 const mtu = ref('');
+const status = ref(false);
 
 const sourceType = ref<'source_address' | 'source_object' | 'source_any'>('source_address')
 const destinationType = ref<'destination_address' | 'destination_object' | 'destination_any'>(
@@ -499,7 +498,8 @@ watch(
   () => props.itemToEdit,
   (newValue) => {
     if (newValue) {
-      isRuleEnabled.value = newValue.isRuleEnabled || false;
+      isRuleEnabled.value = newValue.isRuleEnabled === 'enable';
+      status.value = newValue.status === 'connect';
       localNetwork.value = newValue.local_network || "";
       listenPort.value = newValue.listen_port || "";
       serverIP.value = newValue.server_port || "";
@@ -511,6 +511,7 @@ watch(
     } else {
       // Reset fields if itemToEdit is null (adding a new rule)
       isRuleEnabled.value = false;
+      service.value = "disconnect";
       localNetwork.value = "";
       listenPort.value = "";
       serverIP.value = "";
@@ -556,7 +557,6 @@ const validate = () => {
 const fieldsToWatch: Record<string, Ref<string>> = {
   localNetwork,
   listenPort,
-  // listenip,
   serverIP,
   serverPort,
   peerPublicKey,
@@ -579,6 +579,7 @@ const saveRule = async () => {
 
     const payload = {
       isRuleEnabled: isRuleEnabled.value,
+      status: status.value,
       localNetwork: localNetwork.value,
       listenPort: listenPort.value,
       // listenip: listenip.value,
@@ -594,7 +595,8 @@ const saveRule = async () => {
     const response = await axios.post(`${getSDControllerApiEndpoint()}/wireguard`, {
       method: "set-config",
       payload: {
-        service: isRuleEnabled.value,
+        service: isRuleEnabled.value ? "enable" : "disable",
+        status: status.value ? "connect" : "disconnect",
         local_network: localNetwork.value,
         listen_port: listenPort.value,
         // listen_ip: listenip.value,
@@ -620,6 +622,7 @@ const saveRule = async () => {
       // Reset form only if adding a new config
       if (!props.itemToEdit) {
         isRuleEnabled.value = false;
+        status.value = false;
         localNetwork.value = "";
         listenPort.value = "";
         // listenip.value = "";
@@ -667,10 +670,16 @@ const saveRule = async () => {
         <!-- enabled -->
         <NeToggle
           v-model="isRuleEnabled"
-          :label="isRuleEnabled ? t('common.enabled') : t('common.disabled')"
           :topLabel="t('common.status')"
           :disabled="loading.saveRule"
         />
+
+        <NeToggle
+          v-model="status"
+          :topLabel="t('Connection')"
+          :disabled="loading.saveRule"
+        />
+
          <!-- local network -->
          <NeTextInput
           :label="t('standalone.wire_guard.local_network')"

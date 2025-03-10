@@ -497,7 +497,7 @@ const saveRule = async () => {
         <NeToggle v-model="isRuleEnabled" :label="isRuleEnabled ? t('common.enabled') : t('common.disabled')"
           :topLabel="t('common.status')" :disabled="loading.saveRule" />
         <!-- zero tier id -->
-        <NeTextInput :label="t('standalone.zero-tier.zero_tier_id')" v-model.trim="zeroTierID"
+        <NeTextInput :label="t('standalone.zero-tier.join')" v-model.trim="zeroTierID"
           :invalidMessage="errorBag.getFirstFor('zeroTierID')" :disabled="loading.saveRule" ref="zeroTierIDRef" />
       </div>
       <!-- footer -->
