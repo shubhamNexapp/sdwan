@@ -26,7 +26,7 @@ export type IpsecTunnel = {
 const t = (key: string) => key; // Mock translation function
 
 // Form Fields
-
+const service = ref(false);
 const snmpService = ref(false); // Initially set to false
 const snmpVersion = ref("2c"); // "2c" or "3"
 const port = ref("");
@@ -64,6 +64,8 @@ const fetchSNMPConfig = async () => {
       const data = response.data.payload;
       const dataValue = response.data.data;
       snmpService.value = dataValue.service || "";
+      // service.value = newValue.service === 'enable';
+      service.value = dataValue.service === 'enable';
       snmpVersion.value = dataValue.version || "";
       port.value = dataValue.snmpv2.port || "";
       community.value = dataValue.snmpv2.community || "";
@@ -188,16 +190,9 @@ const submitForm = async () => {
   if (validate()) {
     let v2Data;
     let isenable;
-    if (snmpService.value) {
-      isenable = "enable";
-    } else {
-      isenable = "disable";
-    }
-
-    console.log("service----------", isenable, snmpService.value);
     if (snmpVersion.value === "2c") {
       v2Data = {
-        service: isenable,
+        service: service.value ? "enable" : "disable",
         version: snmpVersion.value,
         snmpv2: {
           port: port.value,
@@ -208,7 +203,7 @@ const submitForm = async () => {
       };
     } else {
       v2Data = {
-        service: isenable,
+        service: service.value ? "enable" : "disable",
         version: snmpVersion.value,
         snmpv3: {
           port: port.value,
@@ -269,13 +264,10 @@ onMounted(fetchSNMPConfig);
     <form>
       <div class="space-x-6 space-y-6">
         <!-- enabled -->
-        <NeToggle
-          class="ml-5"
-          v-model="snmpService"
-          :label="snmpService == true ? 'enable' : 'disable'"
-          :topLabel="'status'"
-          :disabled="loading.saveRule"
-        />
+        <NeToggle v-model="service" label="Enable Service" />
+
+        <!-- <NeToggle class="ml-5" v-model="snmpService" :label="snmpService == true ? 'enable' : 'disable'"
+          :topLabel="'status'" :disabled="loading.saveRule" /> -->
         <!-- <NeToggle
           v-model="snmpService"
           :label="snmpService ? 'enable' : 'disable'"
@@ -302,9 +294,7 @@ onMounted(fetchSNMPConfig);
           <br />
           <div>
             <label class="mr-4">SNMP Version:</label>
-            <select
-              v-model="snmpVersion"
-              style="
+            <select v-model="snmpVersion" style="
                 width: 30%;
                 height: 36px;
                 padding: 6px;
@@ -313,68 +303,36 @@ onMounted(fetchSNMPConfig);
                 font-size: 14px;
                 outline: none;
                 transition: border-color 0.3s ease-in-out;
-              "
-            >
+              ">
               <option value="2c">2c</option>
               <option value="3">3</option>
             </select>
           </div>
           <br />
-          <NeTextInput
-            :label="t('Port')"
-            type="text"
-            v-model="port"
-            :invalidMessage="errorBag.getFirstFor('port')"
-            :disabled="loading.saveRule"
-          />
+          <NeTextInput :label="t('Port')" type="text" v-model="port" :invalidMessage="errorBag.getFirstFor('port')"
+            :disabled="loading.saveRule" />
         </div>
 
         <div v-if="snmpVersion === '2c'">
-          <NeTextInput
-            :label="t('Community')"
-            type="text"
-            v-model="community"
-            :invalidMessage="errorBag.getFirstFor('community')"
-            :disabled="loading.saveRule"
-          />
+          <NeTextInput :label="t('Community')" type="text" v-model="community"
+            :invalidMessage="errorBag.getFirstFor('community')" :disabled="loading.saveRule" />
 
-          <NeTextInput
-            :label="t('Trap IP')"
-            type="text"
-            v-model="trapIp"
-            :invalidMessage="errorBag.getFirstFor('trapIp')"
-            :disabled="loading.saveRule"
-          />
+          <NeTextInput :label="t('Trap IP')" type="text" v-model="trapIp"
+            :invalidMessage="errorBag.getFirstFor('trapIp')" :disabled="loading.saveRule" />
 
-          <NeTextInput
-            :label="t('Trap Port')"
-            type="text"
-            v-model="trapPort"
-            :invalidMessage="errorBag.getFirstFor('trapPort')"
-            :disabled="loading.saveRule"
-          />
+          <NeTextInput :label="t('Trap Port')" type="text" v-model="trapPort"
+            :invalidMessage="errorBag.getFirstFor('trapPort')" :disabled="loading.saveRule" />
         </div>
 
         <div v-if="snmpVersion === '3'">
           <h1>SNMPv3 Account</h1>
           <br />
 
-          <NeTextInput
-            :label="t('User Name')"
-            type="text"
-            v-model="username"
-            :invalidMessage="errorBag.getFirstFor('username')"
-            :disabled="loading.saveRule"
-          />
+          <NeTextInput :label="t('User Name')" type="text" v-model="username"
+            :invalidMessage="errorBag.getFirstFor('username')" :disabled="loading.saveRule" />
 
-          <NeTextInput
-            :label="t('Password')"
-            type="text"
-            v-model="password"
-            :invalidMessage="errorBag.getFirstFor('password')"
-            :disabled="loading.saveRule"
-            class="mb-5"
-          />
+          <NeTextInput :label="t('Password')" type="text" v-model="password"
+            :invalidMessage="errorBag.getFirstFor('password')" :disabled="loading.saveRule" class="mb-5" />
 
           <!-- <NeTextInput
             :label="t('Hash')"
@@ -385,10 +343,8 @@ onMounted(fetchSNMPConfig);
           /> -->
           <label class="mt-4 mr-4">Hash :</label>
           <div>
-            
-            <select
-              v-model="hash"
-              style="
+
+            <select v-model="hash" style="
                 width: 30%;
                 height: 36px;
                 padding: 6px;
@@ -399,8 +355,7 @@ onMounted(fetchSNMPConfig);
                 margin-bottom: 10px;
                 outline: none;
                 transition: border-color 0.3s ease-in-out;
-              "
-            >
+              ">
               <option value="MD5">MD5</option>
               <option value="SHA">SHA</option>
             </select>
@@ -415,10 +370,8 @@ onMounted(fetchSNMPConfig);
           /> -->
           <label class="mr-4 ">Encryption :</label>
           <div>
-          
-            <select
-              v-model="encryption"
-              style="
+
+            <select v-model="encryption" style="
                 width: 30%;
                 height: 36px;
                 padding: 6px;
@@ -429,31 +382,18 @@ onMounted(fetchSNMPConfig);
                 margin-top: 20px;
                 margin-bottom: 10px;
                 transition: border-color 0.3s ease-in-out;
-              "
-            >
+              ">
               <option value="AES">AES</option>
               <option value="DES">DES</option>
             </select>
           </div>
 
-          <NeTextInput
-            :label="t('Encryption Key')"
-            type="text"
-            v-model="encryptionKey"
-            :invalidMessage="errorBag.getFirstFor('encryptionKey')"
-            :disabled="loading.saveRule"
-          />
+          <NeTextInput :label="t('Encryption Key')" type="text" v-model="encryptionKey"
+            :invalidMessage="errorBag.getFirstFor('encryptionKey')" :disabled="loading.saveRule" />
         </div>
 
-        <NeButton
-          kind="primary"
-          size="lg"
-          :disabled="loading.saveRule"
-          :loading="loading.saveRule"
-          @click="submitForm"
-        >
-          Submit</NeButton
-        >
+        <NeButton kind="primary" size="lg" :disabled="loading.saveRule" :loading="loading.saveRule" @click="submitForm">
+          Submit</NeButton>
       </div>
     </form>
   </div>

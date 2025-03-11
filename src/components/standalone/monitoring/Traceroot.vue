@@ -6,6 +6,7 @@
 <script setup lang="ts">
 import { getSDControllerApiEndpoint } from '@/lib/config';
 import {
+    getAxiosErrorMessage,
     NeButton,
     NeTextInput
 } from '@nethesis/vue-components'
@@ -13,8 +14,8 @@ import axios from 'axios';
 import { ref } from 'vue'
 
 const pingIP = ref(''); // User input for ping IP
-let apiResponse = ref()
-
+const apiResponses = ref<string[]>([]); // Store multiple responses
+let intervalId: ReturnType<typeof setInterval> | null = null;
 const loading = ref({ saveRule: false })
 
 
@@ -24,9 +25,19 @@ const getLists = async () => {
             method: 'get-config',
             payload: {}
         });
-        if (response.data.code === 200) {
-            apiResponse.value = response.data.data.result;
+        const result = response.data.data.result;
+        if (response.data.code !== 200) {
+            getAxiosErrorMessage.value = `Error: ${response.data.message || 'Unknown error'}`;
+            stopFetching(); // Stop fetching
+            return;
         }
+
+        if (result) {
+            apiResponses.value.unshift(result); // Add new response
+        } else {
+            stopFetching(); // Stop if result is blank
+        }
+
     } catch (err) {
         console.error("Error fetching data:", err);
     }
@@ -34,6 +45,8 @@ const getLists = async () => {
 
 const saveNetworkConfig = async () => {
     loading.value.saveRule = true;
+    getAxiosErrorMessage.value = ""
+    apiResponses.value = []
     try {
         const payload = {
             method: "set-config",
@@ -45,6 +58,7 @@ const saveNetworkConfig = async () => {
         const response = await axios.post(`${getSDControllerApiEndpoint()}/traceroute`, payload);
         if (response.data.code === 200) {
             getLists()
+            startFetching(); // Start interval
         }
     } catch (err) {
         console.error("Error saving data:", err);
@@ -52,6 +66,20 @@ const saveNetworkConfig = async () => {
         loading.value.saveRule = false;
     }
 };
+
+
+const startFetching = () => {
+    stopFetching(); // Ensure no duplicate intervals
+    intervalId = setInterval(getLists, 1000); // Fetch every second
+};
+
+const stopFetching = () => {
+    if (intervalId) {
+        clearInterval(intervalId);
+        intervalId = null;
+    }
+};
+
 </script>
 
 <template>
@@ -62,8 +90,14 @@ const saveNetworkConfig = async () => {
             <div class="flex items-center gap-2 mt-2">
                 <NeTextInput v-model="pingIP" placeholder="Enter IP to ping" />
                 <NeButton @click="saveNetworkConfig" kind="secondary">Ping</NeButton>
+                <NeButton @click="stopFetching" kind="danger">Stop</NeButton>
             </div>
-            <pre v-if="apiResponse" class="p-2 mt-2 bg-white border rounded">{{ apiResponse }}</pre>
+            <div v-if="apiResponses.length" class="p-2 mt-2 bg-white border rounded">
+                <strong>Responses:</strong>
+                <ul class="mt-2 space-y-1">
+                    <li v-for="(response, index) in apiResponses" :key="index" class="p-1 border-b">{{ response }}</li>
+                </ul>
+            </div>
         </div>
     </div>
 </template>
