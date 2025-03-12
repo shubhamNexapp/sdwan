@@ -2433,7 +2433,7 @@
       "add_host": "Add host",
       "host_to_monitor": "Hosts to monitor",
       "ping_title": "Ping",
-      "trace_root_title": "Trace Route"
+      "trace_root_title": "Traceroute"
     },
     "account_management": {
       "title": "Account settings for '{name}'",

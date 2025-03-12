@@ -34,7 +34,7 @@ const getLists = async () => {
         }
 
         if (result) {
-            apiResponses.value.unshift(result); // Add new response
+            apiResponses.value.push(result) // Add new response
         } else {
             stopFetching(); // Stop if result is blank
         }
@@ -93,10 +93,14 @@ const stopFetching = () => {
                 <NeButton @click="saveNetworkConfig" kind="secondary">Ping</NeButton>
                 <NeButton @click="stopFetching" kind="danger">Stop</NeButton>
             </div>
-            <div v-if="apiResponses.length" class="p-2 mt-2 bg-white border rounded">
+            <!-- Scrollable Responses List with Auto-scroll -->
+            <div v-if="apiResponses.length" ref="responseContainer"
+                class="p-2 mt-2 bg-white border rounded max-h-60 overflow-y-auto">
                 <strong>Responses:</strong>
                 <ul class="mt-2 space-y-1">
-                    <li v-for="(response, index) in apiResponses" :key="index" class="p-1 border-b">{{ response }}</li>
+                    <li v-for="(response, index) in apiResponses" :key="index" class="p-1 border-b">
+                        {{ response }}
+                    </li>
                 </ul>
             </div>
         </div>
