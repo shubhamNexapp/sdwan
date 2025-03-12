@@ -90,7 +90,7 @@ const saveNetworkConfig = async () => {
         route_as: routeAS.value,
         route_id: routeID.value,
         neighbor: newNeighbours.value,
-        network_segments: newNetwork.value
+        network_conf: newNetwork.value
       }
     };
 
