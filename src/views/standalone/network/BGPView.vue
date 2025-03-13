@@ -90,7 +90,7 @@ const saveNetworkConfig = async () => {
         route_as: routeAS.value,
         route_id: routeID.value,
         neighbor: newNeighbours.value,
-        network_conf: newNetwork.value
+        network_segments: newNetwork.value
       }
     };
 
@@ -112,7 +112,7 @@ console.log("newNetwork========", newNetwork)
     <div>
       <div class="flex flex-col items-start space-y-4">
         <NeToggle v-model="service" label="Enable Service" />
-        <div class="w-full flex flex-col gap-3">
+        <div class="flex flex-col w-full gap-3">
           <NeTextInput :label="t('Route ID')" v-model.trim="routeID" :invalidMessage="errorBag.getFirstFor('routeID')"
             :disabled="loading.saveRule" ref="routeIDRef" />
           <NeTextInput :label="t('Route AS')" v-model.trim="routeAS" :invalidMessage="errorBag.getFirstFor('routeAS')"
@@ -125,7 +125,7 @@ console.log("newNetwork========", newNetwork)
         <p class="max-w-2xl font-bold text-black dark:text-gray-400">Neighbour</p>
         <NeButton kind="primary" size="lg" @click="addNeighbour">
           <template #prefix>
-            <font-awesome-icon :icon="['fas', 'plus']" class="h-4 w-4" aria-hidden="true" />
+            <font-awesome-icon :icon="['fas', 'plus']" class="w-4 h-4" aria-hidden="true" />
           </template>
           Add
         </NeButton>
@@ -147,7 +147,7 @@ console.log("newNetwork========", newNetwork)
             </NeTableCell>
             <NeTableCell>
               <NeButton size="sm" class="mt-5" @click=deleteNeighbour(index)>
-                <font-awesome-icon :icon="['fas', 'trash']" class="h-4 w-4" aria-hidden="true" />
+                <font-awesome-icon :icon="['fas', 'trash']" class="w-4 h-4" aria-hidden="true" />
               </NeButton>
             </NeTableCell>
             <!-- <NeButton kind="danger" size="sm" @click="deleteNeighbour(index)">Delete</NeButton> -->
@@ -160,7 +160,7 @@ console.log("newNetwork========", newNetwork)
         <p class="max-w-2xl font-bold text-black dark:text-gray-400">Network</p>
         <NeButton kind="primary" size="lg" @click="addNetwork">
           <template #prefix>
-            <font-awesome-icon :icon="['fas', 'plus']" class="h-4 w-4" aria-hidden="true" />
+            <font-awesome-icon :icon="['fas', 'plus']" class="w-4 h-4" aria-hidden="true" />
           </template>
           Add
         </NeButton>
@@ -178,7 +178,7 @@ console.log("newNetwork========", newNetwork)
             </NeTableCell>
             <NeTableCell>
               <NeButton size="sm" @click="deleteNetwork(index)">
-                <font-awesome-icon :icon="['fas', 'trash']" class="h-4 w-4" aria-hidden="true" />
+                <font-awesome-icon :icon="['fas', 'trash']" class="w-4 h-4" aria-hidden="true" />
               </NeButton>
               <!-- <NeButton kind="danger" size="sm" @click="deleteNetwork(index)">Delete</NeButton> -->
             </NeTableCell>
@@ -187,7 +187,7 @@ console.log("newNetwork========", newNetwork)
       </NeTable>
 
       <!-- Save Button -->
-      <div class="mt-4 flex justify-end">
+      <div class="flex justify-end mt-4">
         <NeButton kind="primary" size="lg" @click="saveNetworkConfig" :disabled="loading.saveRule">
           Save
         </NeButton>
