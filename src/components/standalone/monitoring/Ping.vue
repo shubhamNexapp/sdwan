@@ -29,15 +29,15 @@ const getLists = async () => {
         const result = response.data.data.result;
         if (response.data.code !== 200) {
             getAxiosErrorMessage.value = `Error: ${response.data.message || 'Unknown error'}`;
-            stopFetching(); // Stop fetching
+            // stopFetching(); // Stop fetching
             return;
         }
 
-        if (result) {
+        // if (result) {
             apiResponses.value.push(result) // Add new response
-        } else {
-            stopFetching(); // Stop if result is blank
-        }
+        // } else {
+        //     stopFetching(); // Stop if result is blank
+        // }
 
 
     } catch (err) {
@@ -70,11 +70,30 @@ const saveNetworkConfig = async () => {
 };
 
 const startFetching = () => {
-    stopFetching(); // Ensure no duplicate intervals
+    // stopFetching(); // Ensure no duplicate intervals
     intervalId = setInterval(getLists, 1000); // Fetch every second
 };
 
-const stopFetching = () => {
+const stopFetching = async () => {
+    try {
+        const payload = {
+            method: "delete-config",
+            payload: {
+                
+            }
+        };
+        const response = await axios.post(`${getSDControllerApiEndpoint()}/ping`, payload);
+        if (response.data.code === 200) {
+            if (intervalId) {
+        clearInterval(intervalId);
+        intervalId = null;
+    }
+        }
+    } catch (err) {
+        console.error("Error saving data:", err);
+    } finally {
+        loading.value.saveRule = false;
+    }
     if (intervalId) {
         clearInterval(intervalId);
         intervalId = null;
@@ -95,7 +114,7 @@ const stopFetching = () => {
             </div>
             <!-- Scrollable Responses List with Auto-scroll -->
             <div v-if="apiResponses.length" ref="responseContainer"
-                class="p-2 mt-2 bg-white border rounded max-h-60 overflow-y-auto">
+                class="p-2 mt-2 overflow-y-auto bg-white border rounded max-h-60">
                 <strong>Responses:</strong>
                 <ul class="mt-2 space-y-1">
                     <li v-for="(response, index) in apiResponses" :key="index" class="p-1 border-b">
