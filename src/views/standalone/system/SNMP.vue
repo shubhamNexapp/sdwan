@@ -38,6 +38,7 @@ const password = ref("");
 const hash = ref("");
 const encryption = ref("");
 const encryptionKey = ref("");
+const snmp3port = ref("");
 // 🔍 Function to check if a field is empty
 const validateRequired = (value: string) => {
   return value.trim() !== "";
@@ -76,6 +77,7 @@ const fetchSNMPConfig = async () => {
       hash.value = dataValue.snmpv3.account[0].hash || "";
       encryption.value = dataValue.snmpv3.account[0].encrypt || "";
       encryptionKey.value = dataValue.snmpv3.account[0].key || "";
+      snmp3port.value = dataValue.snmpv3.port || "";
     }
   } catch (error) {
     console.error("Error fetching SNMP configuration:", error);
@@ -309,11 +311,14 @@ onMounted(fetchSNMPConfig);
             </select>
           </div>
           <br />
-          <NeTextInput :label="t('Port')" type="text" v-model="port" :invalidMessage="errorBag.getFirstFor('port')"
-            :disabled="loading.saveRule" />
+
         </div>
 
         <div v-if="snmpVersion === '2c'">
+
+          <NeTextInput :label="t('Port')" type="text" v-model="port" :invalidMessage="errorBag.getFirstFor('port')"
+            :disabled="loading.saveRule" />
+
           <NeTextInput :label="t('Community')" type="text" v-model="community"
             :invalidMessage="errorBag.getFirstFor('community')" :disabled="loading.saveRule" />
 
@@ -327,6 +332,9 @@ onMounted(fetchSNMPConfig);
         <div v-if="snmpVersion === '3'">
           <h1>SNMPv3 Account</h1>
           <br />
+
+          <NeTextInput :label="t('Port')" type="text" v-model="snmp3port" :invalidMessage="errorBag.getFirstFor('snmp3port')"
+            :disabled="loading.saveRule" />
 
           <NeTextInput :label="t('User Name')" type="text" v-model="username"
             :invalidMessage="errorBag.getFirstFor('username')" :disabled="loading.saveRule" />
