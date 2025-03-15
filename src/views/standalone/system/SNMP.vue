@@ -71,11 +71,11 @@ const fetchSNMPConfig = async () => {
       community.value = dataValue.snmpv2.community || "";
       trapIp.value = dataValue.snmpv2.trap_ip || "";
       trapPort.value = dataValue.snmpv2.trap_port || "";
-      username.value = dataValue.snmpv3.username || "";
-      password.value = data.password || "";
-      hash.value = data.hash || "";
-      encryption.value = data.encryption || "";
-      encryptionKey.value = data.encryptionKey || "";
+      username.value = dataValue.snmpv3.account[0].username || "";
+      password.value = dataValue.snmpv3.account[0].password || "";
+      hash.value = dataValue.snmpv3.account[0].hash || "";
+      encryption.value = dataValue.snmpv3.account[0].encrypt || "";
+      encryptionKey.value = dataValue.snmpv3.account[0].key || "";
     }
   } catch (error) {
     console.error("Error fetching SNMP configuration:", error);
