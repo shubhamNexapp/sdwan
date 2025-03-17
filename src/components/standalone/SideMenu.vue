@@ -172,14 +172,14 @@ const navigation: Ref<MenuItem[]> = ref([
         name: 'BGP',
         to: 'network/bgp'
       },
-      {
-        name: 'Speed Test',
-        to: 'network/speed-test'
-      },
-      {
-        name: 'Network Test',
-        to: 'network/network-test'
-      },
+      // {
+      //   name: 'Speed Test',
+      //   to: 'network/speed-test'
+      // },
+      // {
+      //   name: 'Network Test',
+      //   to: 'network/network-test'
+      // },
     ]
   },
   {
@@ -249,14 +249,14 @@ const navigation: Ref<MenuItem[]> = ref([
         name: 'standalone.ips.sidebar_title',
         to: 'security/ips'
       },
-      {
-        name: 'SPI Filter',
-        to: 'security/spi-filter'
-      },
-      {
-        name: 'Insta Shield Mac',
-        to: 'security/insta-shield-mac'
-      },
+      // {
+      //   name: 'SPI Filter',
+      //   to: 'security/spi-filter'
+      // },
+      // {
+      //   name: 'Insta Shield Mac',
+      //   to: 'security/insta-shield-mac'
+      // },
     ],
     expanded: false
   },
