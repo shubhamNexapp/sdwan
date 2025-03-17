@@ -96,7 +96,7 @@ const validate = () => {
   const requiredFields = [
     // { key: "snmpService", value: snmpService },
     { key: "snmpVersion", value: snmpVersion },
-    { key: "port", value: port },
+    // { key: "port", value: port },
   ];
 
   if (snmpVersion.value === "2c") {
@@ -107,6 +107,7 @@ const validate = () => {
     );
   } else if (snmpVersion.value === "3") {
     requiredFields.push(
+      { key: "snmp3port", value: snmp3port },
       { key: "username", value: username },
       { key: "password", value: password },
       { key: "hash", value: hash },
@@ -208,7 +209,7 @@ const submitForm = async () => {
         service: service.value ? "enable" : "disable",
         version: snmpVersion.value,
         snmpv3: {
-          port: port.value,
+          port: snmp3port.value,
           account: [
             {
               username: username.value,
