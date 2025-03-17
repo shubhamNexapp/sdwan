@@ -190,11 +190,11 @@ const standaloneRoutes = [
     name: 'FlashStart',
     component: () => import('../views/standalone/security/FlashStartView.vue')
   },
-  {
-    path: 'security/dpi',
-    name: 'Dpi',
-    component: () => import('../views/standalone/security/DpiFilterView.vue')
-  },
+  // {
+  //   path: 'security/dpi',
+  //   name: 'Dpi',
+  //   component: () => import('../views/standalone/security/DpiFilterView.vue')
+  // },
   {
     path: 'security/threat-shield-ip',
     name: 'ThreatShield',
@@ -290,16 +290,16 @@ const standaloneRoutes = [
     name: 'IPS',
     component: () => import('../views/standalone/security/IpsView.vue')
   },
-  {
-    path: 'security/spi-filter',
-    name: 'SPI Filter',
-    component: () => import('../views/standalone/security/SPIFilterView.vue')
-  },
-  {
-    path: 'security/insta-shield-mac',
-    name: 'Insta Shield Mac',
-    component: () => import('../views/standalone/security/InstaShieldMacView.vue')
-  },
+  // {
+  //   path: 'security/spi-filter',
+  //   name: 'SPI Filter',
+  //   component: () => import('../views/standalone/security/SPIFilterView.vue')
+  // },
+  // {
+  //   path: 'security/insta-shield-mac',
+  //   name: 'Insta Shield Mac',
+  //   component: () => import('../views/standalone/security/InstaShieldMacView.vue')
+  // },
 ]
 
 function getStandaloneRoutes() {

@@ -172,14 +172,14 @@ const navigation: Ref<MenuItem[]> = ref([
         name: 'BGP',
         to: 'network/bgp'
       },
-      // {
-      //   name: 'Speed Test',
-      //   to: 'network/speed-test'
-      // },
-      // {
-      //   name: 'Network Test',
-      //   to: 'network/network-test'
-      // },
+      {
+        name: 'Speed Test',
+        to: 'network/speed-test'
+      },
+      {
+        name: 'Network Test',
+        to: 'network/network-test'
+      },
     ]
   },
   {
@@ -241,10 +241,10 @@ const navigation: Ref<MenuItem[]> = ref([
         name: 'standalone.flashstart.title',
         to: 'security/flashstart'
       },
-      {
-        name: 'standalone.dpi.title',
-        to: 'security/dpi'
-      },
+      // {
+      //   name: 'standalone.dpi.title',
+      //   to: 'security/dpi'
+      // },
       {
         name: 'standalone.ips.sidebar_title',
         to: 'security/ips'
