@@ -246,6 +246,11 @@ const standaloneRoutes = [
     component: () => import('../views/standalone/vpn/GreView.vue')
   },
   {
+    path: 'vpn/vrrp',
+    name: 'VRRP',
+    component: () => import('../views/standalone/vpn/VRRP.vue')
+  },
+  {
     path: 'vpn/zero-tier',
     name: 'ZeroTier',
     component: () => import('../views/standalone/vpn/ZeroTierView.vue')

@@ -286,6 +286,10 @@ const navigation: Ref<MenuItem[]> = ref([
         to: 'vpn/gre'
       },
       {
+        name: 'VRRP',
+        to: 'vpn/vrrp'
+      },
+      {
         name: 'ZeroTier',
         to: 'vpn/zero-tier'
       }, {
