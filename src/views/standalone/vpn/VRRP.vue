@@ -104,7 +104,14 @@ const fetchData = async () => {
 
         if (response.data) {
             const dataValue = response.data.data;
+            service.value = dataValue.service || "";
             state.value = dataValue.state || "";
+            status.value = dataValue.status || "";
+            interfaceName.value = dataValue.interface_name || "";
+            virtualID.value = dataValue.virtual_router_id || "";
+            virtualPriority.value = dataValue.priority || "";
+            password.value = dataValue.auth_pass || "";
+            virtualIP.value = dataValue.virtual_ipaddress || "";
         }
     } catch (error) {
         console.error("Error fetching VRRP configuration:", error);
