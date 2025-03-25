@@ -7,6 +7,9 @@ import {
 } from '@nethesis/vue-components'
 import axios from 'axios';
 import { ref } from 'vue'
+import { useNotificationsStore } from '../../../stores/notifications'
+
+const notificationsStore = useNotificationsStore()
 
 const pingIP = ref(''); // User input for ping IP
 const apiResponses = ref<string[]>([]); // Store multiple responses
@@ -36,16 +39,25 @@ const saveNetworkConfig = async () => {
     apiResponses.value = []; // Clear previous responses
 
     try {
-        const payload = {
-            method: "set-config",
-            payload: {
-                sip: "",
-                dip: pingIP.value,
+        if (pingIP.value === "") {
+            notificationsStore.createNotification({
+                title: 'warning',
+                description: 'Please enter IP',
+                kind: 'warning'
+            });
+        }
+        else {
+            const payload = {
+                method: "set-config",
+                payload: {
+                    sip: "",
+                    dip: pingIP.value,
+                }
+            };
+            const response = await axios.post(`${getSDControllerApiEndpoint()}/traceroute`, payload);
+            if (response.data.code === 200) {
+                startFetching(); // Start continuous fetching
             }
-        };
-        const response = await axios.post(`${getSDControllerApiEndpoint()}/traceroute`, payload);
-        if (response.data.code === 200) {
-            startFetching(); // Start continuous fetching
         }
     } catch (err) {
         console.error("Error saving data:", err);
@@ -85,10 +97,10 @@ const clearIntervalIfNeeded = () => {
     <div class="space-y-6">
         <!-- Ping API Section -->
         <div class="p-4 mt-4 bg-gray-100 border border-gray-300 rounded">
-            <strong>Ping an IP Address:</strong>
+            <strong>Traceroute an IP Address:</strong>
             <div class="flex items-center gap-2 mt-2">
                 <NeTextInput v-model="pingIP" placeholder="Enter IP to Traceroute" />
-                <NeButton @click="saveNetworkConfig" kind="secondary">Ping</NeButton>
+                <NeButton @click="saveNetworkConfig" kind="secondary">Traceroute</NeButton>
                 <NeButton @click="stopFetching" kind="danger">Stop</NeButton>
             </div>
             <!-- Scrollable Responses List -->

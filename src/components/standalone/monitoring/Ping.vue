@@ -12,6 +12,9 @@ import {
 } from '@nethesis/vue-components'
 import axios from 'axios';
 import { ref } from 'vue'
+import { useNotificationsStore } from '../../../stores/notifications'
+
+const notificationsStore = useNotificationsStore()
 
 const pingIP = ref(''); // User input for ping IP
 const apiResponses = ref<string[]>([]); // Store multiple responses
@@ -34,7 +37,7 @@ const getLists = async () => {
         }
 
         // if (result) {
-            apiResponses.value.push(result) // Add new response
+        apiResponses.value.push(result) // Add new response
         // } else {
         //     stopFetching(); // Stop if result is blank
         // }
@@ -50,17 +53,26 @@ const saveNetworkConfig = async () => {
     getAxiosErrorMessage.value = ""
     apiResponses.value = []
     try {
-        const payload = {
-            method: "set-config",
-            payload: {
-                sip: "",
-                dip: pingIP.value,
+        if (pingIP.value === "") {
+            notificationsStore.createNotification({
+                title: 'warning',
+                description: 'Please enter IP',
+                kind: 'warning'
+            });
+
+        } else {
+            const payload = {
+                method: "set-config",
+                payload: {
+                    sip: "",
+                    dip: pingIP.value,
+                }
+            };
+            const response = await axios.post(`${getSDControllerApiEndpoint()}/ping`, payload);
+            if (response.data.code === 200) {
+                getLists()
+                startFetching(); // Start interval
             }
-        };
-        const response = await axios.post(`${getSDControllerApiEndpoint()}/ping`, payload);
-        if (response.data.code === 200) {
-            getLists()
-            startFetching(); // Start interval
         }
     } catch (err) {
         console.error("Error saving data:", err);
@@ -79,15 +91,15 @@ const stopFetching = async () => {
         const payload = {
             method: "delete-config",
             payload: {
-                
+
             }
         };
         const response = await axios.post(`${getSDControllerApiEndpoint()}/ping`, payload);
         if (response.data.code === 200) {
             if (intervalId) {
-        clearInterval(intervalId);
-        intervalId = null;
-    }
+                clearInterval(intervalId);
+                intervalId = null;
+            }
         }
     } catch (err) {
         console.error("Error saving data:", err);
