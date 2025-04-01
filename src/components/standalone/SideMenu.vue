@@ -145,6 +145,10 @@ const navigation: Ref<MenuItem[]> = ref([
         to: 'network/routes'
       },
       {
+        name: 'VXLAN',
+        to: 'network/vxlan'
+      },
+      {
         name: 'standalone.multi_wan.title',
         to: 'network/multi-wan'
       },

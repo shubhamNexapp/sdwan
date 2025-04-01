@@ -168,7 +168,7 @@ async function revertChanges() {
     @secondaryClick="revertChanges"
   >
     <div class="space-y-2">
-      <NeExpandable
+      <!-- <NeExpandable
         v-for="config in Object.keys(uciChangesStore.changes)"
         :key="config"
         :label="`/etc/config/${config} (${uciChangesStore.changes[config].length})`"
@@ -190,7 +190,7 @@ async function revertChanges() {
             <div class="break-all">{{ getChangeTemplate(config, change) }}</div>
           </div>
         </div>
-      </NeExpandable>
+      </NeExpandable> -->
       <NeInlineNotification
         v-if="error.notificationTitle"
         kind="error"

@@ -116,6 +116,11 @@ const standaloneRoutes = [
     component: () => import('../views/standalone/network/RoutesView.vue')
   },
   {
+    path: 'network/vxlan',
+    name: 'Routes',
+    component: () => import('../views/standalone/network/VXLanView.vue')
+  },
+  {
     path: 'network/hotspot',
     name: 'Hotspot',
     component: () => import('../views/standalone/network/HotspotView.vue')
