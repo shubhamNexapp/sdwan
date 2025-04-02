@@ -221,6 +221,12 @@ const standaloneRoutes = [
     component: () => import('../views/standalone/vpn/OpenvpnRoadWarriorView.vue')
   },
   {
+    path: 'vpn/openvpn-road-warrior',
+    name: 'OpenVPNRoadWarrior',
+    component: () => import('../views/standalone/vpn/OpneWarriorView.vue')
+  },
+  
+  {
     path: 'vpn/pptp',
     name: 'PPTP',
     component: () => import('../views/standalone/vpn/PPTPView.vue')

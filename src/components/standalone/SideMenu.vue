@@ -274,6 +274,10 @@ const navigation: Ref<MenuItem[]> = ref([
         to: 'vpn/openvpn-rw'
       },
       {
+        name: 'standalone.openvpn_warrior.title',
+        to: 'vpn/openvpn-road-warrior'
+      },
+      {
         name: 'standalone.openvpn_tunnel.title',
         to: 'vpn/openvpn-tunnel'
       },
