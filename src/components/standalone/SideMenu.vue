@@ -278,6 +278,10 @@ const navigation: Ref<MenuItem[]> = ref([
         to: 'vpn/openvpn-road-warrior'
       },
       {
+        name: 'ICMP Check',
+        to: 'vpn/icmp-check'
+      },
+      {
         name: 'standalone.openvpn_tunnel.title',
         to: 'vpn/openvpn-tunnel'
       },

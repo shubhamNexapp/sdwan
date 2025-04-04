@@ -225,7 +225,11 @@ const standaloneRoutes = [
     name: 'OpenVPNRoadWarrior',
     component: () => import('../views/standalone/vpn/OpneWarriorView.vue')
   },
-  
+  {
+    path: 'vpn/icmp-check',
+    name: 'ICMP Check',
+    component: () => import('../views/standalone/vpn/ICMPCheckView.vue')
+  },
   {
     path: 'vpn/pptp',
     name: 'PPTP',
