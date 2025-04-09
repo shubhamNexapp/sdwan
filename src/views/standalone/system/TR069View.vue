@@ -1,121 +1,157 @@
-<!--
-  Copyright (C) 2024 Nethesis S.r.l.
-  SPDX-License-Identifier: GPL-3.0-or-later
--->
-
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
 import {
   NeHeading,
-  NeInlineNotification,
   NeButton,
-  NeSkeleton,
+  NeTextInput,
+  NeToggle,
   getAxiosErrorMessage
 } from '@nethesis/vue-components'
-import { NeModal } from '@nethesis/vue-components'
 import { ref } from 'vue'
-import { ubusCall } from '@/lib/standalone/ubus'
-import CertificatesTable from '@/components/standalone/certificates/CertificatesTable.vue'
-import DeleteCertificateModal from '@/components/standalone/certificates/DeleteCertificateModal.vue'
-import ImportCertificateDrawer from '@/components/standalone/certificates/ImportCertificateDrawer.vue'
-import CreateLetsEncryptCertificateDrawer from '@/components/standalone/certificates/CreateLetsEncryptCertificateDrawer.vue'
-import { useNotificationsStore } from '@/stores/notifications'
-import { onMounted } from 'vue'
-import { map } from 'lodash-es'
-import { useUciPendingChangesStore } from '@/stores/standalone/uciPendingChanges'
+import { useNotificationsStore } from '../../../stores/notifications'
+import { getSDControllerApiEndpoint } from '@/lib/config'
+import axios from 'axios'
 
-export type Certificate = {
-  name: string
-  type: 'self-signed' | 'custom' | 'acme'
-  path: string
-  details: string
-  default: boolean
-  domain: string
-  expiration?: string
-  requested_domains?: string[]
-  pending?: boolean
-  servers: string[]
-}
-
-const { t } = useI18n()
 const notificationsStore = useNotificationsStore()
-const uciChangesStore = useUciPendingChangesStore()
 
-const certificates = ref<Certificate[]>([])
-const error = ref({
-  notificationTitle: '',
-  notificationDescription: '',
-  notificationDetails: ''
-})
-const loading = ref(true)
-const fetchError = ref(false)
-const selectedCertificate = ref<Certificate>()
-const showDeleteCertificateModal = ref(false)
-const showCreateCertificateDrawer = ref(false)
-const showImportCertificateDrawer = ref(false)
-const showCertificateDetailsModal = ref(false)
+const emit = defineEmits(['close', 'save'])
 
-function clearError() {
-  error.value.notificationTitle = ''
-  error.value.notificationDescription = ''
-  error.value.notificationDetails = ''
+// Form fields
+const service = ref(false)
+const acsUrl = ref("")
+const acsUsername = ref("")
+const acsPassword = ref("")
+const cpeUsername = ref("")
+const cpePassword = ref("")
+const enableInterval = ref(false)
+const interval = ref("")
+
+// Validation error messages
+const errorBag = ref<{ [key: string]: string }>({})
+
+// Function to allow only letters in string fields
+const onlyLetters = (event: Event) => {
+  const input = event.target as HTMLInputElement
+  input.value = input.value.replace(/[^a-zA-Z\s]/g, '') // Allow only letters and spaces
 }
 
-function openDeleteCertificateModal(itemToDelete: Certificate) {
-  selectedCertificate.value = itemToDelete
-  showDeleteCertificateModal.value = true
+// Function to allow only numbers in number fields
+const onlyNumbers = (event: Event) => {
+  const input = event.target as HTMLInputElement
+  input.value = input.value.replace(/[^0-9]/g, '') // Allow only numbers
 }
 
-function openCertificateDetailsModal(item: Certificate) {
-  selectedCertificate.value = item
-  showCertificateDetailsModal.value = true
+const onlyValidUrlCharacters = (event: Event) => {
+  const input = event.target as HTMLInputElement
+  input.value = input.value.replace(/[^a-zA-Z0-9:\/\.\-\_]/g, '')
 }
 
-async function fetchCertificates() {
-  clearError()
+// Form validation function
+const validate = () => {
+  errorBag.value = {}
+
+  if (service.value) { // Validate only if enabled
+
+    if (!acsUrl.value.trim() || acsUrl.value.length > 64) {
+      errorBag.value.acsUrl = "Acs url is required and must be max 64 characters."
+    }
+
+    if (!acsUsername.value.trim() || acsUsername.value.length > 32) {
+      errorBag.value.acsUsername = "Acs username is required and must be max 32 characters."
+    }
+
+    if (!acsPassword.value.trim() || acsPassword.value.length > 32) {
+      errorBag.value.acsPassword = "Acs password is required and must be max 32 characters."
+    }
+
+  }
+
+  return Object.keys(errorBag.value).length === 0
+}
+
+// Save function
+const saveRule = async () => {
+  if (!validate()) return
 
   try {
-    loading.value = true
-    const certificatesData: Record<string, any> = (
-      await ubusCall('ns.reverseproxy', 'list-certificates')
-    ).data.values
-    certificates.value = map(certificatesData, (payload: any, certificateName: string) => ({
-      ...payload,
-      name: certificateName
-    }))
-  } catch (err: any) {
-    error.value.notificationTitle = t('error.cannot_retrieve_certificates')
-    error.value.notificationDescription = t(getAxiosErrorMessage(err))
-    error.value.notificationDetails = err.toString()
-    fetchError.value = true
-  } finally {
-    loading.value = false
+    const payload = {
+      service: service.value ? "enabled" : "disabled",
+      acsUrl: acsUrl.value,
+      acsUsername: acsUsername.value,
+      acsPassword: acsPassword.value,
+      cpeUsername: cpeUsername.value,
+      cpePassword: cpePassword.value,
+      enableInterval: enableInterval.value ? "enabled" : "disabled",
+      interval: interval.value
+    }
+
+    console.log("payload======", payload)
+
+    const response = await axios.post(`${getSDControllerApiEndpoint()}/tr069`, {
+      method: "set-config",
+      payload,
+    });
+
+    if (response.data.code === 200) {
+      notificationsStore.createNotification({
+        title: 'Success',
+        description: 'Configuration saved successfully.',
+        kind: 'success'
+      })
+
+      emit('save', payload)
+    }
+  } catch (err) {
+    console.error("Error saving rule:", getAxiosErrorMessage(err))
   }
 }
 
-async function setDefaultCertificate(item: Certificate) {
-  clearError()
-
-  try {
-    await ubusCall('ns.reverseproxy', 'set-default-certificate', {
-      name: item.name
-    })
-  } catch (err: any) {
-    error.value.notificationTitle = t('error.cannot_set_default_certificate')
-    error.value.notificationDescription = t(getAxiosErrorMessage(err))
-    error.value.notificationDetails = err.toString()
-    return
-  }
-
-  await uciChangesStore.getChanges()
-  await fetchCertificates()
+// Close drawer function
+const closeDrawer = () => {
+  emit('close')
 }
 
-onMounted(() => {
-  fetchCertificates()
-})
 </script>
 
 <template>
   <NeHeading tag="h3" class="mb-7">TR069</NeHeading>
+  <form @submit.prevent="saveRule">
+    <div class="space-y-6">
+      <NeToggle v-model="service" :label="service ? 'Enabled' : 'Disabled'" :topLabel="'Service'" />
+
+      <!-- Show form fields only if status is enabled -->
+      <template v-if="service">
+
+        <NeTextInput label="ACS Url" v-model.trim="acsUrl" @input="onlyValidUrlCharacters" :invalidMessage="errorBag.acsUrl" />
+
+        <NeTextInput label="ACS Username" v-model.trim="acsUsername" @input="onlyLetters"
+          :invalidMessage="errorBag.acsUsername" />
+
+        <NeTextInput label="ACS Password" v-model.trim="acsPassword" @input="onlyLetters"
+          :invalidMessage="errorBag.acsPassword" />
+
+        <NeTextInput label="CPE Username" v-model.trim="cpeUsername" @input="onlyLetters"
+          :invalidMessage="errorBag.cpeUsername" />
+
+        <NeTextInput label="CPE Password" v-model.trim="cpePassword" @input="onlyLetters"
+          :invalidMessage="errorBag.cpePassword" />
+
+        <NeToggle v-model="enableInterval" :label="enableInterval ? 'Enabled' : 'Disabled'"
+          :topLabel="'Enable Interval'" />
+
+        <NeTextInput label="Interval" v-model.trim="interval" @input="onlyNumbers"
+          :invalidMessage="errorBag.interval" />
+
+      </template>
+    </div>
+
+    <!-- Footer -->
+    <div class="flex justify-end mt-6">
+      <NeButton kind="tertiary" @click.prevent="closeDrawer" class="mr-3">
+        Cancel
+      </NeButton>
+      <NeButton kind="primary" type="submit">
+        Save
+      </NeButton>
+    </div>
+  </form>
 </template>
