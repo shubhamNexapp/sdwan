@@ -76,12 +76,12 @@ const standaloneRoutes = [
     component: () => import('../views/standalone/system/TR069View.vue')
   },
   {
-    path: 'system/icmp-check',
+    path: 'system/icmp-checkold',
     name: 'ICMP Check',
     component: () => import('../views/standalone/system/ICMPCheck.vue')
   },
   {
-    path: 'system/schedule',
+    path: 'system/scheduleold',
     name: 'Schedule',
     component: () => import('../views/standalone/system/Schedule.vue')
   },
@@ -221,12 +221,12 @@ const standaloneRoutes = [
     component: () => import('../views/standalone/vpn/OpenvpnRoadWarriorView.vue')
   },
   {
-    path: 'vpn/openvpn-road-warrior',
+    path: 'system/schedule',
     name: 'OpenVPNRoadWarrior',
     component: () => import('../views/standalone/vpn/OpneWarriorView.vue')
   },
   {
-    path: 'vpn/icmp-check',
+    path: 'system/icmp-check',
     name: 'ICMP Check',
     component: () => import('../views/standalone/vpn/ICMPCheckView.vue')
   },

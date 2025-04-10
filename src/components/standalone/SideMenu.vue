@@ -116,6 +116,7 @@ const navigation: Ref<MenuItem[]> = ref([
       {
         name: 'Schedule',
         to: 'system/schedule'
+        // to: 'vpn/openvpn-road-warrior'
       },
       {
         name: 'Radius',
@@ -273,14 +274,14 @@ const navigation: Ref<MenuItem[]> = ref([
         name: 'standalone.openvpn_rw.title',
         to: 'vpn/openvpn-rw'
       },
-      {
-        name: 'standalone.openvpn_warrior.title',
-        to: 'vpn/openvpn-road-warrior'
-      },
-      {
-        name: 'ICMP Check',
-        to: 'vpn/icmp-check'
-      },
+      // {
+      //   name: 'standalone.openvpn_warrior.title',
+      //   to: 'vpn/openvpn-road-warrior'
+      // },
+      // {
+      //   name: 'ICMP Check',
+      //   to: 'vpn/icmp-check'
+      // },
       {
         name: 'standalone.openvpn_tunnel.title',
         to: 'vpn/openvpn-tunnel'
