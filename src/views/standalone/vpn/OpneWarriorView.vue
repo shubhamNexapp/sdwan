@@ -127,7 +127,7 @@ const getLists = async () => {
   try {
 
     loading.value = true;
-    const response = await axios.post(`${getSDControllerApiEndpoint()}/gre`, {
+    const response = await axios.post(`${getSDControllerApiEndpoint()}/schedule`, {
       method: 'get-config',
       payload: {}
     });
