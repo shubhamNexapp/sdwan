@@ -42,6 +42,17 @@ const onlyNumbers = (event: Event) => {
     input.value = input.value.replace(/[^0-9]/g, '') // Allow only numbers
 }
 
+const ipInputHandler = (event: Event) => {
+    const input = event.target as HTMLInputElement;
+    // Allow numbers and dots, and remove other characters
+    input.value = input.value.replace(/[^0-9.]/g, '');
+    // Limit to max 128 characters
+    if (input.value.length > 128) {
+        input.value = input.value.slice(0, 128);
+    }
+};
+
+
 // Form validation function
 const validate = () => {
     errorBag.value = {}
@@ -82,8 +93,8 @@ const saveRule = async () => {
             status: status.value ? "enabled" : "disabled",
             name: name.value,
             destination: destination.value,
-            timeInterval: timeInterval.value,
-            retryTimes: retryTimes.value,
+            time_interval: timeInterval.value,
+            retry_times: retryTimes.value,
             command: command.value,
         }
 
@@ -125,7 +136,7 @@ const closeDrawer = () => {
                     <NeTextInput label="Task Name" v-model.trim="name" @input="onlyLetters"
                         :invalidMessage="errorBag.name" />
 
-                    <NeTextInput label="Destination" v-model.trim="destination" @input="onlyLetters"
+                    <NeTextInput label="Destination" v-model.trim="destination" @input="ipInputHandler"
                         :invalidMessage="errorBag.destination" />
 
                     <NeTextInput label="Time Interval" v-model.trim="timeInterval" @input="onlyNumbers"
