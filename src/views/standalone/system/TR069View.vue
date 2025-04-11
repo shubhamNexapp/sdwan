@@ -6,7 +6,7 @@ import {
   NeToggle,
   getAxiosErrorMessage
 } from '@nethesis/vue-components'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useNotificationsStore } from '../../../stores/notifications'
 import { getSDControllerApiEndpoint } from '@/lib/config'
 import axios from 'axios'
@@ -74,13 +74,13 @@ const saveRule = async () => {
 
   try {
     const payload = {
-      service: service.value ? "enabled" : "disabled",
-      acsUrl: acsUrl.value,
-      acsUsername: acsUsername.value,
-      acsPassword: acsPassword.value,
-      cpeUsername: cpeUsername.value,
-      cpePassword: cpePassword.value,
-      enableInterval: enableInterval.value ? "enabled" : "disabled",
+      service: service.value ? "enable" : "disable",
+      acs_url: acsUrl.value,
+      acs_username: acsUsername.value,
+      acs_password: acsPassword.value,
+      cpe_username: cpeUsername.value,
+      cpe_password: cpePassword.value,
+      enable_interval: enableInterval.value ? "enable" : "disable",
       interval: interval.value
     }
 
@@ -110,6 +110,28 @@ const closeDrawer = () => {
   emit('close')
 }
 
+onMounted(() => {
+  getLists()
+})
+
+let apiResponse = ref()
+const getLists = async () => {
+
+  try {
+
+    const response = await axios.post(`${getSDControllerApiEndpoint()}/tr069`, {
+      method: 'get-config',
+      payload: {}
+    });
+
+    if (response.data.code === 200) {
+      apiResponse.value = response.data.data // Store API response
+    }
+  } catch (err) {
+  }
+};
+
+
 </script>
 
 <template>
@@ -121,7 +143,8 @@ const closeDrawer = () => {
       <!-- Show form fields only if status is enabled -->
       <template v-if="service">
 
-        <NeTextInput label="ACS Url" v-model.trim="acsUrl" @input="onlyValidUrlCharacters" :invalidMessage="errorBag.acsUrl" />
+        <NeTextInput label="ACS Url" v-model.trim="acsUrl" @input="onlyValidUrlCharacters"
+          :invalidMessage="errorBag.acsUrl" />
 
         <NeTextInput label="ACS Username" v-model.trim="acsUsername" @input="onlyLetters"
           :invalidMessage="errorBag.acsUsername" />
