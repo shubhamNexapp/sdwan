@@ -103,7 +103,7 @@ async function saveSettings() {
         <NeToggle v-model="status" :topLabel="t('Status')" :label="status ? 'Connected' : 'Disconnect'" />
 
         <div class="flex flex-col gap-y-3">
-            <NeToggle v-model="service" :topLabel="t('Service')" :label="service ? 'Enabled' : 'Disabled'" />
+            <NeToggle v-model="service" :topLabel="t('Service')" :label="service ? 'Enable' : 'Disable'" />
             <label class="mr-4">State:</label>
             <select v-model="state" class="custom-select">
                 <option value="MASTER">MASTER</option>

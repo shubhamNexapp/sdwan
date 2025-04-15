@@ -127,7 +127,7 @@ const getLists = async () => {
     try {
 
         loading.value = true;
-        const response = await axios.post(`${getSDControllerApiEndpoint()}/icmpcheck`, {
+        const response = await axios.post(`${getSDControllerApiEndpoint()}/vxlan`, {
             method: 'get-config',
             payload: {}
         });
