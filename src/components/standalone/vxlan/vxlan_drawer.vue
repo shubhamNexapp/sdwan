@@ -94,7 +94,7 @@ const saveRule = async () => {
         const payload = [
             {
                 service: service.value ? "enable" : "disable",
-                status: status.value ? "connected" : "disconnect",
+                // status: status.value ? "connected" : "disconnect",
                 interface_name: interfaceName.value,
                 base_interface: baseInterface.value,
                 vid: vid.value,
@@ -141,7 +141,7 @@ const closeDrawer = () => {
 
                 <!-- Show form fields only if status is enabled -->
                 <template v-if="service">
-                    <NeToggle v-model="status" :label="status ? 'connected' : 'disconnect'" :topLabel="'Status'" />
+                  <!--   <NeToggle v-model="status" :label="status ? 'connected' : 'disconnect'" :topLabel="'Status'" /> -->
                     <NeTextInput label="Interface Name" v-model.trim="interfaceName" @input="onlyLetters"
                         :invalidMessage="errorBag.interfaceName" />
 
