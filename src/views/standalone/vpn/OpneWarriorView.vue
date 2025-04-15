@@ -19,6 +19,7 @@ import { ubusCall } from '@/lib/standalone/ubus'
 import DeleteTunnelModal from '@/components/standalone/gre/GreDelete.vue'
 import VPNDrawer from '@/components/standalone/vpn_road_warriors/vpn_road_warrior_drawer.vue'
 import axios from 'axios'
+
 import { getSDControllerApiEndpoint } from '@/lib/config'
 import GreEdit from '@/components/standalone/gre/GreEdit.vue'
 
@@ -165,7 +166,7 @@ const getLists = async () => {
 
         <NeButton kind="primary" @click="openCreateEditDrawer(null)">
           <template #prefix>
-            <font-awesome-icon :icon="['fas', 'circle-plus']" class="h-4 w-4" aria-hidden="true" />
+            <font-awesome-icon :icon="['fas', 'circle-plus']" class="w-4 h-4" aria-hidden="true" />
           </template>
           {{ t('standalone.openvpn_warrior.add') }}
         </NeButton>
@@ -189,14 +190,14 @@ const getLists = async () => {
                 <div class="-ml-2.5 flex gap-2 xl:ml-0 xl:justify-end">
                   <NeButton kind="tertiary" size="lg" :disabled="item.readonly" @click="openEditModal(item)">
                     <template #prefix>
-                      <font-awesome-icon :icon="['fas', 'pen-to-square']" class="h-4 w-4" aria-hidden="true" />
+                      <font-awesome-icon :icon="['fas', 'pen-to-square']" class="w-4 h-4" aria-hidden="true" />
                     </template>
                     {{ t('common.edit') }}
                   </NeButton>
                   <NeButton kind="tertiary" size="lg" :disabled="item.readonly"
                     @click="openDeleteModal(item.tunnel_name)">
                     <template #prefix>
-                      <font-awesome-icon :icon="['fas', 'trash']" class="h-4 w-4" aria-hidden="true" />
+                      <font-awesome-icon :icon="['fas', 'trash']" class="w-4 h-4" aria-hidden="true" />
                     </template>
                     {{ t('common.delete') }}
                   </NeButton>

@@ -12,6 +12,7 @@ import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import axios from 'axios'
 import { useNotificationsStore } from '../../../stores/notifications'
+import { getSDControllerApiEndpoint } from '@/lib/config'
 
 const notificationsStore = useNotificationsStore()
 const { t } = useI18n()
@@ -92,7 +93,7 @@ const saveRule = async () => {
 
         console.log("payload=======",payload)
 
-        const response = await axios.post('/api/save-rule', payload)
+        const response = await axios.post(`${getSDControllerApiEndpoint()}/schedule`, payload)
 
         if (response.status === 200) {
             notificationsStore.createNotification({
