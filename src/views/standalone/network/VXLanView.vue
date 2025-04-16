@@ -16,11 +16,13 @@ import {
 import { useUciPendingChangesStore } from '@/stores/standalone/uciPendingChanges'
 import { onMounted, onUnmounted, ref } from 'vue'
 import { ubusCall } from '@/lib/standalone/ubus'
-import DeleteTunnelModal from '@/components/standalone/gre/GreDelete.vue'
+import DeleteTunnelModal from '@/components/standalone/vxlan/vxlan_delete.vue'
 import VXLANDrawer from '@/components/standalone/vxlan/vxlan_drawer.vue'
 import axios from 'axios'
 import { getSDControllerApiEndpoint } from '@/lib/config'
-import GreEdit from '@/components/standalone/gre/GreEdit.vue'
+import { nextTick } from 'vue'
+
+import VXLANEdit from '@/components/standalone/vxlan/vxlan_edit.vue'
 
 export type IpsecTunnel = {
     id: string
@@ -30,6 +32,7 @@ export type IpsecTunnel = {
     enabled: '0' | '1'
     connected: boolean
     tunnelName: string
+    interfaceName: string
 }
 
 const { t } = useI18n()
@@ -74,8 +77,9 @@ function openCreateEditDrawer(itemToEdit: IpsecTunnel | null) {
 
 const selectedTunnelName = ref<string | null>(null);
 
-function openDeleteModal(tunnelName: string) {
+async function openDeleteModal(tunnelName: any) {
     selectedTunnelName.value = tunnelName
+    await nextTick()
     showDeleteModal.value = true
 }
 
@@ -194,7 +198,7 @@ const getLists = async () => {
                             <NeTableCell>{{ item.ipaddr }}</NeTableCell>
                             <NeTableCell>{{ item.service }}</NeTableCell>
                             <NeTableCell>{{ item.status }}</NeTableCell>
-                            <!-- <NeTableCell :data-label="t('common.actions')">
+                            <NeTableCell :data-label="t('common.actions')">
                                 <div class="-ml-2.5 flex gap-2 xl:ml-0 xl:justify-end">
                                     <NeButton kind="tertiary" size="lg" :disabled="item.readonly"
                                         @click="openEditModal(item)">
@@ -205,7 +209,7 @@ const getLists = async () => {
                                         {{ t('common.edit') }}
                                     </NeButton>
                                     <NeButton kind="tertiary" size="lg" :disabled="item.readonly"
-                                        @click="openDeleteModal(item.tunnel_name)">
+                                        @click="openDeleteModal(item)">
                                         <template #prefix>
                                             <font-awesome-icon :icon="['fas', 'trash']" class="h-4 w-4"
                                                 aria-hidden="true" />
@@ -213,7 +217,7 @@ const getLists = async () => {
                                         {{ t('common.delete') }}
                                     </NeButton>
                                 </div>
-                            </NeTableCell> -->
+                            </NeTableCell>
                         </NeTableRow>
                     </NeTableBody>
                 </NeTable>
@@ -223,8 +227,12 @@ const getLists = async () => {
 
     <DeleteTunnelModal :visible="showDeleteModal" :itemToDelete="selectedTunnelName" @close="showDeleteModal = false"
         @tunnel-deleted="fetchTunnels" />
+
     <VXLANDrawer :item-to-edit="selectedTunnel" @close="closeModalsAndDrawers" :rule-type="'forward'" :known-tags="[]"
         @add-edit-tunnel="reloadTunnels" :is-shown="showCreateEditDrawer" />
-    <GreEdit :item-to-edit="selectedTunnels" @close="showEditModals = false" :rule-type="'forward'" :known-tags="[]"
-        @add-edit-tunnel="reloadTunnels" :is-shown="showEditModals" />
+    <!-- <VXLANEdit :item-to-edit="selectedTunnels" @close="showEditModals = false" :rule-type="'forward'" :known-tags="[]"
+        @add-edit-tunnel="reloadTunnels" :is-shown="showEditModals" /> -->
+
+    <VXLANEdit :isShown="showEditModals" :vxlanData="selectedTunnels" @close="showEditModals = false" />
+
 </template>
