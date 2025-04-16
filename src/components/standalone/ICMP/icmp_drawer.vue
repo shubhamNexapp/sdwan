@@ -20,7 +20,7 @@ const props = defineProps({
 const emit = defineEmits(['close', 'save'])
 
 // Form fields
-const status = ref(false)
+const service = ref(false)
 const name = ref("")
 const destination = ref("")
 const timeInterval = ref("")
@@ -57,7 +57,7 @@ const ipInputHandler = (event: Event) => {
 const validate = () => {
     errorBag.value = {}
 
-    if (status.value) { // Validate only if enabled
+    if (service.value) { // Validate only if enabled
         if (!name.value.trim() || name.value.length > 64) {
             errorBag.value.name = "Task name is required and must be max 64 characters."
         }
@@ -90,7 +90,7 @@ const saveRule = async () => {
 
     try {
         const payload = {
-            status: status.value ? "enabled" : "disabled",
+            service: service.value ? "enabled" : "disabled",
             name: name.value,
             destination: destination.value,
             time_interval: timeInterval.value,
@@ -129,10 +129,10 @@ const closeDrawer = () => {
     <NeSideDrawer :isShown="isShown" title="Add ICMP Check" closeAriaLabel="Close" @close="closeDrawer">
         <form @submit.prevent="saveRule">
             <div class="space-y-6">
-                <NeToggle v-model="status" :label="status ? 'Enabled' : 'Disabled'" :topLabel="'Status'" />
+                <NeToggle v-model="service" :label="service ? 'Enabled' : 'Disabled'" :topLabel="'service'" />
 
-                <!-- Show form fields only if status is enabled -->
-                <template v-if="status">
+                <!-- Show form fields only if service is enabled -->
+                <template v-if="service">
                     <NeTextInput label="Task Name" v-model.trim="name" @input="onlyLetters"
                         :invalidMessage="errorBag.name" />
 

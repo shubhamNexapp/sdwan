@@ -24,7 +24,7 @@ const props = defineProps({
 const emit = defineEmits(['close', 'save'])
 
 // Form fields
-const status = ref(false)
+const service = ref(false)
 const taskName = ref("")
 const command = ref("")
 const mode = ref("")
@@ -83,7 +83,7 @@ const saveRule = async () => {
 
     try {
         const payload = {
-            status: status.value ? "enabled" : "disabled",
+            service: service.value ? "enabled" : "disabled",
             taskName: taskName.value,
             command: command.value,
             mode: mode.value,
@@ -122,7 +122,7 @@ const closeDrawer = () => {
         <form @submit.prevent="saveRule">
             <div class="space-y-6">
                 <!-- Status -->
-                <NeToggle v-model="status" :label="status ? 'Enabled' : 'Disabled'" :topLabel="'Status'" />
+                <NeToggle v-model="service" :label="service ? 'Enabled' : 'Disabled'" :topLabel="'Service'" />
 
                 <!-- Task Name -->
                 <NeTextInput label="Task Name" v-model.trim="taskName" :invalidMessage="errorBag.taskName" />
