@@ -1,0 +1,207 @@
+<script setup lang="ts">
+import {
+    NeButton,
+    NeTextInput,
+    NeToggle,
+    getAxiosErrorMessage
+} from '@nethesis/vue-components'
+import { onMounted, ref } from 'vue'
+import { useNotificationsStore } from '../../../../stores/notifications'
+import { getSDControllerApiEndpoint } from '@/lib/config'
+import axios from 'axios'
+
+const notificationsStore = useNotificationsStore()
+
+const emit = defineEmits(['close', 'save'])
+
+// Form fields
+const service = ref(false)
+const scanPath = ref("system")
+const scanInterval = ref("")
+const autoUpdate = ref(false)
+const scanNow = ref(false)
+
+// Validation error messages
+const errorBag = ref<{ [key: string]: string }>({})
+
+// Function to allow only letters in string fields
+const onlyLetters = (event: Event) => {
+    const input = event.target as HTMLInputElement
+    input.value = input.value.replace(/[^a-zA-Z\s]/g, '') // Allow only letters and spaces
+}
+
+// Function to allow only numbers in number fields
+const onlyNumbers = (event: Event) => {
+    const input = event.target as HTMLInputElement
+    input.value = input.value.replace(/[^0-9]/g, '') // Allow only numbers
+}
+
+const onlyValidUrlCharacters = (event: Event) => {
+    const input = event.target as HTMLInputElement
+    input.value = input.value.replace(/[^a-zA-Z0-9:\/\.\-\_]/g, '')
+}
+
+// Form validation function
+const validate = () => {
+    errorBag.value = {}
+
+    if (service.value) { // Validate only if enabled
+
+        if (!scanPath.value.trim()) {
+            errorBag.value.scanPath = "Scan path required."
+        }
+
+        const interval = Number(scanInterval.value.trim())
+        const isValidInterval = (
+            scanInterval.value.trim() &&
+            (interval === 0 || (interval >= 15 && interval <= 65535))
+        )
+
+        if (!isValidInterval) {
+            errorBag.value.scanInterval = "Scan interval must be 0 or a number between 15 and 65535."
+        }
+    }
+
+    return Object.keys(errorBag.value).length === 0
+}
+
+// Save function
+const saveRule = async () => {
+    if (!validate()) return
+
+    try {
+        const payload = {
+            service: service.value ? "enable" : "disable",
+            scan_path: scanPath.value,
+            scan_interval: scanInterval.value,
+            auto_update: autoUpdate.value ? "enable" : "disable",
+            scan_now: scanNow.value ? "enable" : "disable",
+        }
+
+        const response = await axios.post(`${getSDControllerApiEndpoint()}/clamav`, {
+            method: "set-config",
+            payload,
+        });
+
+        if (response.data.code === 200) {
+            notificationsStore.createNotification({
+                title: 'Success',
+                description: 'Configuration saved successfully.',
+                kind: 'success'
+            })
+
+            emit('save', payload)
+        }
+    } catch (err) {
+        console.error("Error saving rule:", getAxiosErrorMessage(err))
+    }
+}
+
+const refreshSave = async () => {
+
+    try {
+
+        const response = await axios.post(`${getSDControllerApiEndpoint()}/clamav`, {
+            "method": "refresh-results",
+            "payload": {}
+        });
+
+        if (response.data.code === 200) {
+            notificationsStore.createNotification({
+                title: 'Success',
+                description: 'Configuration saved successfully.',
+                kind: 'success'
+            })
+        } else {
+            notificationsStore.createNotification({
+                title: 'Error',
+                description: 'Somethinh went worng.',
+                kind: 'error'
+            })
+        }
+
+    } catch (err) {
+        console.error("Error saving rule:", getAxiosErrorMessage(err))
+        notificationsStore.createNotification({
+            title: 'Error',
+            description: 'Somethinh went worng.',
+            kind: 'error'
+        })
+    }
+}
+
+onMounted(() => {
+    getLists()
+})
+
+let apiResponse = ref()
+const getLists = async () => {
+    try {
+        const response = await axios.post(`${getSDControllerApiEndpoint()}/clamav`, {
+            method: 'get-config',
+            payload: {}
+        });
+
+        if (response.data.code === 200) {
+            apiResponse.value = response.data.data // Store API response
+        }
+    } catch (err) {
+    }
+};
+
+</script>
+
+<template>
+    <form @submit.prevent="saveRule">
+        <div class="space-y-6">
+            <NeToggle v-model="service" :label="service ? 'Enabled' : 'Disabled'" :topLabel="'Service'" />
+
+            <!-- Show form fields only if status is enabled -->
+            <template v-if="service">
+
+                <div>
+                    <label class="mr-4">SNMP Version:</label>
+                    <select v-model="scanPath" style="
+                width: 30%;
+                height: 36px;
+                padding: 6px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                font-size: 14px;
+                outline: none;
+                transition: border-color 0.3s ease-in-out;
+              ">
+                        <option value="system">system</option>
+                        <option value="overall">overall</option>
+                        <option value="cache">cache</option>
+                    </select>
+                </div>
+
+                <NeTextInput label="Scan Interval" v-model.trim="scanInterval" @input="onlyNumbers"
+                    :invalidMessage="errorBag.scanInterval" />
+
+                <NeToggle v-model="autoUpdate" :label="autoUpdate ? 'Enable' : 'Disable'" :topLabel="'Auto Update'" />
+
+                <NeToggle v-model="scanNow" :label="scanNow ? 'Enable' : 'Disable'" :topLabel="'Scan Now'" />
+
+                <!-- Footer -->
+                <div class="flex justify-end mt-6">
+                    <NeButton kind="primary" type="submit">
+                        Save
+                    </NeButton>
+                </div>
+
+                <label class="mr-4 ">Result :</label>
+                <Textarea variant="filled" rows="5" cols="30" />
+
+
+                <div class="flex justify-start mt-6">
+                    <NeButton kind="primary" @click="refreshSave">
+                        Refresh
+                    </NeButton>
+                </div>
+
+            </template>
+        </div>
+    </form>
+</template>

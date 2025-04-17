@@ -310,6 +310,11 @@ const standaloneRoutes = [
     name: 'IPS',
     component: () => import('../views/standalone/security/IpsView.vue')
   },
+  {
+    path: 'security/clamav',
+    name: 'Clamav',
+    component: () => import('../views/standalone/security/clamavView.vue')
+  },
   // {
   //   path: 'security/spi-filter',
   //   name: 'SPI Filter',

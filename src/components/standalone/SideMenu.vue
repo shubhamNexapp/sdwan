@@ -254,6 +254,10 @@ const navigation: Ref<MenuItem[]> = ref([
         name: 'standalone.ips.sidebar_title',
         to: 'security/ips'
       },
+      {
+        name: 'Clamav',
+        to: 'security/clamav'
+      },
       // {
       //   name: 'SPI Filter',
       //   to: 'security/spi-filter'
