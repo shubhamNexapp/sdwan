@@ -136,6 +136,11 @@ const standaloneRoutes = [
     component: () => import('../views/standalone/network/QoSView.vue')
   },
   {
+    path: 'network/nexapp-qos',
+    name: 'Nexapp Qos',
+    component: () => import('../views/standalone/network/NexappQos.vue')
+  },
+  {
     path: 'network/rip',
     name: 'RIP',
     component: () => import('../views/standalone/network/RIPView.vue')
