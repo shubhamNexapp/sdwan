@@ -89,15 +89,14 @@ const saveRule = async () => {
     if (!validate()) return
 
     try {
-        const payload = {
+        const payload = [{
             service: service.value ? "enabled" : "disabled",
             name: name.value,
             destination: destination.value,
             time_interval: timeInterval.value,
             retry_times: retryTimes.value,
             command: command.value,
-        }
-
+        }]
         const response = await axios.post(`${getSDControllerApiEndpoint()}/icmpcheck`, {
             method: "set-config",
             payload,

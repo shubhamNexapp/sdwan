@@ -132,6 +132,8 @@ const getLists = async () => {
             payload: {}
         });
 
+        console.log("response====",response)
+
         if (response.data.code === 200) {
             loading.value = false;
             apiResponse.value = response.data.data // Store API response
@@ -141,6 +143,8 @@ const getLists = async () => {
     }
     loading.value = false;
 };
+
+console.log("apiResponse=====",apiResponse)
 
 </script>
 
@@ -181,12 +185,14 @@ const getLists = async () => {
                     </NeTableHead>
                     <NeTableBody>
                         <NeTableRow v-for="(item, index) in apiResponse" :key="index">
+                            {{ console.log("item======",item.tunnel_name) }}
                             <NeTableCell>{{ index + 1 }}</NeTableCell>
-                            <NeTableCell>{{ item.tunnel_name }}</NeTableCell>
-                            <NeTableCell>{{ item.config.service }}</NeTableCell>
-                            <NeTableCell>{{ item.config.Local_virtual_ip }}</NeTableCell>
-                            <NeTableCell>{{ item.config.peer_virtual_ip }}</NeTableCell>
-                            <NeTableCell :data-label="t('common.actions')">
+                            <NeTableCell>{{ item.name }}</NeTableCell>
+                            <NeTableCell>{{ item.destination }}</NeTableCell>
+                            <NeTableCell>{{ item.time_interval }}</NeTableCell>
+                            <NeTableCell>{{ item.retry_times }}</NeTableCell>
+                            <NeTableCell>{{ item.command }}</NeTableCell>
+                            <!-- <NeTableCell :data-label="t('common.actions')">
                                 <div class="-ml-2.5 flex gap-2 xl:ml-0 xl:justify-end">
                                     <NeButton kind="tertiary" size="lg" :disabled="item.readonly"
                                         @click="openEditModal(item)">
@@ -205,7 +211,7 @@ const getLists = async () => {
                                         {{ t('common.delete') }}
                                     </NeButton>
                                 </div>
-                            </NeTableCell>
+                            </NeTableCell> -->
                         </NeTableRow>
                     </NeTableBody>
                 </NeTable>

@@ -317,7 +317,7 @@ const standaloneRoutes = [
   },
   {
     path: 'security/clamav',
-    name: 'Clamav',
+    name: 'Anti Virus',
     component: () => import('../views/standalone/security/clamavView.vue')
   },
   // {

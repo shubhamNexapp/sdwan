@@ -7,6 +7,7 @@ import {
 } from '@nethesis/vue-components'
 import { onMounted, ref } from 'vue'
 import { useNotificationsStore } from '../../../../stores/notifications'
+import Textarea from './Textarea.vue'
 import { getSDControllerApiEndpoint } from '@/lib/config'
 import axios from 'axios'
 
@@ -18,6 +19,7 @@ const emit = defineEmits(['close', 'save'])
 const service = ref(false)
 const scanPath = ref("system")
 const scanInterval = ref("")
+const result = ref("")
 const autoUpdate = ref(false)
 const scanNow = ref(false)
 
@@ -74,6 +76,7 @@ const saveRule = async () => {
             service: service.value ? "enable" : "disable",
             scan_path: scanPath.value,
             scan_interval: scanInterval.value,
+            result: result.value,
             auto_update: autoUpdate.value ? "enable" : "disable",
             scan_now: scanNow.value ? "enable" : "disable",
         }
@@ -109,9 +112,13 @@ const refreshSave = async () => {
         if (response.data.code === 200) {
             notificationsStore.createNotification({
                 title: 'Success',
-                description: 'Configuration saved successfully.',
+                description: 'Refresh successfully.',
                 kind: 'success'
             })
+            // 👉 Update the result from the API response
+            if (response.data.data && response.data.data.result) {
+                result.value = response.data.data.result || ''
+            }
         } else {
             notificationsStore.createNotification({
                 title: 'Error',
@@ -142,8 +149,17 @@ const getLists = async () => {
             payload: {}
         });
 
+        console.log("response=====", response)
+
         if (response.data.code === 200) {
-            apiResponse.value = response.data.data // Store API response
+            const data = response.data.data
+            // Set form fields
+            service.value = data.service === 'enable'
+            scanPath.value = data.scan_path || 'system'
+            scanInterval.value = data.scan_interval || ''
+            result.value = data.result || ''
+            autoUpdate.value = data.auto_update === 'enable'
+            scanNow.value = data.scan_now === 'enable'
         }
     } catch (err) {
     }
@@ -156,12 +172,9 @@ const getLists = async () => {
         <div class="space-y-6">
             <NeToggle v-model="service" :label="service ? 'Enabled' : 'Disabled'" :topLabel="'Service'" />
 
-            <!-- Show form fields only if status is enabled -->
-            <template v-if="service">
-
-                <div>
-                    <label class="mr-4">SNMP Version:</label>
-                    <select v-model="scanPath" style="
+            <div>
+                <label class="mr-4">Scan Path</label>
+                <select v-model="scanPath" style="
                 width: 30%;
                 height: 36px;
                 padding: 6px;
@@ -171,37 +184,35 @@ const getLists = async () => {
                 outline: none;
                 transition: border-color 0.3s ease-in-out;
               ">
-                        <option value="system">system</option>
-                        <option value="overall">overall</option>
-                        <option value="cache">cache</option>
-                    </select>
-                </div>
+                    <option value="system">system</option>
+                    <option value="overall">overall</option>
+                    <option value="cache">cache</option>
+                </select>
+            </div>
 
-                <NeTextInput label="Scan Interval" v-model.trim="scanInterval" @input="onlyNumbers"
-                    :invalidMessage="errorBag.scanInterval" />
+            <NeTextInput label="Scan Interval" v-model.trim="scanInterval" @input="onlyNumbers"
+                :invalidMessage="errorBag.scanInterval" />
 
-                <NeToggle v-model="autoUpdate" :label="autoUpdate ? 'Enable' : 'Disable'" :topLabel="'Auto Update'" />
+            <NeToggle v-model="autoUpdate" :label="autoUpdate ? 'Enable' : 'Disable'" :topLabel="'Auto Update'" />
 
-                <NeToggle v-model="scanNow" :label="scanNow ? 'Enable' : 'Disable'" :topLabel="'Scan Now'" />
+            <NeToggle v-model="scanNow" :label="scanNow ? 'Enable' : 'Disable'" :topLabel="'Scan Now'" />
 
-                <!-- Footer -->
-                <div class="flex justify-end mt-6">
-                    <NeButton kind="primary" type="submit">
-                        Save
-                    </NeButton>
-                </div>
+            <!-- Footer -->
+            <div class="flex justify-end mt-6">
+                <NeButton kind="primary" type="submit">
+                    Save
+                </NeButton>
+            </div>
 
-                <label class="mr-4 ">Result :</label>
-                <Textarea variant="filled" rows="5" cols="30" />
+            <label class="mr-4 ">Result :</label>
+            <Textarea v-model="result" variant="filled" rows="5" cols="30" />
 
+            <div class="flex justify-start mt-6">
+                <NeButton kind="primary" @click="refreshSave">
+                    Refresh
+                </NeButton>
+            </div>
 
-                <div class="flex justify-start mt-6">
-                    <NeButton kind="primary" @click="refreshSave">
-                        Refresh
-                    </NeButton>
-                </div>
-
-            </template>
         </div>
     </form>
 </template>

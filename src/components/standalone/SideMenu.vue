@@ -259,7 +259,7 @@ const navigation: Ref<MenuItem[]> = ref([
         to: 'security/ips'
       },
       {
-        name: 'Clamav',
+        name: 'Anti Virus',
         to: 'security/clamav'
       },
       // {

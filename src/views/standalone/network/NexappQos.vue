@@ -11,48 +11,13 @@ import {
     NeToggle,
     NeTextInput
 } from '@nethesis/vue-components'
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, ref } from 'vue'
 import axios from 'axios'
 import { getSDControllerApiEndpoint } from '@/lib/config'
 
 const loading = ref({ saveRule: false })
-
-const status = ref(false)
 const service = ref(false)
-const mode = ref('game')
-const redistributeConnect = ref(false)
-const redistributeStatic = ref(false)
-const redistributeKernel = ref(false)
-
-// Dummy initial data
-let apiResponse = ref([
-    {
-        code: 200,
-        data: {
-            service: 'enable',
-            mode: 'custom',
-            rule: [
-                {
-                    rule_service: 'enable',
-                    rule_name: 'testname1',
-                    protocol: 'udp',
-                    dport: '2000',
-                    priority: '2',
-                    base_interface: 'eth0,eth1'
-                },
-                {
-                    rule_service: 'enable',
-                    rule_name: 'testname2',
-                    protocol: 'both',
-                    dport: '2560-3000',
-                    priority: '1',
-                    base_interface: 'eth3,eth4'
-                }
-            ]
-        }
-    }
-])
-
+const mode = ref('game') // default mode to 'game'
 const modeDetails = ref<
     {
         rule_name: string
@@ -64,7 +29,7 @@ const modeDetails = ref<
     }[]
 >([])
 
-const interfacesAvailable = ref(['eth0', 'eth1', 'eth2', 'eth3', 'eth4']) // Dummy interfaces for checkbox
+const interfacesAvailable = ref(['eth0', 'eth1', 'eth2', 'eth3', 'eth4']) // Dummy interface list
 
 onMounted(() => {
     getLists()
@@ -77,37 +42,29 @@ const getLists = async () => {
             payload: {}
         })
 
-        if (response.data.code === 200) {
-            // apiResponse.value = response.data.data;
+        if (response.data.code === 200 && response.data.data) {
+            const newValues = response.data.data
+
+            service.value = newValues.service === 'enable'
+            mode.value = newValues.mode || 'game' // If mode is empty, default to 'game'
+
+            if (newValues.mode === 'custom' && Array.isArray(newValues.rule)) {
+                modeDetails.value = newValues.rule.map((item: any) => ({
+                    rule_name: item.rule_name || '',
+                    protocol: item.protocol || 'tcp',
+                    dport: item.dport || '',
+                    base_interface: item.base_interface ? item.base_interface.split(',') : [],
+                    priority: item.priority || '',
+                    service: item.rule_service === 'enable'
+                }))
+            } else {
+                modeDetails.value = []
+            }
         }
     } catch (err) {
         console.error('Error fetching data:', err)
     }
 }
-
-watch(
-    () => apiResponse.value,
-    (newValue) => {
-        let newValues = newValue[0].data
-        if (newValue) {
-            service.value = newValues.service === 'enable'
-            if (newValues.mode === 'custom') {
-                mode.value = 'custom'
-                modeDetails.value = newValues.rule.map((item: any) => ({
-                    rule_name: item.rule_name,
-                    protocol: item.protocol,
-                    dport: item.dport,
-                    base_interface: item.base_interface.split(','),
-                    priority: item.priority,
-                    service: item.rule_service === 'enable'
-                }))
-            } else {
-                mode.value = newValues.mode
-            }
-        }
-    },
-    { deep: true, immediate: true }
-)
 
 const addModeDetails = () => {
     modeDetails.value.push({
@@ -156,7 +113,7 @@ const saveNetworkConfig = async () => {
         }
 
         await axios.post(`${getSDControllerApiEndpoint()}/qos`, payload)
-        getLists()
+        await getLists() // Refresh data after save
     } catch (err) {
         console.error('Error saving data:', err)
     } finally {
@@ -183,7 +140,6 @@ const saveNetworkConfig = async () => {
 
             <!-- Show Table Only if mode is custom -->
             <div v-if="mode === 'custom'">
-                <!-- Mode Table -->
                 <div class="flex flex-row items-center justify-between mt-6">
                     <p class="max-w-2xl font-bold text-black dark:text-gray-400">Mode Details</p>
                     <NeButton kind="primary" size="lg" @click="addModeDetails">
@@ -207,7 +163,7 @@ const saveNetworkConfig = async () => {
                     <NeTableBody>
                         <NeTableRow v-for="(item, index) in modeDetails" :key="`new-${index}`">
                             <NeTableCell>
-                                <NeTextInput v-model.trim="item.rule_name" placeholder="rule name" />
+                                <NeTextInput v-model.trim="item.rule_name" placeholder="Rule name" />
                             </NeTableCell>
                             <NeTableCell>
                                 <select v-model="item.protocol" class="border rounded p-1">
@@ -217,7 +173,7 @@ const saveNetworkConfig = async () => {
                                 </select>
                             </NeTableCell>
                             <NeTableCell>
-                                <NeTextInput v-model.trim="item.dport" placeholder="dport" />
+                                <NeTextInput v-model.trim="item.dport" placeholder="Dport" />
                             </NeTableCell>
                             <NeTableCell>
                                 <div class="flex flex-col gap-1">
@@ -230,7 +186,7 @@ const saveNetworkConfig = async () => {
                                 </div>
                             </NeTableCell>
                             <NeTableCell>
-                                <NeTextInput v-model.trim="item.priority" placeholder="priority" />
+                                <NeTextInput v-model.trim="item.priority" placeholder="Priority" />
                             </NeTableCell>
                             <NeTableCell>
                                 <NeToggle v-model="item.service" label="Enable" />
@@ -245,7 +201,6 @@ const saveNetworkConfig = async () => {
                 </NeTable>
             </div>
 
-            <!-- Save Button -->
             <div class="mt-4 flex justify-end">
                 <NeButton kind="primary" size="lg" @click="saveNetworkConfig" :disabled="loading.saveRule">
                     Save

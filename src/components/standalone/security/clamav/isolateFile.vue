@@ -1,14 +1,79 @@
 <script setup>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
+import { getSDControllerApiEndpoint } from '@/lib/config'
+import axios from 'axios'
+import { useNotificationsStore } from '@/stores/notifications'
 
-const files = ref(['test_1', 'test_2', 'test_3'])
+const files = ref([])
+const notificationsStore = useNotificationsStore()
 
-const recover = (file) => {
-  alert(`Recovering ${file}`)
+
+onMounted(() => {
+  getLists()
+})
+
+const getLists = async () => {
+  try {
+    const response = await axios.post(`${getSDControllerApiEndpoint()}/clamav`, {
+      method: 'get-config',
+      payload: {}
+    });
+
+
+    if (response.data.code === 200) {
+      // Set the files from response
+      const isolateFileString = response.data.data.isolate_file || ''
+
+      // split by '\n' and filter empty strings
+      files.value = isolateFileString.split('\n').filter(file => file.trim() !== '')
+
+    }
+  } catch (err) {
+  }
+};
+
+const recover = async (file) => {
+  try {
+    const response = await axios.post(`${getSDControllerApiEndpoint()}/clamav`, {
+      method: 'action-config',
+      "payload": {
+        "file_name": file,
+        "action": "recovery"
+      }
+    });
+
+    if (response.data.code === 200) {
+      notificationsStore.createNotification({
+        title: 'Success',
+        description: 'File recover successfully.',
+        kind: 'success'
+      })
+      await getLists()   // 👈 Refresh the list after successful delete
+    }
+  } catch (err) {
+  }
 }
 
-const deleteFile = (file) => {
-  alert(`Deleting ${file}`)
+const deleteFile = async (file) => {
+  try {
+    const response = await axios.post(`${getSDControllerApiEndpoint()}/clamav`, {
+      method: 'action-config',
+      "payload": {
+        "file_name": file,
+        "action": "delete"
+      }
+    });
+
+    if (response.data.code === 200) {
+      notificationsStore.createNotification({
+        title: 'Success',
+        description: 'File delte successfully.',
+        kind: 'success'
+      })
+      await getLists()   // 👈 Refresh the list after successful delete
+    }
+  } catch (err) {
+  }
 }
 </script>
 
