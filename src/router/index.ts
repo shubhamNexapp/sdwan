@@ -200,11 +200,11 @@ const standaloneRoutes = [
     name: 'FlashStart',
     component: () => import('../views/standalone/security/FlashStartView.vue')
   },
-  // {
-  //   path: 'security/dpi',
-  //   name: 'Dpi',
-  //   component: () => import('../views/standalone/security/DpiFilterView.vue')
-  // },
+  {
+    path: 'security/dpi',
+    name: 'Dpi',
+    component: () => import('../views/standalone/security/DpiFilterView.vue')
+  },
   {
     path: 'security/threat-shield-ip',
     name: 'ThreatShield',

@@ -57,7 +57,7 @@ async function fetchTunnels(setLoading: boolean = true) {
     tunnels.value = (await ubusCall('ns.ipsectunnel', 'list-tunnels')).data.tunnels
     loading.value = false
   } catch (err: any) {
-    error.value.notificationTitle = t('error.cannot_retrieve_ipsec_tunnels')
+    error.value.notificationTitle = t('Cannot retrieve L2TP tunnels')
     error.value.notificationDescription = t(getAxiosErrorMessage(err))
     error.value.notificationDetails = err.toString()
   } finally {

@@ -174,83 +174,82 @@ const saveNetworkConfig = async () => {
 
     <div class="flex flex-col gap-y-6">
         <div>
-            <div class="flex flex-col items-start mb-4">
-                <NeToggle class="mb-4" v-model="service" label="Service Status" />
-                <NeToggle class="mb-4" v-model="useBayes" label="Use Bayes" />
+            <NeToggle class="mb-4" v-model="service" label="Service Status" />
+            <template v-if="service">
+                <div class="flex flex-col items-start mb-4">
 
+                    <NeToggle class="mb-4" v-model="useBayes" label="Use Bayes" />
 
-
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <NeTextInput v-model.trim="ipInput" placeholder="Enter IP Address" @keyup.enter="addIp" />
-                    <NeButton kind="primary" size="lg" @click="addIp">
-                        <template #prefix>
-                            <font-awesome-icon :icon="['fas', 'plus']" class="h-4 w-4" aria-hidden="true" />
-                        </template>
-                    </NeButton>
-                </div>
-                <div v-if="errorMessage" style="color: red; margin-top: 5px;">{{ errorMessage }}</div>
-
-                <div style="margin-top: 10px;">
-                    <div v-for="(ip, index) in ipBlacklist" :key="index"
-                        style="display: flex; align-items: center; margin-bottom: 5px;">
-                        <span style="flex-grow: 1;"><b>{{ ip }}</b></span>
-                        <NeButton class="ml-4" size="sm" @click="removeIp(index)">
-                            <font-awesome-icon :icon="['fas', 'trash']" class="h-4 w-4" aria-hidden="true" />
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <NeTextInput v-model.trim="ipInput" placeholder="Enter IP Address" @keyup.enter="addIp" />
+                        <NeButton kind="primary" size="lg" @click="addIp">
+                            <template #prefix>
+                                <font-awesome-icon :icon="['fas', 'plus']" class="h-4 w-4" aria-hidden="true" />
+                            </template>
                         </NeButton>
+                    </div>
+                    <div v-if="errorMessage" style="color: red; margin-top: 5px;">{{ errorMessage }}</div>
+
+                    <div style="margin-top: 10px;">
+                        <div v-for="(ip, index) in ipBlacklist" :key="index"
+                            style="display: flex; align-items: center; margin-bottom: 5px;">
+                            <span style="flex-grow: 1;"><b>{{ ip }}</b></span>
+                            <NeButton class="ml-4" size="sm" @click="removeIp(index)">
+                                <font-awesome-icon :icon="['fas', 'trash']" class="h-4 w-4" aria-hidden="true" />
+                            </NeButton>
+                        </div>
                     </div>
                 </div>
 
+                <div class="flex flex-row items-center justify-between mt-6">
+                    <p class="max-w-2xl font-bold text-black dark:text-gray-400">Mode Details</p>
+                    <NeButton kind="primary" size="lg" @click="addModeDetails">
+                        <template #prefix>
+                            <font-awesome-icon :icon="['fas', 'plus']" class="h-4 w-4" aria-hidden="true" />
+                        </template>
+                        Add
+                    </NeButton>
+                </div>
 
-            </div>
-
-            <div class="flex flex-row items-center justify-between mt-6">
-                <p class="max-w-2xl font-bold text-black dark:text-gray-400">Mode Details</p>
-                <NeButton kind="primary" size="lg" @click="addModeDetails">
-                    <template #prefix>
-                        <font-awesome-icon :icon="['fas', 'plus']" class="h-4 w-4" aria-hidden="true" />
-                    </template>
-                    Add
-                </NeButton>
-            </div>
-
-            <NeTable cardBreakpoint="md" class="mt-2" ariaLabel="Interface Table">
-                <NeTableHead>
-                    <NeTableHeadCell>Rule Service</NeTableHeadCell>
-                    <NeTableHeadCell>Rule Name</NeTableHeadCell>
-                    <NeTableHeadCell>Test Type</NeTableHeadCell>
-                    <NeTableHeadCell>Keyword</NeTableHeadCell>
-                    <NeTableHeadCell>Prompt Information</NeTableHeadCell>
-                    <NeTableHeadCell>Actions</NeTableHeadCell>
-                </NeTableHead>
-                <NeTableBody>
-                    <NeTableRow v-for="(item, index) in modeDetails" :key="`new-${index}`">
-                        <NeTableCell>
-                            <NeToggle v-model="item.rule_service" label="Enable" />
-                        </NeTableCell>
-                        <NeTableCell>
-                            <NeTextInput v-model.trim="item.rule_name" placeholder="Rule name" />
-                        </NeTableCell>
-                        <NeTableCell>
-                            <NeTextInput v-model.trim="item.test_type" placeholder="Test Type" />
-                        </NeTableCell>
-                        <NeTableCell>
-                            <select v-model="item.keyword" class="border rounded p-1">
-                                <option value="urgent">urgent</option>
-                                <option value="immediate action">immediate action</option>
-                                <option value="response">response</option>
-                            </select>
-                        </NeTableCell>
-                        <NeTableCell>
-                            <NeTextInput v-model.trim="item.prompt_infomation" placeholder="Prompt Information" />
-                        </NeTableCell>
-                        <NeTableCell>
-                            <NeButton size="sm" @click="deleteModeDetails(index)">
-                                <font-awesome-icon :icon="['fas', 'trash']" class="h-4 w-4" aria-hidden="true" />
-                            </NeButton>
-                        </NeTableCell>
-                    </NeTableRow>
-                </NeTableBody>
-            </NeTable>
+                <NeTable cardBreakpoint="md" class="mt-2" ariaLabel="Interface Table">
+                    <NeTableHead>
+                        <NeTableHeadCell>Rule Service</NeTableHeadCell>
+                        <NeTableHeadCell>Rule Name</NeTableHeadCell>
+                        <NeTableHeadCell>Test Type</NeTableHeadCell>
+                        <NeTableHeadCell>Keyword</NeTableHeadCell>
+                        <NeTableHeadCell>Prompt Information</NeTableHeadCell>
+                        <NeTableHeadCell>Actions</NeTableHeadCell>
+                    </NeTableHead>
+                    <NeTableBody>
+                        <NeTableRow v-for="(item, index) in modeDetails" :key="`new-${index}`">
+                            <NeTableCell>
+                                <NeToggle v-model="item.rule_service" label="Enable" />
+                            </NeTableCell>
+                            <NeTableCell>
+                                <NeTextInput v-model.trim="item.rule_name" placeholder="Rule name" />
+                            </NeTableCell>
+                            <NeTableCell>
+                                <NeTextInput v-model.trim="item.test_type" placeholder="Test Type" />
+                            </NeTableCell>
+                            <NeTableCell>
+                                <select v-model="item.keyword" class="border rounded p-1">
+                                    <option value="urgent">urgent</option>
+                                    <option value="immediate action">immediate action</option>
+                                    <option value="response">response</option>
+                                </select>
+                            </NeTableCell>
+                            <NeTableCell>
+                                <NeTextInput v-model.trim="item.prompt_infomation" placeholder="Prompt Information" />
+                            </NeTableCell>
+                            <NeTableCell>
+                                <NeButton size="sm" @click="deleteModeDetails(index)">
+                                    <font-awesome-icon :icon="['fas', 'trash']" class="h-4 w-4" aria-hidden="true" />
+                                </NeButton>
+                            </NeTableCell>
+                        </NeTableRow>
+                    </NeTableBody>
+                </NeTable>
+            </template>
 
             <div class="mt-4 flex justify-end">
                 <NeButton kind="primary" size="lg" @click="saveNetworkConfig" :disabled="loading.saveRule">

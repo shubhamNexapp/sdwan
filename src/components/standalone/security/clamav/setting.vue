@@ -171,10 +171,11 @@ const getLists = async () => {
     <form @submit.prevent="saveRule">
         <div class="space-y-6">
             <NeToggle v-model="service" :label="service ? 'Enabled' : 'Disabled'" :topLabel="'Service'" />
+            <template v-if="service">
 
-            <div>
-                <label class="mr-4">Scan Path</label>
-                <select v-model="scanPath" style="
+                <div>
+                    <label class="mr-4">Scan Path</label>
+                    <select v-model="scanPath" style="
                 width: 30%;
                 height: 36px;
                 padding: 6px;
@@ -184,32 +185,35 @@ const getLists = async () => {
                 outline: none;
                 transition: border-color 0.3s ease-in-out;
               ">
-                    <option value="system">system</option>
-                    <option value="overall">overall</option>
-                    <option value="cache">cache</option>
-                </select>
-            </div>
+                        <option value="system">system</option>
+                        <option value="overall">overall</option>
+                        <option value="cache">cache</option>
+                    </select>
+                </div>
 
-            <NeTextInput label="Scan Interval" v-model.trim="scanInterval" @input="onlyNumbers"
-                :invalidMessage="errorBag.scanInterval" />
+                <NeTextInput label="Scan Interval" v-model.trim="scanInterval" @input="onlyNumbers"
+                    :invalidMessage="errorBag.scanInterval" />
 
-            <NeToggle v-model="autoUpdate" :label="autoUpdate ? 'Enable' : 'Disable'" :topLabel="'Auto Update'" />
+                <NeToggle v-model="autoUpdate" :label="autoUpdate ? 'Enable' : 'Disable'" :topLabel="'Auto Update'" />
 
-            <NeToggle v-model="scanNow" :label="scanNow ? 'Enable' : 'Disable'" :topLabel="'Scan Now'" />
+                <NeToggle v-model="scanNow" :label="scanNow ? 'Enable' : 'Disable'" :topLabel="'Scan Now'" />
 
+
+
+                <label class="mr-4 ">Result :</label>
+                <Textarea v-model="result" variant="filled" rows="5" cols="30" />
+
+                <div class="flex justify-start mt-6">
+                    <NeButton kind="primary" @click="refreshSave">
+                        Refresh
+                    </NeButton>
+                </div>
+
+            </template>
             <!-- Footer -->
             <div class="flex justify-end mt-6">
                 <NeButton kind="primary" type="submit">
                     Save
-                </NeButton>
-            </div>
-
-            <label class="mr-4 ">Result :</label>
-            <Textarea v-model="result" variant="filled" rows="5" cols="30" />
-
-            <div class="flex justify-start mt-6">
-                <NeButton kind="primary" @click="refreshSave">
-                    Refresh
                 </NeButton>
             </div>
 

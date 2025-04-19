@@ -286,7 +286,7 @@ onMounted(fetchSNMPConfig);
     <form>
       <div class="space-x-6 space-y-6">
         <!-- enabled -->
-        <NeToggle v-model="service" label="Enable Service" />
+        <NeToggle v-model="service" :label="service ? 'Enable' : 'Disable'" />
 
         <!-- Show form fields only if status is enabled -->
         <template v-if="service">

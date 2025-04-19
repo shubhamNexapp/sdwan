@@ -14,8 +14,11 @@ import {
 import { onMounted, ref, watch } from 'vue'
 import axios from 'axios'
 import { getSDControllerApiEndpoint } from '@/lib/config'
+import { useNotificationsStore } from '@/stores/notifications'
 
 const loading = ref({ saveRule: false })
+
+const notificationsStore = useNotificationsStore()
 
 const service = ref(false);
 const redistributeConnect = ref(false);
@@ -92,6 +95,11 @@ const saveNetworkConfig = async () => {
 
     await axios.post(`${getSDControllerApiEndpoint()}/rip`, payload);
     getLists(); // Refresh list after saving
+    notificationsStore.createNotification({
+            title: 'Success',
+            description: 'Configuration saved successfully.',
+            kind: 'success'
+        })
   } catch (err) {
     console.error("Error saving data:", err);
   } finally {
@@ -103,84 +111,89 @@ const saveNetworkConfig = async () => {
 
 <template>
   <NeHeading tag="h3" class="mb-7">RIP</NeHeading>
-  <div class="flex flex-col gap-y-6">
-    <div>
-      <div class="flex flex-col items-start mb-4">
-        <NeToggle v-model="service" label="OSPF Service" />
-        <div class="w-full flex flex-col gap-3 mt-4">
-          <NeToggle v-model="redistributeConnect" label="Redisribute Connect" />
-          <NeToggle v-model="redistributeStatic" label="Redisribute Static" />
-          <NeToggle v-model="redistributeKernel" label="Redisribute Kernel" />
+  <NeToggle v-model="service" label="RIP Service" />
+
+  <template v-if="service">
+    <div class="flex flex-col gap-y-6">
+      <div>
+        <div class="flex flex-col items-start mb-4">
+          <div class="w-full flex flex-col gap-3 mt-4">
+            <NeToggle v-model="redistributeConnect" label="Redisribute Connect" />
+            <NeToggle v-model="redistributeStatic" label="Redisribute Static" />
+            <NeToggle v-model="redistributeKernel" label="Redisribute Kernel" />
+          </div>
         </div>
-      </div>
 
-      <!-- Neighbours Table -->
-      <div class="flex flex-row items-center justify-between mt-4">
-        <p class="max-w-2xl font-bold text-black dark:text-gray-400">Neighbour</p>
-        <NeButton kind="primary" size="lg" @click="addNeighbour">
-          <template #prefix>
-            <font-awesome-icon :icon="['fas', 'plus']" class="h-4 w-4" aria-hidden="true" />
-          </template>
-          Add
-        </NeButton>
-      </div>
+        <!-- Neighbours Table -->
+        <div class="flex flex-row items-center justify-between mt-4">
+          <p class="max-w-2xl font-bold text-black dark:text-gray-400">Neighbour</p>
+          <NeButton kind="primary" size="lg" @click="addNeighbour">
+            <template #prefix>
+              <font-awesome-icon :icon="['fas', 'plus']" class="h-4 w-4" aria-hidden="true" />
+            </template>
+            Add
+          </NeButton>
+        </div>
 
-      <NeTable cardBreakpoint="md" class="mt-2" ariaLabel="Neighbour Table">
-        <NeTableHead>
-          <NeTableHeadCell>Neighbor</NeTableHeadCell>
-          <NeTableHeadCell>Operations</NeTableHeadCell>
-        </NeTableHead>
-        <NeTableBody>
-          <NeTableRow v-for="(item, index) in newNeighbours" :key="`new-${index}`">
-            <NeTableCell>
-              <NeTextInput v-model.trim="item.neighbor_ip" placeholder="Neighbour" />
-            </NeTableCell>
-            <NeTableCell>
-              <NeButton size="sm" class="mt-5" @click=deleteNeighbour(index)>
-                <font-awesome-icon :icon="['fas', 'trash']" class="h-4 w-4" aria-hidden="true" />
-              </NeButton>
-            </NeTableCell>
-          </NeTableRow>
-        </NeTableBody>
-      </NeTable>
+        <NeTable cardBreakpoint="md" class="mt-2" ariaLabel="Neighbour Table">
+          <NeTableHead>
+            <NeTableHeadCell>Neighbor</NeTableHeadCell>
+            <NeTableHeadCell>Operations</NeTableHeadCell>
+          </NeTableHead>
+          <NeTableBody>
+            <NeTableRow v-for="(item, index) in newNeighbours" :key="`new-${index}`">
+              <NeTableCell>
+                <NeTextInput v-model.trim="item.neighbor_ip" placeholder="Neighbour" />
+              </NeTableCell>
+              <NeTableCell>
+                <NeButton size="sm" class="mt-5" @click=deleteNeighbour(index)>
+                  <font-awesome-icon :icon="['fas', 'trash']" class="h-4 w-4" aria-hidden="true" />
+                </NeButton>
+              </NeTableCell>
+            </NeTableRow>
+          </NeTableBody>
+        </NeTable>
 
-       <!-- Neighbours Table -->
-       <div class="flex flex-row items-center justify-between mt-4">
-        <p class="max-w-2xl font-bold text-black dark:text-gray-400">Network</p>
-        <NeButton kind="primary" size="lg" @click="addNetwork">
-          <template #prefix>
-            <font-awesome-icon :icon="['fas', 'plus']" class="h-4 w-4" aria-hidden="true" />
-          </template>
-          Add
-        </NeButton>
-      </div>
+        <!-- Neighbours Table -->
+        <div class="flex flex-row items-center justify-between mt-4">
+          <p class="max-w-2xl font-bold text-black dark:text-gray-400">Network</p>
+          <NeButton kind="primary" size="lg" @click="addNetwork">
+            <template #prefix>
+              <font-awesome-icon :icon="['fas', 'plus']" class="h-4 w-4" aria-hidden="true" />
+            </template>
+            Add
+          </NeButton>
+        </div>
 
-      <NeTable cardBreakpoint="md" class="mt-2" ariaLabel="Neighbour Table">
-        <NeTableHead>
-          <NeTableHeadCell>Network</NeTableHeadCell>
-          <NeTableHeadCell>Operations</NeTableHeadCell>
-        </NeTableHead>
-        <NeTableBody>
-          <NeTableRow v-for="(item, index) in networks" :key="`new-${index}`">
-            <NeTableCell>
-              <NeTextInput v-model.trim="item.network" placeholder="Neighbour" />
-            </NeTableCell>
-            <NeTableCell>
-              <NeButton size="sm" class="mt-5" @click=deleteNetwork(index)>
-                <font-awesome-icon :icon="['fas', 'trash']" class="h-4 w-4" aria-hidden="true" />
-              </NeButton>
-            </NeTableCell>
-          </NeTableRow>
-        </NeTableBody>
-      </NeTable>
+        <NeTable cardBreakpoint="md" class="mt-2" ariaLabel="Neighbour Table">
+          <NeTableHead>
+            <NeTableHeadCell>Network</NeTableHeadCell>
+            <NeTableHeadCell>Operations</NeTableHeadCell>
+          </NeTableHead>
+          <NeTableBody>
+            <NeTableRow v-for="(item, index) in networks" :key="`new-${index}`">
+              <NeTableCell>
+                <NeTextInput v-model.trim="item.network" placeholder="Neighbour" />
+              </NeTableCell>
+              <NeTableCell>
+                <NeButton size="sm" class="mt-5" @click=deleteNetwork(index)>
+                  <font-awesome-icon :icon="['fas', 'trash']" class="h-4 w-4" aria-hidden="true" />
+                </NeButton>
+              </NeTableCell>
+            </NeTableRow>
+          </NeTableBody>
+        </NeTable>
 
 
-      <!-- Save Button -->
-      <div class="mt-4 flex justify-end">
-        <NeButton kind="primary" size="lg" @click="saveNetworkConfig" :disabled="loading.saveRule">
-          Save
-        </NeButton>
+        <!-- Save Button -->
+
       </div>
     </div>
+  </template>
+
+  <div class="mt-4 flex justify-end">
+    <NeButton kind="primary" size="lg" @click="saveNetworkConfig" :disabled="loading.saveRule">
+      Save
+    </NeButton>
   </div>
 </template>

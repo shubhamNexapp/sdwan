@@ -122,7 +122,7 @@ function configureAxios() {
             (!error.response || !error.response.data)
           )
         ) {
-          notificationsStore.createNotificationFromAxiosError(error)
+          // notificationsStore.createNotificationFromAxiosError(error)
         }
       }
       return Promise.reject(error)

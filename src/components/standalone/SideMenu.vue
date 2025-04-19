@@ -89,10 +89,10 @@ const navigation: Ref<MenuItem[]> = ref([
         name: 'standalone.openwisp.title',
         to: 'system/sd-controller'
       },
-      {
-        name: 'standalone.storage.title',
-        to: 'system/storage'
-      },
+      // {
+      //   name: 'standalone.storage.title',
+      //   to: 'system/storage'
+      // },
       {
         name: 'standalone.factory_reset.title',
         to: 'system/factory_reset'
@@ -250,10 +250,10 @@ const navigation: Ref<MenuItem[]> = ref([
         name: 'standalone.flashstart.title',
         to: 'security/flashstart'
       },
-      // {
-      //   name: 'standalone.dpi.title',
-      //   to: 'security/dpi'
-      // },
+      {
+        name: 'standalone.dpi.title',
+        to: 'security/dpi'
+      },
       {
         name: 'standalone.ips.sidebar_title',
         to: 'security/ips'

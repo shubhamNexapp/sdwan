@@ -99,7 +99,7 @@ function configureAxios() {
             deleteFromStorage(`unit-${unitId}`)
 
             // show error notification
-            notificationsStore.createNotificationFromAxiosError(error)
+            // notificationsStore.createNotificationFromAxiosError(error)
           }
         } else {
           if (error.response?.data?.message !== 'incorrect Username or Password') {

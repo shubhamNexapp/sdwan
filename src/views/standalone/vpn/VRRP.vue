@@ -99,30 +99,35 @@ async function saveSettings() {
 
         <NeInlineNotification v-if="error.title" class="my-4" kind="error" :title="error.title"
             :description="error.description" />
+        <NeToggle v-model="service" :topLabel="t('Service')" :label="service ? 'Enable' : 'Disable'" />
 
-        <NeToggle v-model="status" :topLabel="t('Status')" :label="status ? 'Connected' : 'Disconnect'" />
+        <template v-if="service">
 
-        <div class="flex flex-col gap-y-3">
-            <NeToggle v-model="service" :topLabel="t('Service')" :label="service ? 'Enable' : 'Disable'" />
-            <label class="mr-4">State:</label>
-            <select v-model="state" class="custom-select">
-                <option value="MASTER">MASTER</option>
-                <option value="BACKUP">BACKUP</option>
-            </select>
-            <label class="mr-4">Interface:</label>
-            <select v-model="interfaceName" class="custom-select">
-                <option value="eth0">eth0</option>
-                <option value="eth1">eth1</option>
-                <option value="eth2">eth2</option>
-                <option value="eth3">eth3</option>
-                <option value="eth4">eth4</option>
-                <option value="eth5">eth5</option>
-            </select>
-            <NeTextInput v-model="virtualID" label="Virtual ID" />
-            <NeTextInput v-model="virtualPriority" label="Virtual Priority" />
-            <NeTextInput v-model="virtualIP" label="Virtual IP" />
-            <NeTextInput v-model="password" label="Password" />
-        </div>
+            <NeToggle v-model="status" :topLabel="t('Status')" :label="status ? 'Connected' : 'Disconnect'" />
+
+            <div class="flex flex-col gap-y-3">
+
+                <label class="mr-4">State:</label>
+                <select v-model="state" class="custom-select">
+                    <option value="MASTER">MASTER</option>
+                    <option value="BACKUP">BACKUP</option>
+                </select>
+                <label class="mr-4">Interface:</label>
+                <select v-model="interfaceName" class="custom-select">
+                    <option value="eth0">eth0</option>
+                    <option value="eth1">eth1</option>
+                    <option value="eth2">eth2</option>
+                    <option value="eth3">eth3</option>
+                    <option value="eth4">eth4</option>
+                    <option value="eth5">eth5</option>
+                </select>
+                <NeTextInput v-model="virtualID" label="Virtual ID" />
+                <NeTextInput v-model="virtualPriority" label="Virtual Priority" />
+                <NeTextInput v-model="virtualIP" label="Virtual IP" />
+                <NeTextInput v-model="password" label="Password" />
+            </div>
+
+        </template>
         <NeButton :loading="saving" kind="primary" @click="saveSettings" class="mt-5 ml-1">Save</NeButton>
 
     </FormLayout>
