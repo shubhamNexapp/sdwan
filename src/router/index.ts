@@ -320,6 +320,11 @@ const standaloneRoutes = [
     name: 'Anti Virus',
     component: () => import('../views/standalone/security/clamavView.vue')
   },
+  {
+    path: 'security/anti-spam',
+    name: 'Anti Spam',
+    component: () => import('../views/standalone/security/AntiSpam.vue')
+  },
   // {
   //   path: 'security/spi-filter',
   //   name: 'SPI Filter',

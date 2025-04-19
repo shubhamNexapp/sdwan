@@ -262,6 +262,10 @@ const navigation: Ref<MenuItem[]> = ref([
         name: 'Anti Virus',
         to: 'security/clamav'
       },
+      {
+        name: 'Anti Spam',
+        to: 'security/anti-spam'
+      },
       // {
       //   name: 'SPI Filter',
       //   to: 'security/spi-filter'
