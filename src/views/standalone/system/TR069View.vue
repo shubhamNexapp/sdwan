@@ -161,7 +161,7 @@ const getLists = async () => {
         <NeToggle v-model="enableInterval" :label="enableInterval ? 'Enabled' : 'Disabled'"
           :topLabel="'Enable Interval'" />
 
-        <NeTextInput label="Interval" v-model.trim="interval" @input="onlyNumbers"
+        <NeTextInput label="Interval" :disabled="!enableInterval" v-model.trim="interval" @input="onlyNumbers"
           :invalidMessage="errorBag.interval" />
 
       </template>

@@ -127,6 +127,19 @@ const deleteModeDetails = (index: number) => {
 const saveNetworkConfig = async () => {
     loading.value.saveRule = true
     try {
+        // Validation: Check for each rule if base_interface is empty
+        const invalidRules = modeDetails.value.filter((item) => item.base_interface.length === 0)
+
+        if (mode.value === 'custom' && invalidRules.length > 0) {
+            notificationsStore.createNotification({
+                title: 'Validation Error',
+                description: 'Please select at least one interface for each rule.',
+                kind: 'danger'
+            })
+            loading.value.saveRule = false
+            return
+        }
+
         let payload
 
         if (!service.value) {
@@ -186,8 +199,6 @@ const saveNetworkConfig = async () => {
         loading.value.saveRule = false
     }
 }
-
-
 
 </script>
 

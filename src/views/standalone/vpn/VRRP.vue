@@ -25,6 +25,8 @@ const loading = ref(false);
 const saving = ref(false);
 const error = ref({ title: '', description: '' });
 
+const errorBag = ref<{ [key: string]: string }>({})
+
 onMounted(() => {
     fetchConfiguration();
 });
@@ -54,7 +56,62 @@ async function fetchConfiguration() {
     }
 }
 
+// Function to allow only letters in string fields
+const onlyLetters = (event: Event) => {
+    const input = event.target as HTMLInputElement
+    input.value = input.value.replace(/[^a-zA-Z\s]/g, '') // Allow only letters and spaces
+}
+
+// Function to allow only numbers in number fields
+const onlyNumbers = (event: Event) => {
+    const input = event.target as HTMLInputElement
+    input.value = input.value.replace(/[^0-9]/g, '') // Allow only numbers
+}
+
+const onlyValidUrlCharacters = (event: Event) => {
+    const input = event.target as HTMLInputElement
+    input.value = input.value.replace(/[^a-zA-Z0-9:\/\.\-\_]/g, '')
+}
+
+const validateIp = (ip: string) => {
+    // Regex for IPv4 validation
+    const ipRegex = /^(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){3}$/;
+    return ipRegex.test(ip);
+};
+
+// Form validation function
+const validate = () => {
+    errorBag.value = {}
+
+    if (service.value) { // Validate only if enabled
+
+        if (!state.value.trim()) {
+            errorBag.value.state = "State is required"
+        }
+
+        if (!virtualID.value.trim() || virtualID.value.length > 255) {
+            errorBag.value.virtualID = "Virtual Id is required and must be max 255 characters."
+        }
+
+        if (!virtualPriority.value.trim() || virtualPriority.value.length > 254) {
+            errorBag.value.virtualPriority = "Priority is required and must be max 254 characters."
+        }
+
+        if (!password.value.trim() || password.value.length > 16) {
+            errorBag.value.password = "Acs password is required and must be max 16 characters."
+        }
+
+        if (!virtualIP.value.trim() || virtualIP.value.length > 32) {
+            errorBag.value.virtualIP = "Virtual Ip is required and must be max 32 characters."
+        }
+
+    }
+
+    return Object.keys(errorBag.value).length === 0
+}
+
 async function saveSettings() {
+    if (!validate()) return
     try {
         saving.value = true;
         const response = await axios.post(`${getSDControllerApiEndpoint()}/vrrp`, {
@@ -100,10 +157,17 @@ async function saveSettings() {
         <NeInlineNotification v-if="error.title" class="my-4" kind="error" :title="error.title"
             :description="error.description" />
         <NeToggle v-model="service" :topLabel="t('Service')" :label="service ? 'Enable' : 'Disable'" />
+        <br />
 
         <template v-if="service">
+            <!-- <NeToggle v-model="status" :topLabel="t('Status')" :label="status ? 'Connected' : 'Disconnect'" /> -->
+            <label class="mr-4">Status:</label>
+            <span :class="status ? 'text-green-500' : 'text-red-500'">
+                {{ status ? 'Connected' : 'Disconnected' }}
+            </span>
 
-            <NeToggle v-model="status" :topLabel="t('Status')" :label="status ? 'Connected' : 'Disconnect'" />
+            <br />
+            <br />
 
             <div class="flex flex-col gap-y-3">
 
@@ -112,6 +176,10 @@ async function saveSettings() {
                     <option value="MASTER">MASTER</option>
                     <option value="BACKUP">BACKUP</option>
                 </select>
+                <!-- Display error manually -->
+                <span v-if="errorBag.state" style="color: rgb(190 18 60 / var(--tw-text-opacity));">
+                    {{ errorBag.state }}
+                </span>
                 <label class="mr-4">Interface:</label>
                 <select v-model="interfaceName" class="custom-select">
                     <option value="eth0">eth0</option>
@@ -121,10 +189,14 @@ async function saveSettings() {
                     <option value="eth4">eth4</option>
                     <option value="eth5">eth5</option>
                 </select>
-                <NeTextInput v-model="virtualID" label="Virtual ID" />
-                <NeTextInput v-model="virtualPriority" label="Virtual Priority" />
-                <NeTextInput v-model="virtualIP" label="Virtual IP" />
-                <NeTextInput v-model="password" label="Password" />
+                <NeTextInput @input="onlyNumbers" v-model="virtualID" label="Virtual ID"
+                    :invalidMessage="errorBag.virtualID" />
+                <NeTextInput @input="onlyNumbers" v-model="virtualPriority" label="Virtual Priority"
+                    :invalidMessage="errorBag.virtualPriority" />
+                <NeTextInput @input="validateIp" v-model="virtualIP" label="Virtual IP"
+                    :invalidMessage="errorBag.virtualIP" />
+                <NeTextInput @input="onlyNumbers" v-model="password" label="Password"
+                    :invalidMessage="errorBag.password" />
             </div>
 
         </template>

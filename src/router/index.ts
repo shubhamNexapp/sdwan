@@ -220,11 +220,11 @@ const standaloneRoutes = [
     name: 'Storage',
     component: () => import('../views/standalone/system/StorageView.vue')
   },
-  {
-    path: 'vpn/openvpn-rw',
-    name: 'OpenVPNRoadWarrior',
-    component: () => import('../views/standalone/vpn/OpenvpnRoadWarriorView.vue')
-  },
+  // {
+  //   path: 'vpn/openvpn-rw',
+  //   name: 'OpenVPNRoadWarrior',
+  //   component: () => import('../views/standalone/vpn/OpenvpnRoadWarriorView.vue')
+  // },
   {
     path: 'system/schedule',
     name: 'OpenVPNRoadWarrior',
@@ -236,8 +236,8 @@ const standaloneRoutes = [
     component: () => import('../views/standalone/vpn/ICMPCheckView.vue')
   },
   {
-    path: 'vpn/pptp',
-    name: 'PPTP',
+    path: 'vpn/open-vpn',
+    name: 'Open VPN',
     component: () => import('../views/standalone/vpn/PPTPView.vue')
   },
   {

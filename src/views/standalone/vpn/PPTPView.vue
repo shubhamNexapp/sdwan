@@ -207,7 +207,7 @@ onUnmounted(() => {
 
 <template>
   <div class="flex flex-col justify-between md:flex-row md:items-center">
-    <NeHeading tag="h3" class="mb-7">PPTP</NeHeading>
+    <NeHeading tag="h3" class="mb-7">Open VPN</NeHeading>
     <div
       v-if="selectedTab == 'road-warrior-server'"
       class="mb-6 text-sm text-gray-500 dark:text-gray-400"

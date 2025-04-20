@@ -14,6 +14,7 @@ import {
 import { onMounted, ref } from 'vue'
 import axios from 'axios'
 import { getSDControllerApiEndpoint } from '@/lib/config'
+import { useNotificationsStore } from '@/stores/notifications'
 
 const loading = ref({ saveRule: false })
 const service = ref(false)
@@ -21,6 +22,9 @@ const useBayes = ref(false)
 const ipBlacklist = ref<string[]>([]);
 const ipInput = ref("")
 const errorMessage = ref<string>("");
+
+const notificationsStore = useNotificationsStore()
+
 
 const validateIp = (ip: string) => {
     // Regex for IPv4 validation
@@ -159,6 +163,11 @@ const saveNetworkConfig = async () => {
 
         await axios.post(`${getSDControllerApiEndpoint()}/spam`, payload)
         await getLists() // Refresh data after save
+        notificationsStore.createNotification({
+            title: 'Success',
+            description: 'Configuration saved successfully.',
+            kind: 'success'
+        })
     } catch (err) {
         console.error('Error saving data:', err)
     } finally {

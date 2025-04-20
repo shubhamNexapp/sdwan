@@ -282,10 +282,10 @@ const navigation: Ref<MenuItem[]> = ref([
     to: 'vpn',
     icon: 'globe',
     children: [
-      {
-        name: 'standalone.openvpn_rw.title',
-        to: 'vpn/openvpn-rw'
-      },
+      // {
+      //   name: 'standalone.openvpn_rw.title',
+      //   to: 'vpn/openvpn-rw'
+      // },
       // {
       //   name: 'standalone.openvpn_warrior.title',
       //   to: 'vpn/openvpn-road-warrior'
@@ -322,8 +322,8 @@ const navigation: Ref<MenuItem[]> = ref([
         to: 'vpn/wire-guard'
       },
       {
-        name: 'PPTP',
-        to: 'vpn/pptp'
+        name: 'Open VPN',
+        to: 'vpn/open-vpn'
       }
     ]
   },
