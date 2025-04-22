@@ -10,10 +10,23 @@ import { onMounted, ref } from 'vue'
 import { useNotificationsStore } from '../../../stores/notifications'
 import { getSDControllerApiEndpoint } from '@/lib/config'
 import axios from 'axios'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faSave } from '@fortawesome/free-solid-svg-icons'
+import { useI18n } from 'vue-i18n'
 
 const notificationsStore = useNotificationsStore()
 
+const { t } = useI18n();
+
 const emit = defineEmits(['close', 'save'])
+
+let loading = ref({
+  listServiceSuggestions: false,
+  listObjectSuggestions: false,
+  listProtocols: false,
+  saveRule: false,
+  fetchRule: false,
+});
 
 // Form fields
 const service = ref(false)
@@ -84,8 +97,6 @@ const saveRule = async () => {
       interval: interval.value
     }
 
-    console.log("payload======", payload)
-
     const response = await axios.post(`${getSDControllerApiEndpoint()}/tr069`, {
       method: "set-config",
       payload,
@@ -136,45 +147,58 @@ const getLists = async () => {
 
 <template>
   <NeHeading tag="h3" class="mb-7">TR069</NeHeading>
-  <form @submit.prevent="saveRule">
+  <!-- <form @submit.prevent="saveRule"> -->
+  <form>
     <div class="space-y-6">
       <NeToggle v-model="service" :label="service ? 'Enabled' : 'Disabled'" :topLabel="'Service'" />
 
       <!-- Show form fields only if status is enabled -->
       <template v-if="service">
+        <div class="flex flex-col space-y-6 w-[400px]">
 
-        <NeTextInput label="ACS Url" v-model.trim="acsUrl" @input="onlyValidUrlCharacters"
-          :invalidMessage="errorBag.acsUrl" />
+          <NeTextInput label="ACS Url" v-model.trim="acsUrl" @input="onlyValidUrlCharacters"
+            :invalidMessage="errorBag.acsUrl" />
 
-        <NeTextInput label="ACS Username" v-model.trim="acsUsername" @input="onlyLetters"
-          :invalidMessage="errorBag.acsUsername" />
+          <NeTextInput label="ACS Username" v-model.trim="acsUsername" @input="onlyLetters"
+            :invalidMessage="errorBag.acsUsername" />
 
-        <NeTextInput label="ACS Password" v-model.trim="acsPassword" @input="onlyLetters"
-          :invalidMessage="errorBag.acsPassword" />
+          <NeTextInput label="ACS Password" v-model.trim="acsPassword" @input="onlyLetters"
+            :invalidMessage="errorBag.acsPassword" />
 
-        <NeTextInput label="CPE Username" v-model.trim="cpeUsername" @input="onlyLetters"
-          :invalidMessage="errorBag.cpeUsername" />
+          <NeTextInput label="CPE Username" v-model.trim="cpeUsername" @input="onlyLetters"
+            :invalidMessage="errorBag.cpeUsername" />
 
-        <NeTextInput label="CPE Password" v-model.trim="cpePassword" @input="onlyLetters"
-          :invalidMessage="errorBag.cpePassword" />
+          <NeTextInput label="CPE Password" v-model.trim="cpePassword" @input="onlyLetters"
+            :invalidMessage="errorBag.cpePassword" />
 
-        <NeToggle v-model="enableInterval" :label="enableInterval ? 'Enabled' : 'Disabled'"
-          :topLabel="'Enable Interval'" />
+          <NeToggle v-model="enableInterval" :label="enableInterval ? 'Enabled' : 'Disabled'"
+            :topLabel="'Enable Interval'" />
 
-        <NeTextInput label="Interval" :disabled="!enableInterval" v-model.trim="interval" @input="onlyNumbers"
-          :invalidMessage="errorBag.interval" />
-
+          <NeTextInput label="Interval" :disabled="!enableInterval" v-model.trim="interval" @input="onlyNumbers"
+            :invalidMessage="errorBag.interval" />
+        </div>
       </template>
     </div>
 
+    <!-- Submit button (left aligned) -->
+    <div class="flex mt-4 flex-col w-[90px]">
+      <NeButton class=" ml-1" :disabled="loading.saveRule" :loading="loading.saveRule" kind="primary" size="lg"
+        @click.prevent="saveRule()">
+        <template #prefix>
+          <FontAwesomeIcon :icon="faSave" />
+        </template>
+        {{ t('common.save') }}
+      </NeButton>
+    </div>
+
     <!-- Footer -->
-    <div class="flex justify-end mt-6">
+    <!-- <div class="flex justify-end mt-6">
       <NeButton kind="tertiary" @click.prevent="closeDrawer" class="mr-3">
         Cancel
       </NeButton>
       <NeButton kind="primary" type="submit">
         Save
       </NeButton>
-    </div>
+    </div> -->
   </form>
 </template>

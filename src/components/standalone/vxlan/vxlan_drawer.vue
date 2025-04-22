@@ -10,12 +10,24 @@ import { ref } from 'vue'
 import { useNotificationsStore } from '../../../stores/notifications'
 import { getSDControllerApiEndpoint } from '@/lib/config'
 import axios from 'axios'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faSave } from '@fortawesome/free-solid-svg-icons'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
 const notificationsStore = useNotificationsStore()
 
 const props = defineProps({
     isShown: { type: Boolean, default: false }
 })
+
+let loading = ref({
+    listServiceSuggestions: false,
+    listObjectSuggestions: false,
+    listProtocols: false,
+    saveRule: false,
+    fetchRule: false,
+});
 
 const emit = defineEmits(['close', 'save'])
 
@@ -141,19 +153,22 @@ const closeDrawer = () => {
 
                 <!-- Show form fields only if status is enabled -->
                 <template v-if="service">
-                  <!--   <NeToggle v-model="status" :label="status ? 'connected' : 'disconnect'" :topLabel="'Status'" /> -->
+                    <!--   <NeToggle v-model="status" :label="status ? 'connected' : 'disconnect'" :topLabel="'Status'" /> -->
                     <NeTextInput label="Interface Name" v-model.trim="interfaceName" @input="onlyLetters"
                         :invalidMessage="errorBag.interfaceName" />
 
-                    <label class="mr-4">Interface:</label>
-                    <select v-model="baseInterface" class="custom-select">
-                        <option value="eth0">eth0</option>
-                        <option value="eth1">eth1</option>
-                        <option value="eth2">eth2</option>
-                        <option value="eth3">eth3</option>
-                        <option value="eth4">eth4</option>
-                        <option value="eth5">eth5</option>
-                    </select>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Interface:</label>
+                        <select v-model="baseInterface"
+                            class="border rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-400 w-full">
+                            <option value="eth0">eth0</option>
+                            <option value="eth1">eth1</option>
+                            <option value="eth2">eth2</option>
+                            <option value="eth3">eth3</option>
+                            <option value="eth4">eth4</option>
+                            <option value="eth5">eth5</option>
+                        </select>
+                    </div>
 
                     <NeTextInput label="Vid" v-model.trim="vid" @input="onlyNumbers" :invalidMessage="errorBag.vid" />
 
@@ -173,9 +188,16 @@ const closeDrawer = () => {
                 <NeButton kind="tertiary" @click.prevent="closeDrawer" class="mr-3">
                     Cancel
                 </NeButton>
-                <NeButton kind="primary" type="submit">
-                    Save
-                </NeButton>
+                <!-- Submit button (left aligned) -->
+                <div class="flex  flex-col w-[90px]">
+                    <NeButton class="ml-1" :disabled="loading.saveRule" :loading="loading.saveRule" kind="primary"
+                        size="lg" @click.prevent="saveRule()">
+                        <template #prefix>
+                            <FontAwesomeIcon :icon="faSave" />
+                        </template>
+                        {{ t('common.save') }}
+                    </NeButton>
+                </div>
             </div>
         </form>
     </NeSideDrawer>

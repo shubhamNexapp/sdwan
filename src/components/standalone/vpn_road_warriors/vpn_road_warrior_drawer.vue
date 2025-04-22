@@ -13,6 +13,8 @@ import { useI18n } from 'vue-i18n'
 import axios from 'axios'
 import { useNotificationsStore } from '../../../stores/notifications'
 import { getSDControllerApiEndpoint } from '@/lib/config'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faSave } from '@fortawesome/free-solid-svg-icons'
 
 const notificationsStore = useNotificationsStore()
 const { t } = useI18n()
@@ -35,6 +37,14 @@ const hour = ref("")
 const hourminute = ref("")
 const interval = ref("")
 
+let loading = ref({
+    listServiceSuggestions: false,
+    listObjectSuggestions: false,
+    listProtocols: false,
+    saveRule: false,
+    fetchRule: false,
+});
+
 // Validation error messages
 const errorBag = ref<{ [key: string]: string }>({})
 
@@ -48,34 +58,90 @@ const modeOptions = [
 const showRangeFields = computed(() => mode.value === "range")
 const showIntervalField = computed(() => mode.value === "interval")
 
+// Function to allow only numbers in number fields
+const onlyNumbers = (event: Event) => {
+    const input = event.target as HTMLInputElement
+    input.value = input.value.replace(/[^0-9]/g, '') // Allow only numbers
+}
+
 // Form validation function
 const validate = () => {
     errorBag.value = {}
 
-    if (!taskName.value.trim()) {
-        errorBag.value.taskName = "Task name is required."
+    if (service.value) { // Validate only if enabled
+
+        if (!taskName.value.trim() || taskName.value.length > 64) {
+            errorBag.value.taskName = "Task name is required and must be max 64 characters.";
+        }
+
+        if (command.value.trim().toLowerCase() !== "reboot") {
+            errorBag.value.command = "Command must be 'reboot'.";
+        }
+
+        if (!mode.value.trim()) {
+            errorBag.value.mode = "Mode is required.";
+        }
+
+        if (showRangeFields.value) {
+            const weekNumber = Number(week.value.trim());
+            const monthNumber = Number(month.value.trim());
+            const dayNumber = Number(day.value.trim());
+            const hourNumber = Number(hour.value.trim());
+            const minuteNumber = Number(hourminute.value.trim());
+
+            if (!week.value.trim()) {
+                errorBag.value.week = "Week is required.";
+            } else if (isNaN(weekNumber) || weekNumber < 0 || weekNumber > 6) {
+                errorBag.value.week = "Week must be a number between 0 and 6.";
+            }
+
+            if (!month.value.trim()) {
+                errorBag.value.month = "Month is required.";
+            } else if (isNaN(monthNumber) || monthNumber < 1 || monthNumber > 12) {
+                errorBag.value.month = "Month must be a number between 1 and 12.";
+            }
+
+            if (!day.value.trim()) {
+                errorBag.value.day = "Day is required.";
+            } else if (isNaN(dayNumber) || dayNumber < 1 || dayNumber > 31) {
+                errorBag.value.day = "Day must be a number between 1 and 31.";
+            }
+
+            if (!hour.value.trim()) {
+                errorBag.value.hour = "Hour is required.";
+            } else if (isNaN(hourNumber) || hourNumber < 0 || hourNumber > 23) {
+                errorBag.value.hour = "Hour must be a number between 0 and 23.";
+            }
+
+            if (!hourminute.value.trim()) {
+                errorBag.value.hourminute = "Minute is required.";
+            } else if (isNaN(minuteNumber) || minuteNumber < 0 || minuteNumber > 59) {
+                errorBag.value.hourminute = "Minute must be a number between 0 and 59.";
+            }
+        }
+
+        if (showIntervalField.value) {
+            const intervalNumber = Number(interval.value.trim());
+
+            if (!interval.value.trim()) {
+                errorBag.value.interval = "Interval is required.";
+            } else if (isNaN(intervalNumber) || intervalNumber < 1 || intervalNumber > 1440) {
+                errorBag.value.interval = "The interval time between command execution must be between 1 and 1440.";
+            }
+        }
+
     }
 
-    if (!command.value.trim()) {
-        errorBag.value.command = "Command name is required."
-    }
-    if (
-        !mode.value) {
-        errorBag.value.mode = "Mode is required."
-    }
-    if (showRangeFields.value) {
-        if (!week.value.trim()) errorBag.value.week = "Week is required."
-        if (!month.value.trim()) errorBag.value.month = "Month is required."
-        if (!day.value.trim()) errorBag.value.day = "Day is required."
-        if (!hour.value.trim()) errorBag.value.hour = "Hour is required."
-        if (!hourminute.value.trim()) errorBag.value.hourminute = "Minute is required."
-    }
-    if (showIntervalField.value && !interval.value.trim()) {
-        errorBag.value.interval = "Interval is required."
+    // ❗ Clean up errorBag: Remove keys with empty values
+    for (const key in errorBag.value) {
+        if (!errorBag.value[key]) {
+            delete errorBag.value[key];
+        }
     }
 
-    return Object.keys(errorBag.value).length === 0
+    return Object.keys(errorBag.value).length === 0;
 }
+
 
 // Save function
 const saveRule = async () => {
@@ -91,7 +157,7 @@ const saveRule = async () => {
             ...(showIntervalField.value && { interval: interval.value })
         }
 
-        console.log("payload=======",payload)
+        console.log("payload=======", payload)
 
         const response = await axios.post(`${getSDControllerApiEndpoint()}/schedule`, payload)
 
@@ -119,46 +185,63 @@ const closeDrawer = () => {
 
 <template>
     <NeSideDrawer :isShown="isShown" title="Add Rule" closeAriaLabel="Close" @close="closeDrawer">
-        <form @submit.prevent="saveRule">
-            <div class="space-y-6">
-                <!-- Status -->
-                <NeToggle v-model="service" :label="service ? 'Enabled' : 'Disabled'" :topLabel="'Service'" />
+        <form>
+            <!-- Status -->
+            <NeToggle v-model="service" :label="service ? 'Enable' : 'Disable'" :topLabel="'Service'" />
 
-                <!-- Task Name -->
-                <NeTextInput label="Task Name" v-model.trim="taskName" :invalidMessage="errorBag.taskName" />
+            <template v-if="service">
+                <div class="space-y-6">
 
-                <!-- Command -->
-                <NeTextInput label="Command" v-model.trim="command" />
+                    <!-- Task Name -->
+                    <NeTextInput label="Task Name" v-model.trim="taskName" :invalidMessage="errorBag.taskName" />
 
-                <select v-model="mode"
-                    style="width: 30%; height: 36px; padding: 6px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; outline: none; margin-top: 20px; margin-bottom: 10px; transition: border-color 0.3s ease-in-out;">
-                    <option value="" disabled selected>Select Mode</option>
-                    <option value="range">Range</option>
-                    <option value="interval">Interval</option>
-                </select>
+                    <!-- Command -->
+                    <NeTextInput label="Command" v-model.trim="command" :invalidMessage="errorBag.command" />
 
-                <!-- Fields for "Range" mode -->
-                <template v-if="showRangeFields">
-                    <NeTextInput label="Week" v-model.trim="week" :invalidMessage="errorBag.week" />
-                    <NeTextInput label="Month" v-model.trim="month" :invalidMessage="errorBag.month" />
-                    <NeTextInput label="Day" v-model.trim="day" :invalidMessage="errorBag.day" />
-                    <NeTextInput label="Hour" v-model.trim="hour" :invalidMessage="errorBag.hour" />
-                    <NeTextInput label="Minute" v-model.trim="hourminute" :invalidMessage="errorBag.hourminute" />
-                </template>
 
-                <!-- Field for "Interval" mode -->
-                <NeTextInput v-if="showIntervalField" label="Interval" v-model.trim="interval"
-                    :invalidMessage="errorBag.interval" />
-            </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Mode:</label>
+                        <select v-model="mode"
+                            class="border rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-400 w-full">
+                            <option value="" disabled selected>Select Mode</option>
+                            <option value="range">Range</option>
+                            <option value="interval">Interval</option>
+                        </select>
+                    </div>
+                    <br>
+                    <!-- Display error manually -->
+                    <span v-if="errorBag.mode" style="color: rgb(190 18 60 / var(--tw-text-opacity));">
+                        {{ errorBag.mode }}
+                    </span>
+                    <!-- Fields for "Range" mode -->
+                    <template v-if="showRangeFields">
+                        <NeTextInput label="Week" v-model.trim="week" :invalidMessage="errorBag.week" />
+                        <NeTextInput label="Month" v-model.trim="month" :invalidMessage="errorBag.month" />
+                        <NeTextInput label="Day" v-model.trim="day" :invalidMessage="errorBag.day" />
+                        <NeTextInput label="Hour" v-model.trim="hour" :invalidMessage="errorBag.hour" />
+                        <NeTextInput label="Minute" v-model.trim="hourminute" :invalidMessage="errorBag.hourminute" />
+                    </template>
 
+                    <!-- Field for "Interval" mode -->
+                    <NeTextInput v-if="showIntervalField" @input="onlyNumbers" label="Interval" v-model.trim="interval"
+                        :invalidMessage="errorBag.interval" />
+                </div>
+            </template>
             <!-- Footer -->
             <div class="flex justify-end mt-6">
                 <NeButton kind="tertiary" @click.prevent="closeDrawer" class="mr-3">
                     Cancel
                 </NeButton>
-                <NeButton kind="primary" type="submit">
-                    Save
-                </NeButton>
+                <!-- Submit button (left aligned) -->
+                <div class="flex  flex-col w-[90px]">
+                    <NeButton class="ml-1" :disabled="loading.saveRule" :loading="loading.saveRule" kind="primary"
+                        size="lg" @click.prevent="saveRule()">
+                        <template #prefix>
+                            <FontAwesomeIcon :icon="faSave" />
+                        </template>
+                        {{ t('common.save') }}
+                    </NeButton>
+                </div>
             </div>
         </form>
     </NeSideDrawer>

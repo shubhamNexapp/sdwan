@@ -10,6 +10,10 @@ import axios from "axios";
 import { getSDControllerApiEndpoint } from "@/lib/config";
 import { MessageBag } from "@/lib/validation";
 import { useNotificationsStore } from "../../../stores/notifications";
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faSave } from '@fortawesome/free-solid-svg-icons'
+import { useI18n } from "vue-i18n";
+
 
 const notificationsStore = useNotificationsStore();
 
@@ -280,41 +284,30 @@ onMounted(fetchSNMPConfig);
 
 <template>
   <div class="flex flex-col">
-    <div class="flex flex-col justify-between md:flex-row md:items-center">
-      <NeHeading tag="h3" class="mb-7">SNMP</NeHeading>
+    <div class="mb-7">
+      <NeHeading tag="h3">SNMP</NeHeading>
     </div>
-    <form>
-      <div class="space-x-6 space-y-6">
-        <!-- enabled -->
-        <NeToggle v-model="service" :label="service ? 'Enable' : 'Disable'" />
 
-        <!-- Show form fields only if status is enabled -->
-        <template v-if="service">
-          <div v-if="snmpVersion">
-            <h4>Basic Settings</h4>
-            <br />
-            <div>
-              <label class="mr-4">SNMP Version:</label>
-              <select v-model="snmpVersion" style="
-                width: 30%;
-                height: 36px;
-                padding: 6px;
-                border: 1px solid #ccc;
-                border-radius: 5px;
-                font-size: 14px;
-                outline: none;
-                transition: border-color 0.3s ease-in-out;
-              ">
-                <option value="2c">2c</option>
-                <option value="3">3</option>
-              </select>
-            </div>
-            <br />
+    <form class="flex flex-col space-y-6">
+      <!-- Status Toggle (fixed width and left aligned) -->
+      <div class="flex flex-col w-[400px]">
+        <NeToggle v-model="service" :topLabel="t('Status')" :label="service ? 'Enable' : 'Disable'" />
+      </div>
 
+      <!-- Fields only if enabled -->
+      <template v-if="service">
+        <div class="flex flex-col space-y-6 w-[400px]">
+          <div>
+            <label class="block text-sm font-medium mb-1">SNMP Version:</label>
+            <select v-model="snmpVersion"
+              class="border rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-400 w-full">
+              <option value="2c">2c</option>
+              <option value="3">3</option>
+            </select>
           </div>
 
-          <div v-if="snmpVersion === '2c'">
-
+          <!-- If version 2c -->
+          <template v-if="snmpVersion === '2c'">
             <NeTextInput :label="t('Port')" type="text" v-model="port" :invalidMessage="errorBag.getFirstFor('port')"
               :disabled="loading.saveRule" />
 
@@ -326,59 +319,34 @@ onMounted(fetchSNMPConfig);
 
             <NeTextInput :label="t('Trap Port')" type="text" v-model="trapPort"
               :invalidMessage="errorBag.getFirstFor('trapPort')" :disabled="loading.saveRule" />
-          </div>
+          </template>
 
-          <div v-if="snmpVersion === '3'">
-            <h1>SNMPv3 Account</h1>
-            <br />
+          <!-- If version 3 -->
+          <template v-if="snmpVersion === '3'">
+            <h4 class="text-lg font-semibold mb-2">SNMPv3 Account</h4>
 
             <NeTextInput :label="t('Port')" type="text" v-model="snmp3port"
               :invalidMessage="errorBag.getFirstFor('snmp3port')" :disabled="loading.saveRule" />
-            <br />
 
             <NeTextInput :label="t('User Name')" type="text" v-model="username"
               :invalidMessage="errorBag.getFirstFor('username')" :disabled="loading.saveRule" />
-            <br />
 
             <NeTextInput :label="t('Password')" type="text" v-model="password"
-              :invalidMessage="errorBag.getFirstFor('password')" :disabled="loading.saveRule" class="mb-5" />
-            <br />
+              :invalidMessage="errorBag.getFirstFor('password')" :disabled="loading.saveRule" />
 
-            <label class="mt-4 mr-4">Hash :</label>
             <div>
-
-              <select v-model="hash" style="
-                width: 30%;
-                height: 36px;
-                padding: 6px;
-                border: 1px solid #ccc;
-                border-radius: 5px;
-                font-size: 14px;
-                margin-top: 20px;
-                margin-bottom: 10px;
-                outline: none;
-                transition: border-color 0.3s ease-in-out;
-              ">
+              <label class="block text-sm font-medium mb-1">Hash:</label>
+              <select v-model="hash"
+                class="border rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-400 w-full">
                 <option value="MD5">MD5</option>
                 <option value="SHA">SHA</option>
               </select>
             </div>
 
-            <label class="mr-4 ">Encryption :</label>
             <div>
-
-              <select v-model="encryption" style="
-                width: 30%;
-                height: 36px;
-                padding: 6px;
-                border: 1px solid #ccc;
-                border-radius: 5px;
-                font-size: 14px;
-                outline: none;
-                margin-top: 20px;
-                margin-bottom: 10px;
-                transition: border-color 0.3s ease-in-out;
-              ">
+              <label class="block text-sm font-medium mb-1">Encryption:</label>
+              <select v-model="encryption"
+                class="border rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-400 w-full">
                 <option value="AES">AES</option>
                 <option value="DES">DES</option>
               </select>
@@ -386,11 +354,22 @@ onMounted(fetchSNMPConfig);
 
             <NeTextInput :label="t('Encryption Key')" type="text" v-model="encryptionKey"
               :invalidMessage="errorBag.getFirstFor('encryptionKey')" :disabled="loading.saveRule" />
-          </div>
-        </template>
+          </template>
+        </div>
+      </template>
 
-        <NeButton kind="primary" size="lg" :disabled="loading.saveRule" :loading="loading.saveRule" @click="submitForm">
-          Submit</NeButton>
+      <!-- Submit button (left aligned) -->
+      <div class="flex mt-4 flex-col w-[90px]">
+        <NeButton class=" ml-1" :disabled="loading.saveRule" :loading="loading.saveRule" kind="primary" size="lg"
+          @click.prevent="submitForm()">
+          <template #prefix>
+            <FontAwesomeIcon :icon="faSave" />
+          </template>
+          {{ t('Save') }}
+        </NeButton>
+        <!-- <NeButton kind="primary" size="lg" :disabled="loading.saveRule" :loading="loading.saveRule" @click="submitForm">
+          Save
+        </NeButton> -->
       </div>
     </form>
   </div>

@@ -137,7 +137,7 @@ const standaloneRoutes = [
   },
   {
     path: 'network/nexapp-qos',
-    name: 'Nexapp Qos',
+    name: 'Nexapp QoS',
     component: () => import('../views/standalone/network/NexappQos.vue')
   },
   {

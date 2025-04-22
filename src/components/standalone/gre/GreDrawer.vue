@@ -95,7 +95,7 @@ const netMaskRef = ref()
 
 const netmask = ref()
 const mtu = ref()
-const interfaceName = ref()
+const interfaceName = ref('')
 const service = ref(false)
 
 const tunnelName = ref('');
@@ -336,29 +336,83 @@ async function listServiceSuggestions() {
   }
 }
 
+const validateIp = (ip: string) => {
+  const ipRegex = /^(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){3}$/;
+  return ipRegex.test(ip.trim());
+};
+
 const validate = () => {
   errorBag.value.clear();
   let isValid = true;
 
   const requiredFields = [
-    { key: 'tunnelName', value: tunnelName, ref: tunnelNameRef },
-    { key: 'interfaceName', value: interfaceName, ref: interfaceNameRef },
-    { key: 'localVirtulaIP', value: localVirtulaIP, ref: localVirtulaIPRef },
-    { key: 'peerVirtulaIP', value: peerVirtulaIP, ref: peerVirtulaIPRef },
-    { key: 'localExternIP', value: localExternIP, ref: localExternIPRef },
-    { key: 'peerExternIP', value: peerExternIP, ref: peerExternIPRef },
+    { key: 'tunnelName', value: tunnelName.value.trim(), maxLength: 8, label: 'Tunnel Name' },
+    { key: 'interfaceName', value: interfaceName.value.trim(), maxLength: 8, label: 'Interface Name' },
+    { key: 'localVirtulaIP', value: localVirtulaIP.value.trim(), maxLength: 16, label: 'Local Virtual IP' },
+    { key: 'peerVirtulaIP', value: peerVirtulaIP.value.trim(), maxLength: 16, label: 'Peer Virtual IP' },
+    { key: 'localExternIP', value: localExternIP.value.trim(), maxLength: 16, label: 'Local External IP' },
+    { key: 'peerExternIP', value: peerExternIP.value.trim(), maxLength: 16, label: 'Peer External IP' },
   ];
 
   requiredFields.forEach((field) => {
-    const validation = validateRequired(field.value.value);
-    if (!validation.valid) {
-      errorBag.value.set(field.key, t("error.required"));
+    const { key, value, maxLength, label } = field;
+
+    // Check if empty
+    if (!value) {
+      errorBag.value.set(key, `${label} is required.`);
       isValid = false;
+      return;
+    }
+
+    // Check max length
+    if (value.length > maxLength) {
+      errorBag.value.set(key, `${label} must be at most ${maxLength} characters.`);
+      isValid = false;
+      return;
+    }
+
+    // Special validation for IP fields
+    if (key.toLowerCase().includes('ip')) {
+      if (!validateIp(value)) {
+        errorBag.value.set(key, `${label} must be a valid IP address.`);
+        isValid = false;
+        return;
+      }
+    }
+
+    if (key.toLowerCase().includes('ip')) {
+      if (!validateIp(value)) {
+        errorBag.value.set(key, `${label} must be a valid IPv4 address (e.g., 192.168.1.1).`);
+        isValid = false;
+        return;
+      }
+    }
+
+
+    // Special validation for name fields (should not be only numbers)
+    if (key === 'tunnelName') {
+      if (/^\d+$/.test(value)) {
+        errorBag.value.set(key, `${label} must contain letters, not just numbers.`);
+        isValid = false;
+        return;
+      }
+    }
+
+    // Special validation for name fields (should not be only numbers)
+    if (key === 'interfaceName') {
+      if (/^\d+$/.test(value)) {
+        errorBag.value.set(key, `${label} must contain letters, not just numbers.`);
+        isValid = false;
+        return;
+      }
     }
   });
 
   return isValid;
 };
+
+
+
 
 // ✅ Watch each field separately to clear errors when the user types
 const fieldsToWatch: Record<string, Ref<string>> = {
@@ -446,32 +500,37 @@ const saveRule = async () => {
         <!-- service -->
         <NeToggle v-model="service" :label="service ? t('common.enabled') : t('common.disabled')"
           :topLabel="t('Service')" :disabled="loading.saveRule" />
-        <!-- tunnel name -->
-        <NeTextInput :label="t('standalone.gre.tunnel_name')" v-model.trim="tunnelName"
-          :invalidMessage="errorBag.getFirstFor('tunnelName')" :disabled="loading.saveRule" ref="tunnelNameRef" />
-        <!-- interface name -->
-        <NeTextInput :label="t('standalone.gre.interface_name')" v-model.trim="interfaceName"
-          :invalidMessage="errorBag.getFirstFor('interfaceName')" :disabled="loading.saveRule" ref="interfaceNameRef" />
-        <!-- local virtual ip -->
-        <NeTextInput :label="t('standalone.gre.local_virtual_ip')" v-model.trim="localVirtulaIP"
-          :invalidMessage="errorBag.getFirstFor('localVirtulaIP')" :disabled="loading.saveRule"
-          ref="localVirtulaIPRef" />
-        <!-- peer virtual ip -->
-        <NeTextInput :label="t('standalone.gre.peer_virtual_ip')" v-model.trim="peerVirtulaIP"
-          :invalidMessage="errorBag.getFirstFor('peerVirtulaIP')" :disabled="loading.saveRule" ref="peerVirtulaIPRef" />
-        <!-- local extern ip -->
-        <NeTextInput :label="t('standalone.gre.local_extern_ip')" v-model.trim="localExternIP"
-          :invalidMessage="errorBag.getFirstFor('localExternIP')" :disabled="loading.saveRule" ref="localExternIPRef" />
-        <!-- peer extern ip -->
-        <NeTextInput :label="t('standalone.gre.peer_extern_ip')" v-model.trim="peerExternIP"
-          :invalidMessage="errorBag.getFirstFor('peerExternIP')" :disabled="loading.saveRule" ref="peerExternIPRef" />
-        <!-- key -->
-        <NeTextInput :label="t('standalone.gre.key')" v-model.trim="key" :invalidMessage="errorBag.getFirstFor('key')"
-          :disabled="loading.saveRule" ref="keyRef" />
-        <NeTextInput :label="t('standalone.gre.mtu')" v-model.trim="mtu" :invalidMessage="errorBag.getFirstFor('mtu')"
-          :disabled="loading.saveRule" ref="mtuRef" />
-        <NeTextInput :label="t('standalone.gre.net_mask')" v-model.trim="netmask"
-          :invalidMessage="errorBag.getFirstFor('netmask')" :disabled="loading.saveRule" ref="netMaskRef" />
+        <template v-if="service">
+          <!-- tunnel name -->
+          <NeTextInput :label="t('standalone.gre.tunnel_name')" v-model.trim="tunnelName"
+            :invalidMessage="errorBag.getFirstFor('tunnelName')" :disabled="loading.saveRule" ref="tunnelNameRef" />
+          <!-- interface name -->
+          <NeTextInput :label="t('standalone.gre.interface_name')" v-model.trim="interfaceName"
+            :invalidMessage="errorBag.getFirstFor('interfaceName')" :disabled="loading.saveRule"
+            ref="interfaceNameRef" />
+          <!-- local virtual ip -->
+          <NeTextInput :label="t('standalone.gre.local_virtual_ip')" v-model.trim="localVirtulaIP"
+            :invalidMessage="errorBag.getFirstFor('localVirtulaIP')" :disabled="loading.saveRule"
+            ref="localVirtulaIPRef" />
+          <!-- peer virtual ip -->
+          <NeTextInput :label="t('standalone.gre.peer_virtual_ip')" v-model.trim="peerVirtulaIP"
+            :invalidMessage="errorBag.getFirstFor('peerVirtulaIP')" :disabled="loading.saveRule"
+            ref="peerVirtulaIPRef" />
+          <!-- local extern ip -->
+          <NeTextInput :label="t('standalone.gre.local_extern_ip')" v-model.trim="localExternIP"
+            :invalidMessage="errorBag.getFirstFor('localExternIP')" :disabled="loading.saveRule"
+            ref="localExternIPRef" />
+          <!-- peer extern ip -->
+          <NeTextInput :label="t('standalone.gre.peer_extern_ip')" v-model.trim="peerExternIP"
+            :invalidMessage="errorBag.getFirstFor('peerExternIP')" :disabled="loading.saveRule" ref="peerExternIPRef" />
+          <!-- key -->
+          <NeTextInput :label="t('standalone.gre.key')" v-model.trim="key" :invalidMessage="errorBag.getFirstFor('key')"
+            :disabled="loading.saveRule" ref="keyRef" />
+          <NeTextInput :label="t('standalone.gre.mtu')" v-model.trim="mtu" :invalidMessage="errorBag.getFirstFor('mtu')"
+            :disabled="loading.saveRule" ref="mtuRef" />
+          <NeTextInput :label="t('standalone.gre.net_mask')" v-model.trim="netmask"
+            :invalidMessage="errorBag.getFirstFor('netmask')" :disabled="loading.saveRule" ref="netMaskRef" />
+        </template>
       </div>
       <!-- footer -->
       <hr class="my-8 border-gray-200 dark:border-gray-700" />

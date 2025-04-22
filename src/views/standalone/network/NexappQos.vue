@@ -15,6 +15,11 @@ import { useNotificationsStore } from '../../../stores/notifications'
 import { onMounted, ref } from 'vue'
 import axios from 'axios'
 import { getSDControllerApiEndpoint } from '@/lib/config'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faSave } from '@fortawesome/free-solid-svg-icons'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const loading = ref({ saveRule: false })
 const service = ref(false)
@@ -203,7 +208,7 @@ const saveNetworkConfig = async () => {
 </script>
 
 <template>
-    <NeHeading tag="h3" class="mb-7">Nexapp Qos</NeHeading>
+    <NeHeading tag="h3" class="mb-7">Nexapp QoS</NeHeading>
 
     <div class="flex flex-col gap-y-6">
         <div class="flex flex-col items-start mb-4">
@@ -211,12 +216,16 @@ const saveNetworkConfig = async () => {
         </div>
         <template v-if="service">
             <div>
-                <select v-model="mode" class="mb-4">
-                    <option value="game">game</option>
-                    <option value="custom">custom</option>
-                    <option value="meeting">meeting</option>
-                    <option value="balance">balance</option>
-                </select>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Mode:</label>
+                    <select v-model="mode"
+                        class="border rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-400 w-[300px]">
+                        <option value="game">game</option>
+                        <option value="custom">custom</option>
+                        <option value="meeting">meeting</option>
+                        <option value="balance">balance</option>
+                    </select>
+                </div>
 
                 <!-- Show Table Only if mode is custom -->
                 <div v-if="mode === 'custom'">
@@ -246,7 +255,7 @@ const saveNetworkConfig = async () => {
                                     <NeTextInput v-model.trim="item.rule_name" placeholder="Rule name" />
                                 </NeTableCell>
                                 <NeTableCell>
-                                    <select v-model="item.protocol" class="border rounded p-1">
+                                    <select v-model="item.protocol" class="border rounded p-1 w-[70px]">
                                         <option value="tcp">tcp</option>
                                         <option value="udp">udp</option>
                                         <option value="both">both</option>
@@ -285,9 +294,19 @@ const saveNetworkConfig = async () => {
             </div>
         </template>
         <div class="mt-4 flex justify-end">
-            <NeButton kind="primary" size="lg" @click="saveNetworkConfig" :disabled="loading.saveRule">
+            <!-- Submit button (left aligned) -->
+            <div class="flex  flex-col w-[90px]">
+                <NeButton class="ml-1" :disabled="loading.saveRule" :loading="loading.saveRule" kind="primary" size="lg"
+                    @click.prevent="saveNetworkConfig()">
+                    <template #prefix>
+                        <FontAwesomeIcon :icon="faSave" />
+                    </template>
+                    {{ t('common.save') }}
+                </NeButton>
+            </div>
+            <!-- <NeButton kind="primary" size="lg" @click="saveNetworkConfig" :disabled="loading.saveRule">
                 Save
-            </NeButton>
+            </NeButton> -->
         </div>
     </div>
 </template>

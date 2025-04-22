@@ -3,9 +3,12 @@ import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import FormLayout from '@/components/standalone/FormLayout.vue';
 import { useNotificationsStore } from '@/stores/notifications';
-import { NeToggle, NeTextInput, NeButton, NeInlineNotification } from '@nethesis/vue-components';
+import { NeToggle, NeTextInput, NeButton, NeInlineNotification, NeHeading } from '@nethesis/vue-components';
 import axios from 'axios';
 import { getSDControllerApiEndpoint } from '@/lib/config';
+
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faSave } from '@fortawesome/free-solid-svg-icons'
 
 const { t } = useI18n();
 const notificationsStore = useNotificationsStore();
@@ -73,21 +76,28 @@ async function saveSettings() {
 </script>
 
 <template>
-  <FormLayout class="max-w-4xl">
-    <template #description>
-      <p>{{ t('TACACS+ Configuration') }}</p>
-    </template>
+  <NeHeading tag="h3" class="mb-7">{{ t('TACACS+ Configuration') }}</NeHeading>
+  <div>
+    <div class="max-w-4xl">
+      <div class="space-y-8">
+        <FormLayout :description="t('Enable or disable Tacacs ++ configuration and adjust its settings.')">
+          <NeToggle v-model="status" :topLabel="t('Status')" :label="status ? 'Enable' : 'Disable'" />
 
-    <NeInlineNotification v-if="error.title" class="my-4" kind="error" :title="error.title"
-      :description="error.description" />
+          <div v-if="status" class="space-y-4">
 
-    <NeToggle v-model="status" :topLabel="t('Status')" :label="status ? 'Enabled' : 'Disabled'" />
-
-    <div v-if="status" class="flex flex-col gap-y-3">
-      <NeTextInput v-model="serverAddress" label="Server Address" />
-      <NeTextInput v-model="sharedSecret" label="Secret" type="password" />
+            <NeTextInput class="mt-4" v-model="serverAddress" label="Server Address" />
+            <NeTextInput v-model="sharedSecret" label="Secret" type="password" />
+          </div>
+          <NeButton class="mt-5 ml-1" :disabled="saving" :loading="saving" kind="primary" size="lg" @click.prevent="saveSettings()">
+            <template #prefix>
+              <FontAwesomeIcon :icon="faSave" />
+            </template>
+            {{ t('common.save') }}
+          </NeButton>
+          <!-- <NeButton :loading="saving" kind="primary" @click="saveSettings" class="mt-5 ml-1">Save</NeButton> -->
+        </FormLayout>
+      </div>
     </div>
-    <NeButton :loading="saving" kind="primary" @click="saveSettings" class="mt-5 ml-1">Save</NeButton>
+  </div>
 
-  </FormLayout>
 </template>

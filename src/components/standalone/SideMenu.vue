@@ -166,7 +166,7 @@ const navigation: Ref<MenuItem[]> = ref([
         to: 'network/qos'
       },
       {
-        name: 'Nexapp Qos',
+        name: 'Nexapp QoS',
         to: 'network/nexapp-qos'
       },
       {

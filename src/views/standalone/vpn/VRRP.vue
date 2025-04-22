@@ -3,9 +3,11 @@ import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import FormLayout from '@/components/standalone/FormLayout.vue';
 import { useNotificationsStore } from '@/stores/notifications';
-import { NeToggle, NeTextInput, NeButton, NeInlineNotification } from '@nethesis/vue-components';
+import { NeToggle, NeTextInput, NeButton, NeInlineNotification, NeHeading } from '@nethesis/vue-components';
 import axios from 'axios';
 import { getSDControllerApiEndpoint } from '@/lib/config';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faSave } from '@fortawesome/free-solid-svg-icons'
 
 const { t } = useI18n();
 const notificationsStore = useNotificationsStore();
@@ -26,6 +28,8 @@ const saving = ref(false);
 const error = ref({ title: '', description: '' });
 
 const errorBag = ref<{ [key: string]: string }>({})
+
+
 
 onMounted(() => {
     fetchConfiguration();
@@ -73,11 +77,13 @@ const onlyValidUrlCharacters = (event: Event) => {
     input.value = input.value.replace(/[^a-zA-Z0-9:\/\.\-\_]/g, '')
 }
 
-const validateIp = (ip: string) => {
-    // Regex for IPv4 validation
-    const ipRegex = /^(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){3}$/;
-    return ipRegex.test(ip);
+const validateIp = (event: Event) => {
+    const input = event.target as HTMLInputElement;
+    input.value = input.value.replace(/[^0-9./]/g, ''); // allow only numbers, dots, slash
+    virtualIP.value = input.value; // Update your v-model
 };
+
+
 
 // Form validation function
 const validate = () => {
@@ -148,11 +154,11 @@ async function saveSettings() {
 
 <template>
     <div class="flex flex-col">
-        <div class="flex flex-col justify-between md:flex-row md:items-center">
-            <NeHeading tag="h1" class="mb-7">VRRP</NeHeading>
+        <div class="mb-7">
+            <NeHeading tag="h3">VRRP</NeHeading>
         </div>
     </div>
-    <FormLayout class="max-w-4xl">
+    <FormLayout :description="t('Enable or disable VRRP configuration and adjust its settings.')">
 
         <NeInlineNotification v-if="error.title" class="my-4" kind="error" :title="error.title"
             :description="error.description" />
@@ -170,25 +176,32 @@ async function saveSettings() {
             <br />
 
             <div class="flex flex-col gap-y-3">
-
-                <label class="mr-4">State:</label>
-                <select v-model="state" class="custom-select">
-                    <option value="MASTER">MASTER</option>
-                    <option value="BACKUP">BACKUP</option>
-                </select>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Interface Name:</label>
+                    <select v-model="state"
+                        class="border rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-400 w-full">
+                        <option value="MASTER">MASTER</option>
+                        <option value="BACKUP">BACKUP</option>
+                    </select>
+                </div>
                 <!-- Display error manually -->
                 <span v-if="errorBag.state" style="color: rgb(190 18 60 / var(--tw-text-opacity));">
                     {{ errorBag.state }}
                 </span>
-                <label class="mr-4">Interface:</label>
-                <select v-model="interfaceName" class="custom-select">
-                    <option value="eth0">eth0</option>
-                    <option value="eth1">eth1</option>
-                    <option value="eth2">eth2</option>
-                    <option value="eth3">eth3</option>
-                    <option value="eth4">eth4</option>
-                    <option value="eth5">eth5</option>
-                </select>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1">Interface Name:</label>
+                    <select v-model="interfaceName"
+                        class="border rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-400 w-full">
+                        <option value="eth0">eth0</option>
+                        <option value="eth1">eth1</option>
+                        <option value="eth2">eth2</option>
+                        <option value="eth3">eth3</option>
+                        <option value="eth4">eth4</option>
+                        <option value="eth5">eth5</option>
+                    </select>
+                </div>
+
                 <NeTextInput @input="onlyNumbers" v-model="virtualID" label="Virtual ID"
                     :invalidMessage="errorBag.virtualID" />
                 <NeTextInput @input="onlyNumbers" v-model="virtualPriority" label="Virtual Priority"
@@ -200,7 +213,15 @@ async function saveSettings() {
             </div>
 
         </template>
-        <NeButton :loading="saving" kind="primary" @click="saveSettings" class="mt-5 ml-1">Save</NeButton>
+        <div class="flex mt-4 flex-col w-[90px]">
+            <NeButton class=" ml-1" kind="primary" :loading="saving" size="lg" @click.prevent="saveSettings()">
+                <template #prefix>
+                    <FontAwesomeIcon :icon="faSave" />
+                </template>
+                {{ t('Save') }}
+            </NeButton>
+        </div>
+        <!-- <NeButton :loading="saving" kind="primary" @click="saveSettings" class="mt-5 ml-1">Save</NeButton> -->
 
     </FormLayout>
 </template>

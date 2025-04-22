@@ -17,7 +17,7 @@ import { useUciPendingChangesStore } from '@/stores/standalone/uciPendingChanges
 import { onMounted, onUnmounted, ref } from 'vue'
 import { ubusCall } from '@/lib/standalone/ubus'
 import DeleteTunnelModal from '@/components/standalone/l2tp/L2TPDelete.vue'
-import GreDrawer from '@/components/standalone/l2tp/L2TPDrawer.vue'
+import L2TPDrawer from '@/components/standalone/l2tp/L2TPDrawer.vue'
 import GreEdit from '@/components/standalone/l2tp/L2TPEdit.vue'
 import axios from 'axios'
 import { getSDControllerApiEndpoint } from '@/lib/config'
@@ -226,7 +226,7 @@ const getLists = async () => {
 
   <DeleteTunnelModal :visible="showDeleteModal" :itemToDelete="selectedTunnelName" @close="showDeleteModal = false"
     @tunnel-deleted="fetchTunnels" />
-  <GreDrawer :item-to-edit="selectedTunnel" @close="closeModalsAndDrawers" :rule-type="'forward'" :known-tags="[]"
+  <L2TPDrawer :item-to-edit="selectedTunnel" @close="closeModalsAndDrawers" :rule-type="'forward'" :known-tags="[]"
     @add-edit-tunnel="reloadTunnels" :is-shown="showCreateEditDrawer" />
   <GreEdit :item-to-edit="selectedTunnels" @close="showEditModals = false" :rule-type="'forward'" :known-tags="[]"
     @add-edit-tunnel="reloadTunnels" :is-shown="showEditModals" />

@@ -3,9 +3,12 @@ import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import FormLayout from '@/components/standalone/FormLayout.vue';
 import { useNotificationsStore } from '@/stores/notifications';
-import { NeToggle, NeTextInput, NeButton, NeCombobox, NeInlineNotification } from '@nethesis/vue-components';
+import { NeToggle, NeTextInput, NeCheckbox, NeButton, NeCombobox, NeHeading, NeInlineNotification } from '@nethesis/vue-components';
 import axios from 'axios';
 import { getSDControllerApiEndpoint } from '@/lib/config';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faSave } from '@fortawesome/free-solid-svg-icons'
+
 
 const { t } = useI18n();
 const notificationsStore = useNotificationsStore();
@@ -48,7 +51,7 @@ async function fetchConfiguration() {
 const interfaces = ref([
   { label: 'wg0', value: 'wg0' },
   { label: 'zt0', value: 'zt0' },
-]); 
+]);
 async function saveSettings() {
   try {
     saving.value = true;
@@ -85,22 +88,20 @@ async function saveSettings() {
 </script>
 
 <template>
-  <FormLayout class="max-w-4xl">
-    <template #description>
-      <p>{{ t('SDWAN Controller') }}</p>
-    </template>
+  <NeHeading tag="h3" class="mb-7">{{ t('SDWAN Controller') }}</NeHeading>
 
+  <FormLayout :description="t('Enable or disable sd controller and adjust its settings.')">
     <NeInlineNotification v-if="error.title" class="my-4" kind="error" :title="error.title"
       :description="error.description" />
 
     <!-- Toggle also controls form visibility -->
     <NeToggle v-model="status" :topLabel="t('Status')" :label="status ? 'Enabled' : 'Disabled'" />
 
-    <div v-if="status" class="flex flex-col gap-y-3">
+    <div v-if="status" class="mt-4 flex flex-col gap-y-3">
       <NeTextInput v-model="serverAddress" label="Server Address" />
 
       <label for="">Interface</label>
-      <select  v-model="managementInterface" style="width: 100%;
+      <select v-model="managementInterface" style="width: 100%;
     height: 36px;
     
     padding: 6px;
@@ -109,22 +110,33 @@ async function saveSettings() {
     font-size: 14px;
     outline: none;
     transition: border-color 0.3s ease-in-out;">
-      <option disabled value="">Select Interface</option>
-      <option v-for="iface in interfaces" :key="iface.value" :value="iface.value">
-        {{ iface.label }}
-      </option>
-    </select>
-
-
+        <option disabled value="">Select Interface</option>
+        <option v-for="iface in interfaces" :key="iface.value" :value="iface.value">
+          {{ iface.label }}
+        </option>
+      </select>
 
       <NeTextInput v-model="sharedSecret" label="Secret" type="password" />
 
-      <label for="TLS Verify">TLS Verify</label>
-      <NeTextInput v-model="verifySSL"  type="checkbox"
-        class="w-4 h-4 border-gray-300 rounded text-primary-600 focus:ring-primary-600 dark:border-gray-700 dark:text-primary-600 dark:focus:ring-primary-400" />
+      <!-- TLS Verify Row -->
+      <div class="flex items-center  mt-4">
+        <NeCheckbox v-model="verifySSL" :label="t('TLS Verify')" id="tls-verify" />
+      </div>
 
+      <!-- <label for="TLS Verify">TLS Verify</label>
+      <NeTextInput v-model="verifySSL" type="checkbox"
+        class="w-4 h-4 border-gray-300 rounded text-primary-600 focus:ring-primary-600 dark:border-gray-700 dark:text-primary-600 dark:focus:ring-primary-400" /> -->
     </div>
-    <NeButton :loading="saving" kind="primary" @click="saveSettings" class="mt-5 ml-1">Save</NeButton>
+
+    <NeButton class="mt-5 ml-1" :disabled="saving" :loading="saving" kind="primary" size="lg"
+      @click.prevent="saveSettings()">
+      <template #prefix>
+        <FontAwesomeIcon :icon="faSave" />
+      </template>
+      {{ t('common.save') }}
+    </NeButton>
+
+    <!-- <NeButton :loading="saving" kind="primary" @click="saveSettings" class="mt-5 ml-1">Save</NeButton> -->
 
   </FormLayout>
 </template>
