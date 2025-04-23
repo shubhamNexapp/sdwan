@@ -157,8 +157,6 @@ const saveRule = async () => {
             ...(showIntervalField.value && { interval: interval.value })
         }
 
-        console.log("payload=======", payload)
-
         const response = await axios.post(`${getSDControllerApiEndpoint()}/schedule`, payload)
 
         if (response.status === 200) {
@@ -193,7 +191,7 @@ const closeDrawer = () => {
                 <div class="space-y-6">
 
                     <!-- Task Name -->
-                    <NeTextInput label="Task Name" v-model.trim="taskName" :invalidMessage="errorBag.taskName" />
+                    <NeTextInput class="mt-4" label="Task Name" v-model.trim="taskName" :invalidMessage="errorBag.taskName" />
 
                     <!-- Command -->
                     <NeTextInput label="Command" v-model.trim="command" :invalidMessage="errorBag.command" />

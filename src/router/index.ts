@@ -65,11 +65,11 @@ const standaloneRoutes = [
     name: 'SNMP',
     component: () => import('../views/standalone/system/SNMP.vue')
   },
-  {
-    path: 'system/radius',
-    name: 'Radius',
-    component: () => import('../views/standalone/system/Radius.vue')
-  },
+  // {
+  //   path: 'system/radius',
+  //   name: 'Radius',
+  //   component: () => import('../views/standalone/system/Radius.vue')
+  // },
   {
     path: 'system/tr',
     name: 'TR069',
@@ -160,11 +160,11 @@ const standaloneRoutes = [
     name: 'Speed Test',
     component: () => import('../views/standalone/network/SpeedTestView.vue')
   },
-  {
-    path: 'network/network-test',
-    name: 'Network Test',
-    component: () => import('../views/standalone/network/NetworkTestView.vue')
-  },
+  // {
+  //   path: 'network/network-test',
+  //   name: 'Network Test',
+  //   component: () => import('../views/standalone/network/NetworkTestView.vue')
+  // },
   {
     path: 'users-objects/objects',
     name: 'Objects',

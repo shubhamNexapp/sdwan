@@ -10,12 +10,25 @@ import { ref } from 'vue'
 import { useNotificationsStore } from '../../../stores/notifications'
 import { getSDControllerApiEndpoint } from '@/lib/config'
 import axios from 'axios'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faSave } from '@fortawesome/free-solid-svg-icons'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n();
 
 const notificationsStore = useNotificationsStore()
 
 const props = defineProps({
     isShown: { type: Boolean, default: false }
 })
+
+let loading = ref({
+    listServiceSuggestions: false,
+    listObjectSuggestions: false,
+    listProtocols: false,
+    saveRule: false,
+    fetchRule: false,
+});
 
 const emit = defineEmits(['close', 'save'])
 
@@ -126,9 +139,9 @@ const closeDrawer = () => {
 
 <template>
     <NeSideDrawer :isShown="isShown" title="Add ICMP Check" closeAriaLabel="Close" @close="closeDrawer">
-        <form @submit.prevent="saveRule">
+        <form>
             <div class="space-y-6">
-                <NeToggle v-model="service" :label="service ? 'Enabled' : 'Disabled'" :topLabel="'service'" />
+                <NeToggle v-model="service" :label="service ? 'Enable' : 'Disable'" :topLabel="'Service'" />
 
                 <!-- Show form fields only if service is enabled -->
                 <template v-if="service">
@@ -154,9 +167,17 @@ const closeDrawer = () => {
                 <NeButton kind="tertiary" @click.prevent="closeDrawer" class="mr-3">
                     Cancel
                 </NeButton>
-                <NeButton kind="primary" type="submit">
-                    Save
-                </NeButton>
+                <!-- Submit button (left aligned) -->
+                <div class="flex flex-col w-[90px]">
+                    <NeButton class=" ml-1" :disabled="loading.saveRule" :loading="loading.saveRule" kind="primary"
+                        size="lg" @click.prevent="saveRule()">
+                        <template #prefix>
+                            <FontAwesomeIcon :icon="faSave" />
+                        </template>
+                        {{ t('common.save') }}
+                    </NeButton>
+
+                </div>
             </div>
         </form>
     </NeSideDrawer>

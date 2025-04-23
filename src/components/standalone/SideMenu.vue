@@ -118,10 +118,10 @@ const navigation: Ref<MenuItem[]> = ref([
         to: 'system/schedule'
         // to: 'vpn/openvpn-road-warrior'
       },
-      {
-        name: 'Radius',
-        to: 'system/radius'
-      },
+      // {
+      //   name: 'Radius',
+      //   to: 'system/radius'
+      // },
       // {
       //   name: 'standalone.controller.title',
       //   to: 'system/controller'
@@ -185,10 +185,10 @@ const navigation: Ref<MenuItem[]> = ref([
         name: 'Speed Test',
         to: 'network/speed-test'
       },
-      {
-        name: 'Network Test',
-        to: 'network/network-test'
-      },
+      // {
+      //   name: 'Network Test',
+      //   to: 'network/network-test'
+      // },
     ]
   },
   {
