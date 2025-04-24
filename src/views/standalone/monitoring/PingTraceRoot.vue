@@ -24,18 +24,18 @@ const { tabs, selectedTab } = useTabs([
         name: 'trace-root',
         label: t('standalone.ping_traceroot.trace_root_title')
     },
-    {
-        name: 'PingIPv6',
-        label: t('PingIPv6')
-    },
-    {
-        name: 'TraceIPv6 ',
-        label: t('TraceIPv6 ')
-    },
-    {
-        name: 'mtr',
-        label: t('MTR')
-    },
+    // {
+    //     name: 'PingIPv6',
+    //     label: t('PingIPv6')
+    // },
+    // {
+    //     name: 'TraceIPv6 ',
+    //     label: t('TraceIPv6 ')
+    // },
+    // {
+    //     name: 'mtr',
+    //     label: t('MTR')
+    // },
 ])
 
 </script>

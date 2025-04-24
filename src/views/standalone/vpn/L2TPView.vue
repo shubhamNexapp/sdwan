@@ -185,6 +185,7 @@ const getLists = async () => {
             <NeTableHeadCell>Server IP</NeTableHeadCell>
             <NeTableHeadCell>User Name</NeTableHeadCell>
             <NeTableHeadCell>Password</NeTableHeadCell>
+            <NeTableHeadCell>Status</NeTableHeadCell>
           </NeTableHead>
           <NeTableBody>
             <NeTableRow v-for="(item, index) in apiResponse" :key="index">
@@ -193,6 +194,10 @@ const getLists = async () => {
               <NeTableCell>{{ item.server }}</NeTableCell>
               <NeTableCell>{{ item.username }}</NeTableCell>
               <NeTableCell>{{ item.password }}</NeTableCell>
+              <NeTableCell :class="item.status === 'disconnect' ? 'text-red-800' : 'text-green-800'">
+                {{ item.status }}
+              </NeTableCell>
+
               <NeTableCell :data-label="t('common.actions')">
                 <div class="-ml-2.5 flex gap-2 xl:ml-0 xl:justify-end">
                   <NeButton kind="tertiary" size="lg" :disabled="item.readonly" @click="openEditModal(item)">

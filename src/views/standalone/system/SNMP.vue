@@ -117,6 +117,25 @@ interface ValidationField {
 const isAlphabetic = (val: string) => /^[a-zA-Z]+$/.test(val);
 const isNumeric = (val: string) => /^[0-9]+$/.test(val);
 
+// Function to allow only letters in string fields
+const onlyLetters = (event: Event) => {
+  const input = event.target as HTMLInputElement
+  input.value = input.value.replace(/[^a-zA-Z\s]/g, '') // Allow only letters and spaces
+}
+
+const validateIp = (event: Event) => {
+  const input = event.target as HTMLInputElement;
+  input.value = input.value.replace(/[^0-9./]/g, ''); // allow only numbers, dots, slash
+  trapIp.value = input.value; // Update your v-model
+};
+
+// Function to allow only numbers in number fields
+const onlyNumbers = (event: Event) => {
+  const input = event.target as HTMLInputElement
+  input.value = input.value.replace(/[^0-9]/g, '') // Allow only numbers
+}
+
+
 const validate = () => {
   errorBag.value.clear();
 
@@ -134,7 +153,7 @@ const validate = () => {
 
   if (snmpVersion.value === "2c") {
     requiredFields.push(
-      { key: "port", value: community, type: "number", maxLength: 32 },
+      { key: "port", value: port, type: "number", min: 1, max: 65535 },
       { key: "community", value: community, type: "string", maxLength: 32 },
       { key: "trapIp", value: trapIp, type: "string", maxLength: 16 },
       { key: "trapPort", value: trapPort, type: "number", min: 1, max: 65535 }
@@ -308,16 +327,16 @@ onMounted(fetchSNMPConfig);
 
           <!-- If version 2c -->
           <template v-if="snmpVersion === '2c'">
-            <NeTextInput :label="t('Port')" type="text" v-model="port" :invalidMessage="errorBag.getFirstFor('port')"
-              :disabled="loading.saveRule" />
+            <NeTextInput :label="t('Port')" @input="onlyNumbers" type="number" v-model="port"
+              :invalidMessage="errorBag.getFirstFor('port')" :disabled="loading.saveRule" />
 
-            <NeTextInput :label="t('Community')" type="text" v-model="community"
+            <NeTextInput :label="t('Community')" @input="onlyLetters" type="text" v-model="community"
               :invalidMessage="errorBag.getFirstFor('community')" :disabled="loading.saveRule" />
 
-            <NeTextInput :label="t('Trap IP')" type="text" v-model="trapIp"
+            <NeTextInput :label="t('Trap IP')" @input="validateIp" type="text" v-model="trapIp"
               :invalidMessage="errorBag.getFirstFor('trapIp')" :disabled="loading.saveRule" />
 
-            <NeTextInput :label="t('Trap Port')" type="text" v-model="trapPort"
+            <NeTextInput :label="t('Trap Port')" @input="onlyNumbers" type="text" v-model="trapPort"
               :invalidMessage="errorBag.getFirstFor('trapPort')" :disabled="loading.saveRule" />
           </template>
 
