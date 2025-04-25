@@ -26,7 +26,8 @@ export type IpsecTunnel = {
   connected: boolean;
 };
 
-const t = (key: string) => key; // Mock translation function
+// const t = (key: string) => key; // Mock translation function
+const { t } = useI18n()
 
 // Form Fields
 const service = ref(false);
@@ -303,10 +304,12 @@ onMounted(fetchSNMPConfig);
 
 <template>
   <div class="flex flex-col">
-    <div class="mb-7">
+    <div class="mb-4">
       <NeHeading tag="h3">SNMP</NeHeading>
     </div>
-
+    <p class="mb-6 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
+      {{ t('standalone.ping_latency_monitor.description') }}
+    </p>
     <form class="flex flex-col space-y-6">
       <!-- Status Toggle (fixed width and left aligned) -->
       <div class="flex flex-col w-[400px]">

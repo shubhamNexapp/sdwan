@@ -19,8 +19,11 @@ const { tabs, selectedTab } = useTabs([
 </script>
 
 <template>
+    <NeHeading class="mb-4" tag="h3">{{ t('Anti Virus') }}</NeHeading>
+    <p class="mb-6 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
+        {{ t('standalone.ping_latency_monitor.description') }}
+    </p>
     <div class="space-y-8">
-        <NeHeading tag="h3">{{ t('Anti Virus') }}</NeHeading>
         <NeTabs :selected="selectedTab" :srSelectTabLabel="t('ne_tabs.select_a_tab')" :srTabsLabel="t('ne_tabs.tabs')"
             :tabs="tabs" @selectTab="selectedTab = $event" />
         <Setting v-if="selectedTab == 'setting'" />

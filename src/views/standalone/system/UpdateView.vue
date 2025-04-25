@@ -212,17 +212,15 @@ onMounted(() => {
 </script>
 
 <template>
-  <NeHeading tag="h3" class="mb-7">{{ t('standalone.update.title') }}</NeHeading>
-  <NeInlineNotification
-    v-if="error.notificationTitle"
-    :title="error.notificationTitle"
-    :description="error.notificationDescription"
-    class="my-4"
-    kind="error"
-    ><template #details v-if="error.notificationDetails">
+  <NeHeading tag="h3" class="mb-4">{{ t('standalone.update.title') }}</NeHeading>
+  <p class="mb-6 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
+    {{ t('standalone.ping_latency_monitor.description') }}
+  </p>
+  <NeInlineNotification v-if="error.notificationTitle" :title="error.notificationTitle"
+    :description="error.notificationDescription" class="my-4" kind="error"><template #details
+      v-if="error.notificationDetails">
       {{ error.notificationDetails }}
-    </template></NeInlineNotification
-  >
+    </template></NeInlineNotification>
 
   <!-- <FormLayout
     :title="t('standalone.update.bug_security_fixes')"
@@ -299,19 +297,13 @@ onMounted(() => {
         {{ t('standalone.update.system_update_description') }}
       </p>
       <div class="flex flex-row items-start mb-4 gap-x-2">
-        <FontAwesomeIcon
-          :icon="['fas', 'circle-info']"
-          class="w-4 h-4 text-indigo-500 dark:text-indigo-300"
-        />
+        <FontAwesomeIcon :icon="['fas', 'circle-info']" class="w-4 h-4 text-indigo-500 dark:text-indigo-300" />
         <p class="text-sm font-normal text-gray-500 dark:text-gray-400">
           {{ t('standalone.update.system_update_first_tip', { productName: getProductName() }) }}
         </p>
       </div>
       <div class="flex flex-row items-start mb-4 gap-x-2">
-        <FontAwesomeIcon
-          :icon="['fas', 'circle-info']"
-          class="w-4 h-4 text-indigo-500 dark:text-indigo-300"
-        />
+        <FontAwesomeIcon :icon="['fas', 'circle-info']" class="w-4 h-4 text-indigo-500 dark:text-indigo-300" />
         <p class="text-sm font-normal text-gray-500 dark:text-gray-400">
           {{ t('standalone.update.system_update_second_tip') }}
         </p>
@@ -356,83 +348,45 @@ onMounted(() => {
         :description="systemUpdateData?.lastVersion"
       /> -->
       <div class="mt-4">
-        <NeButton
-          kind="primary"
-          class="mb-2 mr-4"
-          v-if="
-            systemUpdateData?.lastVersion &&
-            systemUpdateData.lastVersion != systemUpdateData?.currentVersion &&
-            !scheduleDate
-          "
-          :disabled="disableRemoteUpdates"
-          @click="showEditScheduleDrawer"
-          ><template #prefix>
-            <font-awesome-icon
-              :icon="['fas', 'arrows-rotate']"
-              class="w-4 h-4"
-              aria-hidden="true" /></template
-          >{{ t('standalone.update.update_system') }}</NeButton
-        >
-        <NeButton kind="tertiary" v-if="!scheduleDate" @click="showUploadImageDrawer = true"
-          ><template #prefix>
-            <font-awesome-icon
-              :icon="['fas', 'circle-arrow-up']"
-              class="w-4 h-4"
-              aria-hidden="true" /></template
-          >{{ t('standalone.update.update_with_image_file') }}</NeButton
-        >
+        <!-- <NeButton kind="primary" class="mb-2 mr-4" v-if="
+          systemUpdateData?.lastVersion &&
+          systemUpdateData.lastVersion != systemUpdateData?.currentVersion &&
+          !scheduleDate
+        " :disabled="disableRemoteUpdates" @click="showEditScheduleDrawer"><template #prefix>
+            <font-awesome-icon :icon="['fas', 'arrows-rotate']" class="w-4 h-4" aria-hidden="true" /></template>{{
+              t('standalone.update.update_system') }}</NeButton> -->
+        <NeButton kind="tertiary" v-if="!scheduleDate" @click="showUploadImageDrawer = true"><template #prefix>
+            <font-awesome-icon :icon="['fas', 'circle-arrow-up']" class="w-4 h-4" aria-hidden="true" /></template>{{
+              t('standalone.update.update_with_image_file') }}</NeButton>
       </div>
     </template>
   </FormLayout>
 
   <!-- Confirm cancel schedule modal -->
-  <NeModal
-    :visible="showConfirmCancelScheduleDrawer"
-    kind="info"
-    :title="t('standalone.update.cancel_update')"
-    :primary-label="t('standalone.update.cancel_update')"
-    :cancel-label="t('standalone.update.keep_scheduled_update')"
-    :primary-button-disabled="isCancellingSchedule"
-    :primary-button-loading="isCancellingSchedule"
-    :close-aria-label="t('common.close')"
-    @primary-click="cancelSchedule"
-    @close="!isCancellingSchedule ? closeConfirmCancelScheduleModal() : undefined"
-  >
+  <NeModal :visible="showConfirmCancelScheduleDrawer" kind="info" :title="t('standalone.update.cancel_update')"
+    :primary-label="t('standalone.update.cancel_update')" :cancel-label="t('standalone.update.keep_scheduled_update')"
+    :primary-button-disabled="isCancellingSchedule" :primary-button-loading="isCancellingSchedule"
+    :close-aria-label="t('common.close')" @primary-click="cancelSchedule"
+    @close="!isCancellingSchedule ? closeConfirmCancelScheduleModal() : undefined">
     <p>
       {{
         t('standalone.update.cancel_update_description', { version: systemUpdateData?.lastVersion })
       }}
     </p>
-    <NeInlineNotification
-      v-if="cancelScheduleError.notificationDescription"
-      :title="t('error.cannot_cancel_schedule')"
-      :description="cancelScheduleError.notificationDescription"
-      kind="error"
-      class="my-6"
-    >
+    <NeInlineNotification v-if="cancelScheduleError.notificationDescription" :title="t('error.cannot_cancel_schedule')"
+      :description="cancelScheduleError.notificationDescription" kind="error" class="my-6">
       <template #details v-if="cancelScheduleError.notificationDetails">
         {{ cancelScheduleError.notificationDetails }}
       </template>
     </NeInlineNotification>
   </NeModal>
 
-  <UpdatePackagesModal
-    :package-updates="packageUpdates"
-    @close="packageUpdates = []"
-    @packages-updated="fetchUpdatesStatus"
-  />
-  <ScheduleUpdateDrawer
-    :is-shown="showScheduleUpdateDrawer"
-    @close="showScheduleUpdateDrawer = false"
-    :update-version="systemUpdateData?.lastVersion ?? ''"
-    :schedule-to-edit="scheduleDate"
-    @schedule-saved="fetchUpdatesStatus"
-    @system-update-requested="isApplyingSystemUpdate = true"
-  />
-  <UploadImageDrawer
-    :is-shown="showUploadImageDrawer"
-    @close="showUploadImageDrawer = false"
-    @update-requested="isApplyingSystemUpdate = true"
-  />
+  <UpdatePackagesModal :package-updates="packageUpdates" @close="packageUpdates = []"
+    @packages-updated="fetchUpdatesStatus" />
+  <ScheduleUpdateDrawer :is-shown="showScheduleUpdateDrawer" @close="showScheduleUpdateDrawer = false"
+    :update-version="systemUpdateData?.lastVersion ?? ''" :schedule-to-edit="scheduleDate"
+    @schedule-saved="fetchUpdatesStatus" @system-update-requested="isApplyingSystemUpdate = true" />
+  <UploadImageDrawer :is-shown="showUploadImageDrawer" @close="showUploadImageDrawer = false"
+    @update-requested="isApplyingSystemUpdate = true" />
   <SystemUpdateInProgressModal :visible="isApplyingSystemUpdate" />
 </template>

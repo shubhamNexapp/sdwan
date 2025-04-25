@@ -148,17 +148,11 @@ const getLists = async () => {
   <div class="flex flex-col">
     <div class="flex flex-col justify-between md:flex-row md:items-center">
       <NeHeading tag="h3" class="mb-7">{{ t('standalone.l2tp.title') }}</NeHeading>
-      <div class="mb-6 text-sm text-gray-500 dark:text-gray-400">
-        {{ t('common.data_updated_every_seconds', { seconds: 10 }) }}
-      </div>
     </div>
+    <p class="mb-6 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
+      {{ t('standalone.ping_latency_monitor.description') }}
+    </p>
     <div class="space-y-6">
-      <div class="flex flex-col items-start justify-between gap-6 lg:flex-row">
-        <p class="max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
-          {{ t('standalone.l2tp.description') }}
-        </p>
-      </div>
-
       <NeInlineNotification kind="error" :title="error.notificationTitle" :description="error.notificationDescription"
         v-if="error.notificationTitle">
         <template #details v-if="error.notificationDetails">

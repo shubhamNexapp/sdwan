@@ -554,24 +554,17 @@ function formatPackets(packets: number) {
         {{ t('common.data_updated_every_seconds', { seconds: 10 }) }}
       </div>
     </div>
-    <NeInlineNotification
-      v-if="error.notificationTitle"
-      kind="error"
-      :title="error.notificationTitle"
-      :description="error.notificationDescription"
-      class="mb-4"
-    >
+    <p class="max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
+      {{ t('standalone.ping_latency_monitor.description') }}
+    </p>
+    <NeInlineNotification v-if="error.notificationTitle" kind="error" :title="error.notificationTitle"
+      :description="error.notificationDescription" class="mb-4">
       <template #details v-if="error.notificationDetails">
         {{ error.notificationDetails }}
       </template>
     </NeInlineNotification>
-    <NeInlineNotification
-      v-if="error.getVpnNetworks"
-      kind="error"
-      :title="t('error.cannot_retrieve_vpn_networks')"
-      :description="error.getVpnNetworks"
-      class="mb-4"
-    >
+    <NeInlineNotification v-if="error.getVpnNetworks" kind="error" :title="t('error.cannot_retrieve_vpn_networks')"
+      :description="error.getVpnNetworks" class="mb-4">
       <template #details v-if="error.getVpnNetworksDetails">
         {{ error.getVpnNetworksDetails }}
       </template>
@@ -594,11 +587,7 @@ function formatPackets(packets: number) {
       <!-- skeleton -->
       <div v-if="isLoading" class="flex animate-pulse">
         <div class="flex-1 space-y-8">
-          <div
-            v-for="index in 4"
-            :key="index"
-            :class="`h-24 rounded-md bg-gray-300 dark:bg-gray-700`"
-          ></div>
+          <div v-for="index in 4" :key="index" :class="`h-24 rounded-md bg-gray-300 dark:bg-gray-700`"></div>
         </div>
       </div>
       <template v-else-if="!error.notificationTitle" v-for="zone in sortedZonesAndDevices">
@@ -613,48 +602,31 @@ function formatPackets(packets: number) {
               <template v-for="(device, i) in zone.devices" :key="i">
                 <div>
                   <!-- device card -->
-                  <div
-                    :class="[
-                      `relative rounded-md border-l-4 bg-white px-8 py-6 shadow dark:bg-gray-800 ${getDeviceBorderStyle(
-                        device
-                      )}`
-                    ]"
-                  >
+                  <div :class="[
+                    `relative rounded-md border-l-4 bg-white px-8 py-6 shadow dark:bg-gray-800 ${getDeviceBorderStyle(
+                      device
+                    )}`
+                  ]">
                     <!-- edit button and overflow menu for smaller screens -->
-                    <div
-                      v-if="isDeviceConfigurable(device)"
-                      class="absolute right-4 top-4 flex items-center gap-2 3xl:hidden"
-                    >
-                      <DeviceButtons
-                        :deviceOrIface="device"
-                        :networkConfig="networkConfig"
-                        :firewallConfig="firewallConfig"
-                        @showConfigureDeviceDrawer="showConfigureDeviceDrawer"
-                        @configureBond="configureBond"
-                        @showCreateAliasInterfaceDrawer="showCreateAliasInterfaceDrawer"
+                    <div v-if="isDeviceConfigurable(device)"
+                      class="absolute right-4 top-4 flex items-center gap-2 3xl:hidden">
+                      <DeviceButtons :deviceOrIface="device" :networkConfig="networkConfig"
+                        :firewallConfig="firewallConfig" @showConfigureDeviceDrawer="showConfigureDeviceDrawer"
+                        @configureBond="configureBond" @showCreateAliasInterfaceDrawer="showCreateAliasInterfaceDrawer"
                         @showUnconfigureDeviceModal="showUnconfigureDeviceModal"
-                        @showDeleteBondModal="showDeleteBondModal"
-                        @showDeleteDeviceModal="showDeleteDeviceModal"
-                      />
+                        @showDeleteBondModal="showDeleteBondModal" @showDeleteDeviceModal="showDeleteDeviceModal" />
                     </div>
                     <div
-                      class="grid grid-cols-1 gap-x-8 gap-y-8 pr-16 md:grid-cols-2 2xl:grid-cols-4 3xl:grid-cols-5 3xl:pr-0"
-                    >
+                      class="grid grid-cols-1 gap-x-8 gap-y-8 pr-16 md:grid-cols-2 2xl:grid-cols-4 3xl:grid-cols-5 3xl:pr-0">
                       <!-- first column -->
                       <div
-                        class="flex flex-wrap items-start gap-x-1 gap-y-6 border-gray-200 pr-6 dark:border-gray-600 md:justify-between md:border-r"
-                      >
+                        class="flex flex-wrap items-start gap-x-1 gap-y-6 border-gray-200 pr-6 dark:border-gray-600 md:justify-between md:border-r">
                         <div class="flex items-center">
-                          <div
-                            :class="`mr-4 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full ${getIconBackgroundStyle(
-                              device
-                            )}`"
-                          >
-                            <font-awesome-icon
-                              :icon="['fas', getInterfaceIconName(device)]"
-                              aria-hidden="true"
-                              :class="`h-5 w-5 ${getIconForegroundStyle(device)}`"
-                            />
+                          <div :class="`mr-4 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full ${getIconBackgroundStyle(
+                            device
+                          )}`">
+                            <font-awesome-icon :icon="['fas', getInterfaceIconName(device)]" aria-hidden="true"
+                              :class="`h-5 w-5 ${getIconForegroundStyle(device)}`" />
                           </div>
                           <div>
                             <template v-if="isIpsec(device)">
@@ -683,23 +655,14 @@ function formatPackets(packets: number) {
                         <div class="flex flex-col items-center gap-2">
                           <!-- alias -->
                           <div v-if="getAliasInterface(device, networkConfig)">
-                            <NeButton
-                              kind="tertiary"
-                              size="sm"
-                              @click="toggleExpandAlias(device)"
-                              class="-mr-2 -mt-2"
-                            >
+                            <NeButton kind="tertiary" size="sm" @click="toggleExpandAlias(device)" class="-mr-2 -mt-2">
                               <template #suffix>
-                                <font-awesome-icon
-                                  :icon="[
-                                    'fas',
-                                    isExpandedAlias[getName(device) || '']
-                                      ? 'chevron-up'
-                                      : 'chevron-down'
-                                  ]"
-                                  class="h-3 w-3"
-                                  aria-hidden="true"
-                                />
+                                <font-awesome-icon :icon="[
+                                  'fas',
+                                  isExpandedAlias[getName(device) || '']
+                                    ? 'chevron-up'
+                                    : 'chevron-down'
+                                ]" class="h-3 w-3" aria-hidden="true" />
                               </template>
                               {{
                                 t('standalone.interfaces_and_devices.num_alias', {
@@ -710,46 +673,28 @@ function formatPackets(packets: number) {
                           </div>
                           <!-- bridge -->
                           <div v-if="isBridge(device)">
-                            <NeButton
-                              kind="tertiary"
-                              size="sm"
-                              @click="toggleExpandBridge(device)"
-                              class="-mr-2 -mt-2"
-                            >
+                            <NeButton kind="tertiary" size="sm" @click="toggleExpandBridge(device)" class="-mr-2 -mt-2">
                               <template #suffix>
-                                <font-awesome-icon
-                                  :icon="[
-                                    'fas',
-                                    isExpandedBridge[device.name || '']
-                                      ? 'chevron-up'
-                                      : 'chevron-down'
-                                  ]"
-                                  class="h-3 w-3"
-                                  aria-hidden="true"
-                                />
+                                <font-awesome-icon :icon="[
+                                  'fas',
+                                  isExpandedBridge[device.name || '']
+                                    ? 'chevron-up'
+                                    : 'chevron-down'
+                                ]" class="h-3 w-3" aria-hidden="true" />
                               </template>
                               {{ t('standalone.interfaces_and_devices.bridge') }}
                             </NeButton>
                           </div>
                           <!-- bond -->
                           <div v-if="isBond(device)">
-                            <NeButton
-                              kind="tertiary"
-                              size="sm"
-                              @click="toggleExpandBond(device)"
-                              class="-mr-2 -mt-2"
-                            >
+                            <NeButton kind="tertiary" size="sm" @click="toggleExpandBond(device)" class="-mr-2 -mt-2">
                               <template #suffix>
-                                <font-awesome-icon
-                                  :icon="[
-                                    'fas',
-                                    isExpandedBond[getName(device) || '']
-                                      ? 'chevron-up'
-                                      : 'chevron-down'
-                                  ]"
-                                  class="h-3 w-3"
-                                  aria-hidden="true"
-                                />
+                                <font-awesome-icon :icon="[
+                                  'fas',
+                                  isExpandedBond[getName(device) || '']
+                                    ? 'chevron-up'
+                                    : 'chevron-down'
+                                ]" class="h-3 w-3" aria-hidden="true" />
                               </template>
                               {{ t('standalone.interfaces_and_devices.bond') }}
                             </NeButton>
@@ -758,19 +703,11 @@ function formatPackets(packets: number) {
                         <!-- vlan badge -->
                         <NeBadge v-if="isVlan(device)" size="sm" kind="primary" text="VLAN" />
                         <!-- openvpn tunnel badge -->
-                        <NeBadge
-                          v-if="isOpenVpnTunnel(device)"
-                          size="sm"
-                          kind="primary"
-                          :text="t('standalone.openvpn_tunnel.short_name')"
-                        />
+                        <NeBadge v-if="isOpenVpnTunnel(device)" size="sm" kind="primary"
+                          :text="t('standalone.openvpn_tunnel.short_name')" />
                         <!-- openvpn rw badge -->
-                        <NeBadge
-                          v-if="isOpenVpnRw(device)"
-                          size="sm"
-                          kind="primary"
-                          :text="t('standalone.openvpn_rw.short_name')"
-                        />
+                        <NeBadge v-if="isOpenVpnRw(device)" size="sm" kind="primary"
+                          :text="t('standalone.openvpn_rw.short_name')" />
                         <!-- ipsec tunnel badge -->
                         <NeBadge v-if="isIpsec(device)" size="sm" kind="primary" text="IPSEC" />
                       </div>
@@ -782,17 +719,13 @@ function formatPackets(packets: number) {
                         </div>
                         <!-- hotspot network -->
                         <div v-if="isHotspot(device)">
-                          <span class="font-medium"
-                            >{{ t('standalone.interfaces_and_devices.hotspot_network') }}:
+                          <span class="font-medium">{{ t('standalone.interfaces_and_devices.hotspot_network') }}:
                           </span>
                           <span>{{ device.hotspot?.network }}</span>
                         </div>
                         <div>
                           <div v-if="getIpv4Addresses(device, networkConfig)?.length">
-                            <div
-                              v-for="(ipv4, i) in getIpv4Addresses(device, networkConfig)"
-                              :key="i"
-                            >
+                            <div v-for="(ipv4, i) in getIpv4Addresses(device, networkConfig)" :key="i">
                               <div>
                                 <span class="font-medium">IPv4: </span>
                                 <span>{{ ipv4 }}</span>
@@ -800,18 +733,14 @@ function formatPackets(packets: number) {
                             </div>
                           </div>
                           <div v-if="getIpv4Gateway(device)">
-                            <span class="font-medium"
-                              >{{ t('standalone.interfaces_and_devices.ipv4_gateway') }}:
+                            <span class="font-medium">{{ t('standalone.interfaces_and_devices.ipv4_gateway') }}:
                             </span>
                             <span>{{ getIpv4Gateway(device) }}</span>
                           </div>
                         </div>
                         <div>
                           <div v-if="getIpv6Addresses(device, networkConfig)?.length">
-                            <div
-                              v-for="(ipv6, i) in getIpv6Addresses(device, networkConfig)"
-                              :key="i"
-                            >
+                            <div v-for="(ipv6, i) in getIpv6Addresses(device, networkConfig)" :key="i">
                               <div>
                                 <span class="font-medium">IPv6: </span>
                                 <span>{{ ipv6 }}</span>
@@ -819,8 +748,7 @@ function formatPackets(packets: number) {
                             </div>
                           </div>
                           <div v-if="getIpv6Gateway(device)">
-                            <span class="font-medium"
-                              >{{ t('standalone.interfaces_and_devices.ipv6_gateway') }}:
+                            <span class="font-medium">{{ t('standalone.interfaces_and_devices.ipv6_gateway') }}:
                             </span>
                             <span>{{ getIpv6Gateway(device) }}</span>
                           </div>
@@ -833,11 +761,7 @@ function formatPackets(packets: number) {
                               {{ t('standalone.interfaces_and_devices.clients_network') }}:
                             </div>
                             <!-- skeleton -->
-                            <NeSkeleton
-                              v-if="!vpnNetworks.openvpnRw[getName(device)]"
-                              size="sm"
-                              class="mt-1"
-                            />
+                            <NeSkeleton v-if="!vpnNetworks.openvpnRw[getName(device)]" size="sm" class="mt-1" />
                             <!-- clients network -->
                             <div v-else>
                               {{ vpnNetworks.openvpnRw[getName(device)] }}
@@ -849,17 +773,9 @@ function formatPackets(packets: number) {
                               {{ t('standalone.ipsec_tunnel.remote_networks') }}:
                             </div>
                             <!-- skeleton -->
-                            <NeSkeleton
-                              v-if="!vpnNetworks.ipsec[device.ns_link as string]"
-                              size="sm"
-                              class="mt-1"
-                            />
+                            <NeSkeleton v-if="!vpnNetworks.ipsec[device.ns_link as string]" size="sm" class="mt-1" />
                             <!-- remote networks -->
-                            <div
-                              v-else
-                              v-for="network in vpnNetworks.ipsec[device.ns_link as string]"
-                              :key="network"
-                            >
+                            <div v-else v-for="network in vpnNetworks.ipsec[device.ns_link as string]" :key="network">
                               {{ network }}
                             </div>
                           </template>
@@ -871,11 +787,7 @@ function formatPackets(packets: number) {
                             <!-- no remote networks -->
                             <div v-if="isEmpty(vpnNetworks.openvpn[device.openvpn.ns_name])">-</div>
                             <!-- remote networks -->
-                            <div
-                              v-else
-                              v-for="network in vpnNetworks.openvpn[device.openvpn.ns_name]"
-                              :key="network"
-                            >
+                            <div v-else v-for="network in vpnNetworks.openvpn[device.openvpn.ns_name]" :key="network">
                               {{ network }}
                             </div>
                           </template>
@@ -887,34 +799,24 @@ function formatPackets(packets: number) {
                           <span class="font-medium">RX: </span>
                           <span>{{ getRxBytes(device, allDevices) || '-' }}</span>
                           <span v-if="device.stats?.rx_packets">
-                            ({{ formatPackets(device.stats.rx_packets) }} pkts)</span
-                          >
+                            ({{ formatPackets(device.stats.rx_packets) }} pkts)</span>
                         </div>
                         <div v-if="getTxBytes(device, allDevices)">
                           <span class="font-medium">TX: </span>
                           <span>{{ getTxBytes(device, allDevices) || '-' }}</span>
                           <span v-if="device.stats?.tx_packets">
-                            ({{ formatPackets(device.stats.tx_packets) }} pkts)</span
-                          >
+                            ({{ formatPackets(device.stats.tx_packets) }} pkts)</span>
                         </div>
                       </div>
                       <!-- fourth column -->
                       <div>
                         <div v-if="!isVpn(device)">
-                          <div
-                            v-if="isDeviceUp(device, allDevices)"
-                            class="mb-2 flex items-center gap-2"
-                          >
-                            <font-awesome-icon
-                              :icon="['fas', 'circle-check']"
-                              class="h-4 w-4"
-                              aria-hidden="true"
-                            />
+                          <div v-if="isDeviceUp(device, allDevices)" class="mb-2 flex items-center gap-2">
+                            <font-awesome-icon :icon="['fas', 'circle-check']" class="h-4 w-4" aria-hidden="true" />
                             <span>{{ t('standalone.interfaces_and_devices.up') }}</span>
                           </div>
                           <div v-if="device.speed && device.speed !== -1">
-                            <span class="font-medium"
-                              >{{ t('standalone.interfaces_and_devices.speed') }}:
+                            <span class="font-medium">{{ t('standalone.interfaces_and_devices.speed') }}:
                             </span>
                             <span>
                               {{ `${device.speed} Mbps` }}
@@ -923,75 +825,50 @@ function formatPackets(packets: number) {
                         </div>
                       </div>
                       <!-- fifth column -->
-                      <div
-                        v-if="isDeviceConfigurable(device)"
-                        class="hidden items-start justify-end gap-2 border-l border-gray-200 dark:border-gray-600 3xl:flex"
-                      >
-                        <DeviceButtons
-                          :deviceOrIface="device"
-                          :networkConfig="networkConfig"
-                          :firewallConfig="firewallConfig"
-                          @showConfigureDeviceDrawer="showConfigureDeviceDrawer"
+                      <div v-if="isDeviceConfigurable(device)"
+                        class="hidden items-start justify-end gap-2 border-l border-gray-200 dark:border-gray-600 3xl:flex">
+                        <DeviceButtons :deviceOrIface="device" :networkConfig="networkConfig"
+                          :firewallConfig="firewallConfig" @showConfigureDeviceDrawer="showConfigureDeviceDrawer"
                           @configureBond="configureBond"
                           @showCreateAliasInterfaceDrawer="showCreateAliasInterfaceDrawer"
                           @showUnconfigureDeviceModal="showUnconfigureDeviceModal"
-                          @showDeleteBondModal="showDeleteBondModal"
-                          @showDeleteDeviceModal="showDeleteDeviceModal"
-                        />
+                          @showDeleteBondModal="showDeleteBondModal" @showDeleteDeviceModal="showDeleteDeviceModal" />
                       </div>
                     </div>
                   </div>
                   <!-- alias interface -->
                   <Transition name="slide-down">
-                    <div
-                      v-if="
-                        getAliasInterface(device, networkConfig) &&
-                        isExpandedAlias[getName(device) || '']
-                      "
-                    >
+                    <div v-if="
+                      getAliasInterface(device, networkConfig) &&
+                      isExpandedAlias[getName(device) || '']
+                    ">
                       <!-- v-for is a trick to declare 'alias' variable inside template -->
-                      <div
-                        v-for="(alias, i) in [getAliasInterface(device, networkConfig)]"
-                        :key="i"
-                        class="group flex items-start"
-                      >
+                      <div v-for="(alias, i) in [getAliasInterface(device, networkConfig)]" :key="i"
+                        class="group flex items-start">
                         <!-- L-shaped dashed line-->
                         <div
-                          class="ml-4 h-14 w-4 shrink-0 border-b border-l border-dashed border-gray-400 dark:border-gray-500"
-                        ></div>
+                          class="ml-4 h-14 w-4 shrink-0 border-b border-l border-dashed border-gray-400 dark:border-gray-500">
+                        </div>
                         <!-- alias card -->
-                        <div
-                          :class="`relative mt-4 grow rounded-md border-l-4 bg-white px-8 py-6 shadow dark:bg-gray-800 ${getDeviceBorderStyle(
-                            device
-                          )}`"
-                        >
+                        <div :class="`relative mt-4 grow rounded-md border-l-4 bg-white px-8 py-6 shadow dark:bg-gray-800 ${getDeviceBorderStyle(
+                          device
+                        )}`">
                           <!-- edit button and overflow menu for smaller screens -->
                           <div class="absolute right-4 top-4 flex items-center gap-2 3xl:hidden">
-                            <NeButton
-                              kind="tertiary"
-                              size="lg"
-                              @click="showEditAliasInterfaceDrawer(alias, device)"
-                              :disabled="!getFirewallZone(getInterface(device), firewallConfig)"
-                            >
+                            <NeButton kind="tertiary" size="lg" @click="showEditAliasInterfaceDrawer(alias, device)"
+                              :disabled="!getFirewallZone(getInterface(device), firewallConfig)">
                               <template #prefix>
-                                <font-awesome-icon
-                                  :icon="['fas', 'pen-to-square']"
-                                  class="h-4 w-4"
-                                  aria-hidden="true"
-                                />
+                                <font-awesome-icon :icon="['fas', 'pen-to-square']" class="h-4 w-4"
+                                  aria-hidden="true" />
                               </template>
                               {{ t('common.edit') }}
                             </NeButton>
-                            <NeDropdown
-                              :items="getAliasKebabMenuItems(alias, device)"
-                              :alignToRight="true"
-                            />
+                            <NeDropdown :items="getAliasKebabMenuItems(alias, device)" :alignToRight="true" />
                           </div>
                           <div class="flex flex-wrap justify-between gap-8">
                             <!-- alias name -->
                             <div
-                              class="w-full border-gray-200 pr-8 dark:border-gray-600 md:w-1/2 md:border-r xl:w-1/4 3xl:w-1/5"
-                            >
+                              class="w-full border-gray-200 pr-8 dark:border-gray-600 md:w-1/2 md:border-r xl:w-1/4 3xl:w-1/5">
                               <div class="font-semibold">
                                 {{ t('standalone.interfaces_and_devices.alias') }}:
                                 {{ alias!['.name'] }}
@@ -1001,40 +878,27 @@ function formatPackets(packets: number) {
                               <!-- ipv4 addresses -->
                               <div v-for="(ipv4, i) in alias!.ipaddr" :key="i">
                                 <span class="font-medium">
-                                  {{ t('standalone.interfaces_and_devices.ipv4') }}: </span
-                                ><span>{{ ipv4 }}</span>
+                                  {{ t('standalone.interfaces_and_devices.ipv4') }}: </span><span>{{ ipv4 }}</span>
                               </div>
                               <!-- ipv6 addresses -->
                               <div v-for="(ipv6, i) in alias!.ip6addr" :key="i">
                                 <span class="font-medium">
-                                  {{ t('standalone.interfaces_and_devices.ipv6') }}: </span
-                                ><span>{{ ipv6 }}</span>
+                                  {{ t('standalone.interfaces_and_devices.ipv6') }}: </span><span>{{ ipv6 }}</span>
                               </div>
                             </div>
                             <!-- edit alias and overflow menu -->
                             <div
-                              class="hidden w-1/5 items-start justify-end gap-2 border-l border-gray-200 pl-8 dark:border-gray-600 3xl:flex"
-                            >
-                              <NeButton
-                                kind="tertiary"
-                                size="lg"
-                                @click="showEditAliasInterfaceDrawer(alias, device)"
-                                :disabled="!getFirewallZone(getInterface(device), firewallConfig)"
-                              >
+                              class="hidden w-1/5 items-start justify-end gap-2 border-l border-gray-200 pl-8 dark:border-gray-600 3xl:flex">
+                              <NeButton kind="tertiary" size="lg" @click="showEditAliasInterfaceDrawer(alias, device)"
+                                :disabled="!getFirewallZone(getInterface(device), firewallConfig)">
                                 <template #prefix>
-                                  <font-awesome-icon
-                                    :icon="['fas', 'pen-to-square']"
-                                    class="h-4 w-4"
-                                    aria-hidden="true"
-                                  />
+                                  <font-awesome-icon :icon="['fas', 'pen-to-square']" class="h-4 w-4"
+                                    aria-hidden="true" />
                                 </template>
                                 {{ t('common.edit') }}
                               </NeButton>
                               <!-- overflow menu for larger screens -->
-                              <NeDropdown
-                                :items="getAliasKebabMenuItems(alias, device)"
-                                :alignToRight="true"
-                              />
+                              <NeDropdown :items="getAliasKebabMenuItems(alias, device)" :alignToRight="true" />
                             </div>
                           </div>
                         </div>
@@ -1043,25 +907,19 @@ function formatPackets(packets: number) {
                   </Transition>
                   <!-- bridge interface -->
                   <Transition name="slide-down">
-                    <div
-                      v-if="isBridge(device) && isExpandedBridge[device.name || '']"
-                      class="group flex items-start"
-                    >
+                    <div v-if="isBridge(device) && isExpandedBridge[device.name || '']" class="group flex items-start">
                       <!-- L-shaped dashed line-->
                       <div
-                        class="ml-4 h-14 w-4 shrink-0 border-b border-l border-dashed border-gray-400 dark:border-gray-500"
-                      ></div>
+                        class="ml-4 h-14 w-4 shrink-0 border-b border-l border-dashed border-gray-400 dark:border-gray-500">
+                      </div>
                       <!-- bridge card -->
-                      <div
-                        :class="`relative mt-4 grow rounded-md border-l-4 bg-white px-8 py-6 shadow dark:bg-gray-800 ${getDeviceBorderStyle(
-                          device
-                        )}`"
-                      >
+                      <div :class="`relative mt-4 grow rounded-md border-l-4 bg-white px-8 py-6 shadow dark:bg-gray-800 ${getDeviceBorderStyle(
+                        device
+                      )}`">
                         <div class="flex flex-wrap justify-between gap-8">
                           <!-- bridge name -->
                           <div
-                            class="w-full border-gray-200 pr-8 dark:border-gray-600 md:w-1/2 md:border-r xl:w-1/4 3xl:w-1/5"
-                          >
+                            class="w-full border-gray-200 pr-8 dark:border-gray-600 md:w-1/2 md:border-r xl:w-1/4 3xl:w-1/5">
                             <div class="font-semibold">
                               {{ t('standalone.interfaces_and_devices.bridge') }}:
                               {{ device.name }}
@@ -1087,28 +945,22 @@ function formatPackets(packets: number) {
                   </Transition>
                   <!-- bond interface -->
                   <Transition name="slide-down">
-                    <div
-                      v-if="
-                        (isBond(device) || device.name?.startsWith('-bond')) &&
-                        isExpandedBond[getName(device) || '']
-                      "
-                      class="group flex items-start"
-                    >
+                    <div v-if="
+                      (isBond(device) || device.name?.startsWith('-bond')) &&
+                      isExpandedBond[getName(device) || '']
+                    " class="group flex items-start">
                       <!-- L-shaped dashed line-->
                       <div
-                        class="ml-4 h-14 w-4 shrink-0 border-b border-l border-dashed border-gray-400 dark:border-gray-500"
-                      ></div>
+                        class="ml-4 h-14 w-4 shrink-0 border-b border-l border-dashed border-gray-400 dark:border-gray-500">
+                      </div>
                       <!-- bond card -->
-                      <div
-                        :class="`relative mt-4 grow rounded-md border-l-4 bg-white px-8 py-6 shadow dark:bg-gray-800 ${getDeviceBorderStyle(
-                          device
-                        )}`"
-                      >
+                      <div :class="`relative mt-4 grow rounded-md border-l-4 bg-white px-8 py-6 shadow dark:bg-gray-800 ${getDeviceBorderStyle(
+                        device
+                      )}`">
                         <div class="flex flex-wrap justify-between gap-8">
                           <!-- bond name -->
                           <div
-                            class="w-full border-gray-200 pr-8 dark:border-gray-600 md:w-1/2 md:border-r xl:w-1/4 3xl:w-1/5"
-                          >
+                            class="w-full border-gray-200 pr-8 dark:border-gray-600 md:w-1/2 md:border-r xl:w-1/4 3xl:w-1/5">
                             <div class="font-semibold">
                               {{ t('standalone.interfaces_and_devices.bond') }}
                             </div>
@@ -1138,63 +990,27 @@ function formatPackets(packets: number) {
       </template>
     </div>
     <!-- create/edit alias interface drawer -->
-    <CreateOrEditAliasInterfaceDrawer
-      :iface="currentInterface"
-      :networkConfigDevice="currentNetworkConfigDevice"
-      :networkConfig="networkConfig"
-      :isShown="isShownCreateOrEditAliasInterfaceDrawer"
-      :aliasToEdit="aliasToEdit"
-      @close="hideCreateOrEditAliasInterfaceDrawer"
-      @reloadData="loadData"
-    />
+    <CreateOrEditAliasInterfaceDrawer :iface="currentInterface" :networkConfigDevice="currentNetworkConfigDevice"
+      :networkConfig="networkConfig" :isShown="isShownCreateOrEditAliasInterfaceDrawer" :aliasToEdit="aliasToEdit"
+      @close="hideCreateOrEditAliasInterfaceDrawer" @reloadData="loadData" />
     <!-- delete alias modal -->
-    <DeleteAliasModal
-      :visible="isShownDeleteAliasModal"
-      :alias="currentAlias"
-      :parentInterface="currentParentInterface"
-      @close="isShownDeleteAliasModal = false"
-      @reloadData="loadData"
-    />
+    <DeleteAliasModal :visible="isShownDeleteAliasModal" :alias="currentAlias" :parentInterface="currentParentInterface"
+      @close="isShownDeleteAliasModal = false" @reloadData="loadData" />
     <!-- configure interface drawer -->
-    <ConfigureDeviceDrawer
-      :device="currentDevice"
-      :deviceType="deviceToConfigureType"
-      :allDevices="allDevices"
-      :networkConfig="networkConfig"
-      :isShown="isShownConfigureDeviceDrawer"
-      :interfaceToEdit="interfaceToEdit"
-      @close="hideConfigureDeviceDrawer"
-      @reloadData="loadData"
-    />
+    <ConfigureDeviceDrawer :device="currentDevice" :deviceType="deviceToConfigureType" :allDevices="allDevices"
+      :networkConfig="networkConfig" :isShown="isShownConfigureDeviceDrawer" :interfaceToEdit="interfaceToEdit"
+      @close="hideConfigureDeviceDrawer" @reloadData="loadData" />
     <!-- unconfigure device modal -->
-    <UnconfigureDeviceModal
-      :visible="isShownUnconfigureDeviceModal"
-      :device="currentDevice"
-      :networkConfig="networkConfig"
-      @close="isShownUnconfigureDeviceModal = false"
-      @reloadData="loadData"
-    />
+    <UnconfigureDeviceModal :visible="isShownUnconfigureDeviceModal" :device="currentDevice"
+      :networkConfig="networkConfig" @close="isShownUnconfigureDeviceModal = false" @reloadData="loadData" />
     <!-- create vlan device drawer -->
-    <CreateVlanDeviceDrawer
-      :networkConfig="networkConfig"
-      :allDevices="allDevices"
-      :isShown="isShownCreateVlanDeviceDrawer"
-      @close="hideCreateVlanDeviceDrawer"
-      @reloadData="loadData"
-    />
+    <CreateVlanDeviceDrawer :networkConfig="networkConfig" :allDevices="allDevices"
+      :isShown="isShownCreateVlanDeviceDrawer" @close="hideCreateVlanDeviceDrawer" @reloadData="loadData" />
     <!-- delete device modal -->
-    <DeleteDeviceModal
-      :visible="isShownDeleteDeviceModal"
-      :device="currentDevice"
-      @close="isShownDeleteDeviceModal = false"
-      @reloadData="loadData"
-    />
+    <DeleteDeviceModal :visible="isShownDeleteDeviceModal" :device="currentDevice"
+      @close="isShownDeleteDeviceModal = false" @reloadData="loadData" />
     <!-- delete bond -->
-    <DeleteBondModal
-      :visible="isShownDeleteBondModal"
-      :bond="bondToDelete"
-      @close="isShownDeleteBondModal = false"
-      @success="handleBondDeleted()"
-    />
+    <DeleteBondModal :visible="isShownDeleteBondModal" :bond="bondToDelete" @close="isShownDeleteBondModal = false"
+      @success="handleBondDeleted()" />
   </div>
 </template>

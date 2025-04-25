@@ -154,6 +154,9 @@ const getLists = async () => {
         <div class="flex flex-col justify-between md:flex-row md:items-center">
             <NeHeading tag="h3" class="mb-7">{{ t('VXLAN') }}</NeHeading>
         </div>
+        <p class="mb-6 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
+            {{ t('standalone.ping_latency_monitor.description') }}
+        </p>
         <div class="space-y-6">
 
             <NeInlineNotification kind="error" :title="error.notificationTitle"

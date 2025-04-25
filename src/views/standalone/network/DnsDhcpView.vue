@@ -45,16 +45,13 @@ const { tabs, selectedTab } = useTabs([
 </script>
 
 <template>
-  <NeHeading tag="h3" class="mb-7">{{ t('standalone.dns_dhcp.title') }}</NeHeading>
+  <NeHeading tag="h3" class="mb-4">{{ t('standalone.dns_dhcp.title') }}</NeHeading>
+  <p class="mb-6 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
+    {{ t('standalone.ping_latency_monitor.description') }}
+  </p>
   <div>
-    <NeTabs
-      :selected="selectedTab"
-      :srSelectTabLabel="t('ne_tabs.select_a_tab')"
-      :srTabsLabel="t('ne_tabs.tabs')"
-      :tabs="tabs"
-      class="mb-8"
-      @selectTab="selectedTab = $event"
-    />
+    <NeTabs :selected="selectedTab" :srSelectTabLabel="t('ne_tabs.select_a_tab')" :srTabsLabel="t('ne_tabs.tabs')"
+      :tabs="tabs" class="mb-8" @selectTab="selectedTab = $event" />
     <DhcpManager v-if="selectedTab === 'dhcp'" />
     <StaticLeases v-else-if="selectedTab === 'static-leases'" />
     <DynamicLeases v-else-if="selectedTab === 'dynamic-leases'" />

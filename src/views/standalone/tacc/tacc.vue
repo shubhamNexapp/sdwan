@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import FormLayout from '@/components/standalone/FormLayout.vue';
 import { useNotificationsStore } from '@/stores/notifications';
-import { NeToggle, NeTextInput, NeButton, NeInlineNotification, NeHeading } from '@nethesis/vue-components';
+import { NeToggle, NeTextInput, NeButton, NeInlineNotification, NeHeading, NeTooltip, } from '@nethesis/vue-components';
 import axios from 'axios';
 import { getSDControllerApiEndpoint } from '@/lib/config';
 
@@ -76,7 +76,7 @@ async function saveSettings() {
 </script>
 
 <template>
-  <NeHeading tag="h3" class="mb-7">{{ t('TACACS+ Configuration') }}</NeHeading>
+  <NeHeading tag="h3" class="mb-4">{{ t('TACACS+ Configuration') }}</NeHeading>
   <div>
     <div class="max-w-4xl">
       <div class="space-y-8">
@@ -85,10 +85,18 @@ async function saveSettings() {
 
           <div v-if="status" class="space-y-4">
 
-            <NeTextInput class="mt-4" v-model="serverAddress" label="Server Address" />
+
+            <NeTextInput class="mt-4" v-model="serverAddress" label="Server Address">
+              <NeTooltip>
+                <template #content>
+                  {{ t('standalone.hotspot.settings.login_helper_username') }}
+                </template>
+              </NeTooltip>
+            </NeTextInput>
             <NeTextInput v-model="sharedSecret" label="Secret" type="password" />
           </div>
-          <NeButton class="mt-5 ml-1" :disabled="saving" :loading="saving" kind="primary" size="lg" @click.prevent="saveSettings()">
+          <NeButton class="mt-5 ml-1" :disabled="saving" :loading="saving" kind="primary" size="lg"
+            @click.prevent="saveSettings()">
             <template #prefix>
               <FontAwesomeIcon :icon="faSave" />
             </template>

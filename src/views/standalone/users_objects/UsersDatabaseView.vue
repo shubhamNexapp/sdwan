@@ -96,18 +96,13 @@ async function fetchSubscriptionInfo() {
 </script>
 
 <template>
-  <div class="mb-6 flex flex-row items-center justify-between">
+  <div class="mb-2 flex flex-row items-center justify-between">
     <NeHeading tag="h3">{{ t('standalone.users_database.title') }}</NeHeading>
+
     <!-- add remote database button (subscription only) -->
-    <NeButton v-if="activeSubscription" kind="secondary" @click="showCreateDrawer = true"
-      ><template #prefix>
-        <font-awesome-icon
-          :icon="['fas', 'circle-plus']"
-          class="h-4 w-4"
-          aria-hidden="true"
-        /> </template
-      >{{ t('standalone.users_database.add_remote_database') }}</NeButton
-    >
+    <NeButton v-if="activeSubscription" kind="secondary" @click="showCreateDrawer = true"><template #prefix>
+        <font-awesome-icon :icon="['fas', 'circle-plus']" class="h-4 w-4" aria-hidden="true" /> </template>{{
+          t('standalone.users_database.add_remote_database') }}</NeButton>
     <!-- disabled add remote database button for community -->
     <NeTooltip v-else triggerEvent="mouseenter focus" placement="bottom">
       <template #trigger>
@@ -123,61 +118,41 @@ async function fetchSubscriptionInfo() {
       </template>
     </NeTooltip>
   </div>
+  <p class="mb-4 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
+    {{ t('standalone.ping_latency_monitor.description') }}
+  </p>
   <!-- list databases error -->
-  <NeInlineNotification
-    v-if="error.listDatabases"
-    :title="t('error.cannot_retrieve_databases')"
-    :description="error.listDatabases"
-    class="mb-6"
-    kind="error"
-  >
+  <NeInlineNotification v-if="error.listDatabases" :title="t('error.cannot_retrieve_databases')"
+    :description="error.listDatabases" class="mb-6" kind="error">
     <template #details v-if="error.listDatabasesDetails">
       {{ error.listDatabasesDetails }}
-    </template></NeInlineNotification
-  >
+    </template>
+  </NeInlineNotification>
   <!-- get subscription info error -->
-  <NeInlineNotification
-    v-if="error.getSubscriptionInfo"
-    :title="t('error.cannot_retrieve_subscription_info')"
-    :description="error.getSubscriptionInfo"
-    class="mb-6"
-    kind="error"
-  >
+  <NeInlineNotification v-if="error.getSubscriptionInfo" :title="t('error.cannot_retrieve_subscription_info')"
+    :description="error.getSubscriptionInfo" class="mb-6" kind="error">
     <template #details v-if="error.listDatabasesDetails">
       {{ error.listDatabasesDetails }}
-    </template></NeInlineNotification
-  >
+    </template>
+  </NeInlineNotification>
   <NeSkeleton v-if="loading.listDatabases || loading.getSubscriptionInfo" :lines="10" size="lg" />
   <div v-else-if="!error.listDatabases && !error.getSubscriptionInfo">
-    <NeTabs
-      :selected="selectedTab"
-      :srSelectTabLabel="t('ne_tabs.select_a_tab')"
-      :srTabsLabel="t('ne_tabs.tabs')"
-      :tabs="tabs"
-      class="mb-8"
-      @selectTab="selectedTab = $event"
-    />
-    <UsersDatabaseManager
-      :database="(databases.find(x => x.name === selectedTab) as UserDatabase)"
-      @database-changed="reloadDatabases()"
-      @database-deleted="reloadDatabases(true)"
-    />
+    <NeTabs :selected="selectedTab" :srSelectTabLabel="t('ne_tabs.select_a_tab')" :srTabsLabel="t('ne_tabs.tabs')"
+      :tabs="tabs" class="mb-8" @selectTab="selectedTab = $event" />
+    <UsersDatabaseManager :database="(databases.find(x => x.name === selectedTab) as UserDatabase)"
+      @database-changed="reloadDatabases()" @database-deleted="reloadDatabases(true)" />
   </div>
-  <CreateOrEditDatabaseDrawer
-    :is-shown="showCreateDrawer"
-    @close="showCreateDrawer = false"
-    @add-edit-database="
-      (name) => {
-        notificationsStore.addNotification({
-          id: `add_db_${name}`,
-          kind: 'success',
-          title: t('standalone.users_database.remote_database_added'),
-          description: t('standalone.users_database.remote_database_added_description', {
-            name: name
-          })
+  <CreateOrEditDatabaseDrawer :is-shown="showCreateDrawer" @close="showCreateDrawer = false" @add-edit-database="
+    (name) => {
+      notificationsStore.addNotification({
+        id: `add_db_${name}`,
+        kind: 'success',
+        title: t('standalone.users_database.remote_database_added'),
+        description: t('standalone.users_database.remote_database_added_description', {
+          name: name
         })
-        reloadDatabases()
-      }
-    "
-  />
+      })
+      reloadDatabases()
+    }
+  " />
 </template>

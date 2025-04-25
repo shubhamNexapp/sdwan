@@ -201,7 +201,9 @@ const getLists = async () => {
 
 
                 <label class="mr-4 ">Result :</label>
-                <Textarea v-model="result" variant="filled" rows="10" cols="30" />
+                <Textarea disabled v-model="result" variant="filled" rows="10" cols="30"
+                    class="rounded-md border border-gray-300 p-2" />
+
 
                 <div class="flex justify-start mt-6">
                     <NeButton kind="primary" @click="refreshSave">

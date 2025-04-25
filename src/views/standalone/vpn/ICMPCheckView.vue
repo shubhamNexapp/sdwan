@@ -132,7 +132,7 @@ const getLists = async () => {
             payload: {}
         });
 
-        console.log("response====",response)
+        console.log("response====", response)
 
         if (response.data.code === 200) {
             loading.value = false;
@@ -144,15 +144,18 @@ const getLists = async () => {
     loading.value = false;
 };
 
-console.log("apiResponse=====",apiResponse)
+console.log("apiResponse=====", apiResponse)
 
 </script>
 
 <template>
     <div class="flex flex-col">
         <div class="flex flex-col justify-between md:flex-row md:items-center">
-            <NeHeading tag="h3" class="mb-7">{{ t('ICMP Check') }}</NeHeading>
+            <NeHeading tag="h3" class="mb-4">{{ t('ICMP Check') }}</NeHeading>
         </div>
+        <p class="mb-6 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
+            {{ t('standalone.ping_latency_monitor.description') }}
+        </p>
         <div class="space-y-6">
 
             <NeInlineNotification kind="error" :title="error.notificationTitle"
@@ -185,7 +188,7 @@ console.log("apiResponse=====",apiResponse)
                     </NeTableHead>
                     <NeTableBody>
                         <NeTableRow v-for="(item, index) in apiResponse" :key="index">
-                            {{ console.log("item======",item.tunnel_name) }}
+                            {{ console.log("item======", item.tunnel_name) }}
                             <NeTableCell>{{ index + 1 }}</NeTableCell>
                             <NeTableCell>{{ item.name }}</NeTableCell>
                             <NeTableCell>{{ item.destination }}</NeTableCell>

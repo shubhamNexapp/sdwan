@@ -15,6 +15,7 @@ import { onMounted, ref } from 'vue'
 import axios from 'axios'
 import { getSDControllerApiEndpoint } from '@/lib/config'
 import { useNotificationsStore } from '@/stores/notifications'
+import { useI18n } from 'vue-i18n'
 
 const loading = ref({ saveRule: false })
 const service = ref(false)
@@ -24,6 +25,9 @@ const ipInput = ref("")
 const errorMessage = ref<string>("");
 
 const notificationsStore = useNotificationsStore()
+
+const { t } = useI18n()
+
 
 
 const validateIp = (ip: string) => {
@@ -180,14 +184,23 @@ const saveNetworkConfig = async () => {
 
 <template>
     <NeHeading tag="h3" class="mb-7">Anti Spam</NeHeading>
-
+    <p class="mb-6 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
+        {{ t('standalone.ping_latency_monitor.description') }}
+    </p>
     <div class="flex flex-col gap-y-6">
         <div>
-            <NeToggle class="mb-4" v-model="service" label="Service Status" />
+            <!-- <NeToggle class="mb-4" v-model="service" label="Service Status" /> -->
+
+            <NeToggle v-model="service" :label="service ? 'Enable' : 'Disable'"
+            :topLabel="'Service Status'" />
+
             <template v-if="service">
                 <div class="flex flex-col items-start mb-4">
 
-                    <NeToggle class="mb-4" v-model="useBayes" label="Use Bayes" />
+                    <!-- <NeToggle class="mb-4" v-model="useBayes" label="Use Bayes" /> -->
+
+                    <NeToggle class="mt-2 mb-4" v-model="useBayes" :label="useBayes ? 'Enable' : 'Disable'"
+                    :topLabel="'Use Bayes'" />
 
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <NeTextInput v-model.trim="ipInput" placeholder="Enter IP Address" @keyup.enter="addIp" />

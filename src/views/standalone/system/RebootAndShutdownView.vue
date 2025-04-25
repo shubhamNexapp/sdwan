@@ -82,15 +82,13 @@ onMounted(() => {
 
 <template>
   <div>
-    <NeHeading tag="h3" class="mb-7">{{ t('standalone.reboot_and_shutdown.title') }}</NeHeading>
+    <NeHeading tag="h3" class="mb-4">{{ t('standalone.reboot_and_shutdown.title') }}</NeHeading>
+    <p class="mb-6 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
+      {{ t('standalone.ping_latency_monitor.description') }}
+    </p>
     <div class="flex flex-col gap-y-4">
       <NeHeading tag="h5" class="mb-2">{{ t('standalone.reboot_and_shutdown.reboot') }}</NeHeading>
-      <NeInlineNotification
-        v-if="pageError"
-        :title="t('error.generic_error')"
-        :description="pageError"
-        kind="error"
-      />
+      <NeInlineNotification v-if="pageError" :title="t('error.generic_error')" :description="pageError" kind="error" />
       <NeSkeleton v-if="loading" :lines="6" />
       <template v-else>
         <div>
@@ -104,7 +102,7 @@ onMounted(() => {
         <hr class="my-4" />
         <NeHeading tag="h5" class="mb-2">{{
           t('standalone.reboot_and_shutdown.shutdown')
-        }}</NeHeading>
+          }}</NeHeading>
         <div>
           <NeButton kind="secondary" size="lg" @click="showShutdownModal = true">
             <template #prefix>
@@ -116,54 +114,29 @@ onMounted(() => {
       </template>
     </div>
   </div>
-  <NeModal
-    :primary-label="t('standalone.reboot_and_shutdown.shut_down_unit')"
-    :title="t('standalone.reboot_and_shutdown.shutdown')"
-    :primary-button-loading="isPerformingRequest"
-    :primary-button-disabled="isPerformingRequest"
-    :cancel-label="t('common.cancel')"
-    :visible="showShutdownModal"
-    kind="warning"
-    primary-button-kind="danger"
-    :close-aria-label="t('common.close')"
-    @close="closeModal()"
-    @primary-click="performRequest('poweroff')"
-  >
+  <NeModal :primary-label="t('standalone.reboot_and_shutdown.shut_down_unit')"
+    :title="t('standalone.reboot_and_shutdown.shutdown')" :primary-button-loading="isPerformingRequest"
+    :primary-button-disabled="isPerformingRequest" :cancel-label="t('common.cancel')" :visible="showShutdownModal"
+    kind="warning" primary-button-kind="danger" :close-aria-label="t('common.close')" @close="closeModal()"
+    @primary-click="performRequest('poweroff')">
     {{ t('standalone.reboot_and_shutdown.shutdown_warning', { unit: hostname }) }}
-    <NeInlineNotification
-      v-if="modalRequestError"
-      :title="t('error.generic_error')"
-      :description="modalRequestError"
-      kind="error"
-      class="my-6"
-    />
+    <NeInlineNotification v-if="modalRequestError" :title="t('error.generic_error')" :description="modalRequestError"
+      kind="error" class="my-6" />
   </NeModal>
-  <NeModal
-    :primary-label="t('standalone.reboot_and_shutdown.reboot_now')"
+  <NeModal :primary-label="t('standalone.reboot_and_shutdown.reboot_now')"
     :primary-button-loading="isPerformingRequest || isRebooting"
-    :primary-button-disabled="isPerformingRequest || isRebooting"
-    :title="t('standalone.reboot_and_shutdown.reboot')"
-    :cancel-label="!isRebooting ? t('common.cancel') : ''"
-    :visible="showRebootModal"
-    kind="warning"
-    primary-button-kind="danger"
-    :close-aria-label="t('common.close')"
-    @close="!isRebooting ? closeModal() : undefined"
-    @primary-click="performRequest('reboot')"
-  >
+    :primary-button-disabled="isPerformingRequest || isRebooting" :title="t('standalone.reboot_and_shutdown.reboot')"
+    :cancel-label="!isRebooting ? t('common.cancel') : ''" :visible="showRebootModal" kind="warning"
+    primary-button-kind="danger" :close-aria-label="t('common.close')" @close="!isRebooting ? closeModal() : undefined"
+    @primary-click="performRequest('reboot')">
     <template v-if="isRebooting">
       {{ t('standalone.reboot_and_shutdown.reboot_in_progress') }}
       <NeProgressBar class="my-4" :progress="currentProgress" />
     </template>
     <template v-else>
       {{ t('standalone.reboot_and_shutdown.reboot_warning', { unit: hostname }) }}
-      <NeInlineNotification
-        v-if="modalRequestError"
-        :title="t('error.generic_error')"
-        :description="modalRequestError"
-        kind="error"
-        class="my-6"
-      />
+      <NeInlineNotification v-if="modalRequestError" :title="t('error.generic_error')" :description="modalRequestError"
+        kind="error" class="my-6" />
     </template>
   </NeModal>
 </template>

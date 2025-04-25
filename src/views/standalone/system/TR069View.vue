@@ -146,7 +146,10 @@ const getLists = async () => {
 </script>
 
 <template>
-  <NeHeading tag="h3" class="mb-7">TR069</NeHeading>
+  <NeHeading tag="h3" class="mb-4">TR069</NeHeading>
+  <p class="mb-6 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
+    {{ t('standalone.ping_latency_monitor.description') }}
+  </p>
   <!-- <form @submit.prevent="saveRule"> -->
   <form>
     <div class="space-y-6">

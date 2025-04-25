@@ -88,7 +88,7 @@ async function saveSettings() {
 </script>
 
 <template>
-  <NeHeading tag="h3" class="mb-7">{{ t('SDWAN Controller') }}</NeHeading>
+  <NeHeading tag="h3" class="mb-4">{{ t('SDWAN Controller') }}</NeHeading>
 
   <FormLayout :description="t('Enable or disable sd controller and adjust its settings.')">
     <NeInlineNotification v-if="error.title" class="my-4" kind="error" :title="error.title"

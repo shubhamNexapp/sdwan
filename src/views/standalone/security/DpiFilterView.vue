@@ -20,14 +20,11 @@ const { tabs, selectedTab } = useTabs([
 <template>
   <div class="text-sm">
     <NeHeading tag="h3" class="mb-7">{{ t('standalone.dpi.title') }}</NeHeading>
-    <NeTabs
-      :tabs="tabs"
-      :selected="selectedTab"
-      :srTabsLabel="t('ne_tabs.tabs')"
-      :srSelectTabLabel="t('ne_tabs.select_a_tab')"
-      @selectTab="selectedTab = $event"
-      class="mb-8"
-    />
+    <p class="mb-4 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
+      {{ t('standalone.ping_latency_monitor.description') }}
+    </p>
+    <NeTabs :tabs="tabs" :selected="selectedTab" :srTabsLabel="t('ne_tabs.tabs')"
+      :srSelectTabLabel="t('ne_tabs.select_a_tab')" @selectTab="selectedTab = $event" class="mb-8" />
     <div>
       <template v-if="selectedTab === 'rules'">
         <DpiRules />

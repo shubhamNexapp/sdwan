@@ -147,22 +147,25 @@ function downloadLogsAsExcel() {
 </script>
 
 <template>
-  <h1 class="text-xl font-semibold">Logs</h1>
+  <h1 class="mb-4 text-xl font-semibold">Logs</h1>
+  <p class="mb-2 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
+    {{ t('standalone.ping_latency_monitor.description') }}
+  </p>
   <div class="flex justify-end">
-      <button @click="downloadLogsAsExcel"
-        class="group relative rounded-full p-2 hover:bg-blue-100 dark:hover:bg-gray-800 transition duration-200"
-        aria-label="Download Logs">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600 group-hover:text-blue-800" fill="none"
-          viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V4" />
-        </svg>
-        <span
-          class="absolute -top-8 left-1/2 -translate-x-1/2 scale-0 rounded bg-gray-700 px-2 py-1 text-xs text-white opacity-0 transition-all group-hover:scale-100 group-hover:opacity-100">
-          Download Logs
-        </span>
-      </button>
-    </div>
+    <button @click="downloadLogsAsExcel"
+      class="group relative rounded-full p-2 hover:bg-blue-100 dark:hover:bg-gray-800 transition duration-200"
+      aria-label="Download Logs">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600 group-hover:text-blue-800" fill="none"
+        viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V4" />
+      </svg>
+      <span
+        class="absolute -top-8 left-1/2 -translate-x-1/2 scale-0 rounded bg-gray-700 px-2 py-1 text-xs text-white opacity-0 transition-all group-hover:scale-100 group-hover:opacity-100">
+        Download Logs
+      </span>
+    </button>
+  </div>
   <div class="">
     <div class="grid grid-cols-1 gap-6 sm:max-w-xl sm:grid-cols-2">
       <NeTextInput v-model="search" :invalid-message="errorBag.getFirstFor('search')"

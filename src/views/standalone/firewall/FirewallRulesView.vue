@@ -32,15 +32,12 @@ const rulesType = computed(() => {
 
 <template>
   <div class="text-sm">
-    <NeHeading tag="h3" class="mb-7">{{ t('standalone.firewall_rules.title') }}</NeHeading>
-    <NeTabs
-      :tabs="tabs"
-      :selected="selectedTab"
-      :srTabsLabel="t('ne_tabs.tabs')"
-      :srSelectTabLabel="t('ne_tabs.select_a_tab')"
-      @selectTab="selectedTab = $event"
-      class="mb-8"
-    />
+    <NeHeading tag="h3" class="mb-4">{{ t('standalone.firewall_rules.title') }}</NeHeading>
+    <p class="mb-6 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
+      {{ t('standalone.ping_latency_monitor.description') }}
+    </p>
+    <NeTabs :tabs="tabs" :selected="selectedTab" :srTabsLabel="t('ne_tabs.tabs')"
+      :srSelectTabLabel="t('ne_tabs.select_a_tab')" @selectTab="selectedTab = $event" class="mb-8" />
     <FirewallRulesContent :rulesType="rulesType" />
   </div>
 </template>

@@ -18,8 +18,7 @@ import { useNotificationsStore } from '@/stores/notifications'
 
 import { useI18n } from "vue-i18n";
 
-
-const t = useI18n()
+const { t } = useI18n()
 
 const loading = ref({ saveRule: false })
 
@@ -149,8 +148,11 @@ const validateIpNetwork = (
 </script>
 
 <template>
-  <!-- <NeHeading tag="h3" class="mb-7">RIP</NeHeading>
-  <NeToggle v-model="service" label="RIP Service" /> -->
+  <NeHeading tag="h3" class="mb-4">RIP</NeHeading>
+  <p class="mb-6 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
+    {{ t('standalone.ping_latency_monitor.description') }}
+  </p>
+  <!-- <NeToggle v-model="service" label="RIP Service" /> -->
   <NeToggle v-model="service" :label="service ? 'Enable' : 'Disable'" :topLabel="'RIP Service'" />
 
 
@@ -158,10 +160,13 @@ const validateIpNetwork = (
     <div class="flex flex-col gap-y-6">
       <div>
         <div class="flex flex-col items-start mb-4">
-          <div class="w-full flex flex-col gap-3 mt-4">
-            <NeToggle v-model="redistributeConnect" :label="redistributeConnect ? 'Enable' : 'Disable'" :topLabel="'Redisribute Connect'" />
-            <NeToggle v-model="redistributeStatic" :label="redistributeStatic ? 'Enable' : 'Disable'" :topLabel="'Redisribute Static'" />
-            <NeToggle v-model="redistributeKernel" :label="redistributeKernel ? 'Enable' : 'Disable'" :topLabel="'Redisribute Kernel'" />
+          <div class="w-full flex flex-col gap-1 mt-4">
+            <NeToggle v-model="redistributeConnect" :label="redistributeConnect ? 'Enable' : 'Disable'"
+              :topLabel="'Redisribute Connect'" />
+            <NeToggle v-model="redistributeStatic" :label="redistributeStatic ? 'Enable' : 'Disable'"
+              :topLabel="'Redisribute Static'" />
+            <NeToggle v-model="redistributeKernel" :label="redistributeKernel ? 'Enable' : 'Disable'"
+              :topLabel="'Redisribute Kernel'" />
           </div>
         </div>
 

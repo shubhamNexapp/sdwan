@@ -78,7 +78,10 @@ function editZone(zone: Zone) {
 
 <template>
   <div class="space-y-8">
-    <NeHeading tag="h3" class="mb-7">{{ t('standalone.zones_and_policies.title') }}</NeHeading>
+    <NeHeading tag="h3" class="mb-4">{{ t('standalone.zones_and_policies.title') }}</NeHeading>
+    <p class="mb-6 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
+      {{ t('standalone.ping_latency_monitor.description') }}
+    </p>
     <div class="flex flex-wrap gap-6">
       <p class="grow text-sm font-normal dark:text-gray-400">
         {{ t('standalone.zones_and_policies.description') }}
@@ -93,31 +96,21 @@ function editZone(zone: Zone) {
         </NeButton>
       </div>
     </div>
-    <NeInlineNotification
-      v-if="firewallConfig.error"
-      :title="t(firewallConfig.error.message)"
-      kind="error"
-    />
-    <NeTable
-      v-else
-      :ariaLabel="t('standalone.zones_and_policies.firewall_zones')"
-      cardBreakpoint="2xl"
-      :loading="firewallConfig.loading"
-      :skeletonColumns="6"
-      :skeletonRows="5"
-    >
+    <NeInlineNotification v-if="firewallConfig.error" :title="t(firewallConfig.error.message)" kind="error" />
+    <NeTable v-else :ariaLabel="t('standalone.zones_and_policies.firewall_zones')" cardBreakpoint="2xl"
+      :loading="firewallConfig.loading" :skeletonColumns="6" :skeletonRows="5">
       <NeTableHead>
         <NeTableHeadCell>{{ t('standalone.zones_and_policies.zone') }}</NeTableHeadCell>
         <NeTableHeadCell>{{
           t('standalone.zones_and_policies.allow_forwards_to')
-        }}</NeTableHeadCell>
+          }}</NeTableHeadCell>
         <NeTableHeadCell>{{ t('standalone.zones_and_policies.traffic_to_wan') }}</NeTableHeadCell>
         <NeTableHeadCell>{{
           t('standalone.zones_and_policies.traffic_to_firewall')
-        }}</NeTableHeadCell>
+          }}</NeTableHeadCell>
         <NeTableHeadCell>{{
           t('standalone.zones_and_policies.traffic_to_same_zone')
-        }}</NeTableHeadCell>
+          }}</NeTableHeadCell>
         <NeTableHeadCell>{{ t('standalone.zones_and_policies.interfaces') }}</NeTableHeadCell>
         <NeTableHeadCell>{{ t('standalone.zones_and_policies.logging') }}</NeTableHeadCell>
         <NeTableHeadCell>
@@ -127,20 +120,14 @@ function editZone(zone: Zone) {
       <NeTableBody>
         <NeTableRow v-if="isEmpty(paginatedItems)">
           <NeTableCell colspan="9">
-            <NeEmptyState
-              :title="t('ne_table.no_items')"
-              :icon="['fas', 'table']"
-              class="bg-white dark:bg-gray-950"
-            />
+            <NeEmptyState :title="t('ne_table.no_items')" :icon="['fas', 'table']" class="bg-white dark:bg-gray-950" />
           </NeTableCell>
         </NeTableRow>
         <NeTableRow v-else v-for="item in paginatedItems" :key="item.name">
           <NeTableCell :data-label="t('standalone.zones_and_policies.zone')">
             <div class="flex items-center gap-x-4">
-              <div
-                :class="getZoneColorClasses(item.name)"
-                class="flex h-10 w-10 items-center justify-center rounded-full"
-              >
+              <div :class="getZoneColorClasses(item.name)"
+                class="flex h-10 w-10 items-center justify-center rounded-full">
                 <FontAwesomeIcon :icon="['fas', getZoneIcon(item.name)]" class="h-5 w-5" />
               </div>
               <span class="uppercase">{{ item.name }}</span>
@@ -148,15 +135,9 @@ function editZone(zone: Zone) {
           </NeTableCell>
           <NeTableCell :data-label="t('standalone.zones_and_policies.allow_forwards_to')">
             <div class="flex flex-wrap gap-2">
-              <template
-                v-for="forward in forwardingsToByZone(item, firewallConfig.forwardings)"
-                :key="forward.name"
-              >
-                <NeBadge
-                  :text="forward.destination.toUpperCase()"
-                  kind="custom"
-                  :customColorClasses="getZoneColorClasses(forward.destination)"
-                />
+              <template v-for="forward in forwardingsToByZone(item, firewallConfig.forwardings)" :key="forward.name">
+                <NeBadge :text="forward.destination.toUpperCase()" kind="custom"
+                  :customColorClasses="getZoneColorClasses(forward.destination)" />
               </template>
               <span v-if="isEmpty(forwardingsToByZone(item, firewallConfig.forwardings))">-</span>
             </div>
@@ -164,8 +145,7 @@ function editZone(zone: Zone) {
           <NeTableCell :data-label="t('standalone.zones_and_policies.traffic_to_wan')">
             <div class="flex items-center gap-x-2">
               <template v-if="getTrafficToWan(item, firewallConfig.forwardings) == undefined">
-                -</template
-              >
+                -</template>
               <template v-else-if="getTrafficToWan(item, firewallConfig.forwardings)">
                 <FontAwesomeIcon :icon="['fas', 'arrow-right']" />
                 <p>ACCEPT</p>
@@ -196,70 +176,48 @@ function editZone(zone: Zone) {
           </NeTableCell>
           <NeTableCell :data-label="t('standalone.zones_and_policies.logging')">
             <div class="flex items-center gap-2">
-              <font-awesome-icon
-                :icon="['fas', item.logging ? 'circle-check' : 'circle-xmark']"
-                :class="['h-4 w-4', { 'text-green-600 dark:text-green-400': item.logging }]"
-                aria-hidden="true"
-              />
+              <font-awesome-icon :icon="['fas', item.logging ? 'circle-check' : 'circle-xmark']"
+                :class="['h-4 w-4', { 'text-green-600 dark:text-green-400': item.logging }]" aria-hidden="true" />
               {{ item.logging ? t('common.enabled') : t('common.disabled') }}
             </div>
           </NeTableCell>
           <NeTableCell :data-label="t('common.actions')">
             <div class="-ml-2.5 flex 2xl:ml-0">
-              <NeDropdown
-                :items="[
-                  {
-                    id: 'edit',
-                    label: t('common.edit'),
-                    action: () => editZone(item),
-                    icon: 'pen-to-square'
-                  },
-                  {
-                    id: 'delete',
-                    danger: true,
-                    label: t('common.delete'),
-                    action: () => (zoneToDelete = item),
-                    icon: 'trash',
-                    disabled: isSpecialZone(item)
-                  }
-                ]"
-                align-to-right
-              />
+              <NeDropdown :items="[
+                {
+                  id: 'edit',
+                  label: t('common.edit'),
+                  action: () => editZone(item),
+                  icon: 'pen-to-square'
+                },
+                {
+                  id: 'delete',
+                  danger: true,
+                  label: t('common.delete'),
+                  action: () => (zoneToDelete = item),
+                  icon: 'trash',
+                  disabled: isSpecialZone(item)
+                }
+              ]" align-to-right />
             </div>
           </NeTableCell>
         </NeTableRow>
       </NeTableBody>
       <template #paginator>
-        <NePaginator
-          :current-page="currentPage"
-          :total-rows="firewallConfig.zonesWithoutAliases.length"
-          :page-size="pageSize"
-          :nav-pagination-label="t('ne_table.pagination')"
-          :next-label="t('ne_table.go_to_next_page')"
-          :previous-label="t('ne_table.go_to_previous_page')"
-          :range-of-total-label="t('ne_table.of')"
-          :page-size-label="t('ne_table.show')"
-          @select-page="
+        <NePaginator :current-page="currentPage" :total-rows="firewallConfig.zonesWithoutAliases.length"
+          :page-size="pageSize" :nav-pagination-label="t('ne_table.pagination')"
+          :next-label="t('ne_table.go_to_next_page')" :previous-label="t('ne_table.go_to_previous_page')"
+          :range-of-total-label="t('ne_table.of')" :page-size-label="t('ne_table.show')" @select-page="
             (page: number) => {
               currentPage = page
-            }"
-          @selectPageSize="
-            (size: number) => {
-              pageSize = size
-            }"
-        />
+            }" @selectPageSize="
+              (size: number) => {
+                pageSize = size
+              }" />
       </template>
     </NeTable>
-    <CreateOrEditZoneDrawer
-      :isShown="creatingOrEditingZone"
-      :zoneToEdit="zoneToEdit"
-      @close="creatingOrEditingZone = false"
-      @success="creatingOrEditingZone = false"
-    />
-    <DeleteZoneModal
-      :zone="zoneToDelete"
-      @cancel="zoneToDelete = undefined"
-      @success="zoneToDelete = undefined"
-    />
+    <CreateOrEditZoneDrawer :isShown="creatingOrEditingZone" :zoneToEdit="zoneToEdit"
+      @close="creatingOrEditingZone = false" @success="creatingOrEditingZone = false" />
+    <DeleteZoneModal :zone="zoneToDelete" @cancel="zoneToDelete = undefined" @success="zoneToDelete = undefined" />
   </div>
 </template>

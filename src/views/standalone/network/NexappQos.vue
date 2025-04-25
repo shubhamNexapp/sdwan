@@ -211,9 +211,12 @@ const saveNetworkConfig = async () => {
     <NeHeading tag="h3" class="mb-7">Nexapp QoS</NeHeading>
 
     <div class="flex flex-col gap-y-6">
-        <div class="flex flex-col items-start mb-4">
+        <div class="flex flex-col items-start mb-">
             <NeToggle v-model="service" label="Service Status" />
         </div>
+        <p class="mb-6 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
+            {{ t('standalone.ping_latency_monitor.description') }}
+        </p>
         <template v-if="service">
             <div>
                 <div>
