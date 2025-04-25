@@ -46,7 +46,7 @@ watch(
       newNetwork.value = newValue.network || [];
     }
   },
-  { deep: true, immediate: true }
+  { immediate: true }
 );
 
 onMounted(() => {
@@ -83,8 +83,6 @@ const deleteNetwork = (index: number) => {
   newNetwork.value.splice(index, 1);
 };
 
-
-
 const saveNetworkConfig = async () => {
   loading.value.saveRule = true;
   try {
@@ -113,22 +111,87 @@ const saveNetworkConfig = async () => {
   }
 };
 
-console.log("newNetwork========", newNetwork)
+interface Neighbour {
+  neighbor_ip: string;
+  neighbor_as: string;
+}
+
+interface Network {
+  network: string;
+}
+
+const validateIp = (
+  event: Event,
+  index: number,
+  field: keyof Neighbour
+) => {
+  const input = event.target as HTMLInputElement;
+  // Apply different validation rules based on the field
+  if (field === 'neighbor_ip') {
+    input.value = input.value.replace(/[^0-9./]/g, '');
+  } else if (field === 'neighbor_as') {
+    // Allow only digits
+    let value = input.value.replace(/[^0-9]/g, '');
+
+    // Convert to number and clamp between 0-65535
+    const num = Math.min(65535, Math.max(0, Number(value)));
+    input.value = isNaN(num) ? '' : num.toString();
+  }
+  newNeighbours.value[index][field] = input.value;
+};
+
+const validateNewNetwork = (
+  event: Event,
+  index: number,
+  field: keyof Network
+) => {
+  const input = event.target as HTMLInputElement;
+  input.value = input.value.replace(/[^0-9./]/g, '');
+  newNetwork.value[index][field] = input.value;
+};
+
+const onlyNumbers = (event: Event) => {
+  const input = event.target as HTMLInputElement;
+  let value = input.value.replace(/[^0-9]/g, '');
+
+  // Clamp the value between 1 and 65535
+  const num = parseInt(value, 10);
+  if (!isNaN(num)) {
+    if (num < 1) {
+      value = '1';
+    } else if (num > 65535) {
+      value = '65535';
+    } else {
+      value = num.toString();
+    }
+  } else {
+    value = '';
+  }
+
+  input.value = value;
+};
+
+const onlyIP = (event: Event) => {
+  const input = event.target as HTMLInputElement
+  input.value = input.value.replace(/[^0-9./]/g, '');
+}
+
+
 </script>
 
 <template>
-  <NeHeading tag="h3" class="mb-7">BGP</NeHeading>
-  <NeToggle v-model="service" :label="service ? 'Enable' : 'Disable'" />
+  <NeHeading tag="h3" class="mb-4">BGP</NeHeading>
+  <NeToggle class="mb-4" v-model="service" :label="service ? 'Enable' : 'Disable'" :topLabel="'BGP Service'" />
   <!-- Show form fields only if status is enabled -->
   <template v-if="service">
     <div class="flex flex-col gap-y-6">
       <div>
         <div class="flex flex-col items-start space-y-4">
           <div class="flex flex-col w-full gap-3">
-            <NeTextInput :label="t('Route ID')" v-model.trim="routeID" :invalidMessage="errorBag.getFirstFor('routeID')"
-              :disabled="loading.saveRule" ref="routeIDRef" />
-            <NeTextInput :label="t('Route AS')" v-model.trim="routeAS" :invalidMessage="errorBag.getFirstFor('routeAS')"
-              :disabled="loading.saveRule" ref="routeASRef" />
+            <NeTextInput :label="t('Route ID')" v-model.trim="routeID" @input="onlyIP"
+              :invalidMessage="errorBag.getFirstFor('routeID')" :disabled="loading.saveRule" ref="routeIDRef" />
+            <NeTextInput :label="t('Route AS')" v-model.trim="routeAS" @input="onlyNumbers"
+              :invalidMessage="errorBag.getFirstFor('routeAS')" :disabled="loading.saveRule" ref="routeASRef" />
           </div>
         </div>
 
@@ -152,10 +215,14 @@ console.log("newNetwork========", newNetwork)
           <NeTableBody>
             <NeTableRow v-for="(item, index) in newNeighbours" :key="`new-${index}`">
               <NeTableCell>
-                <NeTextInput v-model.trim="item.neighbor_ip" placeholder="Neighbour IP" />
+                <!-- <NeTextInput v-model.trim="item.neighbor_ip" placeholder="Neighbour IP" /> -->
+                <NeTextInput v-model.trim="item.neighbor_ip" placeholder="Neighbor IP"
+                  @input="(e: Event) => validateIp(e, index, 'neighbor_ip')" />
               </NeTableCell>
               <NeTableCell>
-                <NeTextInput v-model.trim="item.neighbor_as" placeholder="Route AS" />
+                <!-- <NeTextInput v-model.trim="item.neighbor_as" placeholder="Route AS" /> -->
+                <NeTextInput v-model.trim="item.neighbor_as" placeholder="Neighbor As"
+                  @input="(e: Event) => validateIp(e, index, 'neighbor_as')" />
               </NeTableCell>
               <NeTableCell>
                 <NeButton size="sm" class="mt-5" @click=deleteNeighbour(index)>
@@ -186,7 +253,9 @@ console.log("newNetwork========", newNetwork)
           <NeTableBody>
             <NeTableRow v-for="(item, index) in newNetwork" :key="`new-${index}`">
               <NeTableCell>
-                <NeTextInput v-model.trim="item.network" placeholder="Network" />
+                <!-- <NeTextInput v-model.trim="item.network" placeholder="Network" /> -->
+                <NeTextInput v-model.trim="item.network" placeholder="Network"
+                  @input="(e: Event) => validateNewNetwork(e, index, 'network')" />
               </NeTableCell>
               <NeTableCell>
                 <NeButton size="sm" @click="deleteNetwork(index)">

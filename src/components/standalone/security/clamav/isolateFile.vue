@@ -1,5 +1,17 @@
 <script setup>
 import { onMounted, ref } from 'vue'
+import {
+  NeHeading,
+  NeButton,
+  NeTable,
+  NeTableHead,
+  NeTableHeadCell,
+  NeTableBody,
+  NeTableRow,
+  NeTableCell,
+  NeToggle,
+  NeTextInput
+} from '@nethesis/vue-components'
 import { getSDControllerApiEndpoint } from '@/lib/config'
 import axios from 'axios'
 import { useNotificationsStore } from '@/stores/notifications'
@@ -22,7 +34,19 @@ const getLists = async () => {
 
     if (response.data.code === 200) {
       // Set the files from response
-      const isolateFileString = response.data.data.isolate_file || ''
+      // const isolateFileString = response.data.data.isolate_file || ''
+      const isolateFileString = {
+        "data": {
+          "service": "",
+          "scan_path": "",
+          "scan_interval": "",
+          "auto_update": "",
+          "scan_now": "",
+          "result": "No scanning task has been started or scanning is in progress, please wait for 15 minutes at most!",
+          "isolate_file": "test_file,testfile2,testfile3"
+        },
+        "code": 200
+      }
 
       // split by '\n' and filter empty strings
       files.value = isolateFileString.split('\n').filter(file => file.trim() !== '')
@@ -75,11 +99,12 @@ const deleteFile = async (file) => {
   } catch (err) {
   }
 }
+
 </script>
 
 <template>
   <div class="container">
-    <table class="simple-table">
+    <!-- <table class="simple-table">
       <thead>
         <tr>
           <th>Isolate File</th>
@@ -95,7 +120,30 @@ const deleteFile = async (file) => {
           </td>
         </tr>
       </tbody>
-    </table>
+    </table> -->
+
+    <NeTable cardBreakpoint="md" class="mt-2" ariaLabel="Neighbour Table">
+      <NeTableHead>
+        <NeTableHeadCell>Sr.no</NeTableHeadCell>
+        <NeTableHeadCell>Isolate File</NeTableHeadCell>
+        <NeTableHeadCell>Operations</NeTableHeadCell>
+      </NeTableHead>
+      <NeTableBody>
+        <NeTableRow v-for="(file, index) in files" :key="index">
+          <NeTableCell>{{ index + 1 }}</NeTableCell>
+          <NeTableCell>{{ file }}</NeTableCell>
+          <NeTableCell>
+            <NeButton kind="primary" @click.prevent="recover(file)">
+              <FontAwesomeIcon :icon="faSave" />
+              Recovery
+            </NeButton>
+            <NeButton kind="primary" @click.prevent="deleteFile(file)">
+              Delete
+            </NeButton>
+          </NeTableCell>
+        </NeTableRow>
+      </NeTableBody>
+    </NeTable>
   </div>
 </template>
 

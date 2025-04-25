@@ -16,6 +16,11 @@ import axios from 'axios'
 import { getSDControllerApiEndpoint } from '@/lib/config'
 import { useNotificationsStore } from '@/stores/notifications'
 
+import { useI18n } from "vue-i18n";
+
+
+const t = useI18n()
+
 const loading = ref({ saveRule: false })
 
 const notificationsStore = useNotificationsStore()
@@ -41,7 +46,7 @@ watch(
       networks.value = newValue.network_conf || [];
     }
   },
-  { deep: true, immediate: true }
+  { immediate: true }
 );
 
 onMounted(() => {
@@ -96,10 +101,10 @@ const saveNetworkConfig = async () => {
     await axios.post(`${getSDControllerApiEndpoint()}/rip`, payload);
     getLists(); // Refresh list after saving
     notificationsStore.createNotification({
-            title: 'Success',
-            description: 'Configuration saved successfully.',
-            kind: 'success'
-        })
+      title: 'Success',
+      description: 'Configuration saved successfully.',
+      kind: 'success'
+    })
   } catch (err) {
     console.error("Error saving data:", err);
   } finally {
@@ -107,20 +112,56 @@ const saveNetworkConfig = async () => {
   }
 };
 
+interface Neighbour {
+  neighbor_ip: string;
+}
+
+interface Network {
+  network: string;
+}
+
+const validateIp = (
+  event: Event,
+  index: number,
+  field: keyof Neighbour
+) => {
+  const input = event.target as HTMLInputElement;
+  input.value = input.value.replace(/[^0-9./]/g, '');
+
+  // Safely update the correct item
+  newNeighbours.value[index][field] = input.value;
+};
+
+
+const validateIpNetwork = (
+  event: Event,
+  index: number,
+  field: keyof Network
+) => {
+  const input = event.target as HTMLInputElement;
+  input.value = input.value.replace(/[^0-9./]/g, '');
+
+  // Safely update the correct item
+  networks.value[index][field] = input.value;
+};
+
+
 </script>
 
 <template>
-  <NeHeading tag="h3" class="mb-7">RIP</NeHeading>
-  <NeToggle v-model="service" label="RIP Service" />
+  <!-- <NeHeading tag="h3" class="mb-7">RIP</NeHeading>
+  <NeToggle v-model="service" label="RIP Service" /> -->
+  <NeToggle v-model="service" :label="service ? 'Enable' : 'Disable'" :topLabel="'RIP Service'" />
+
 
   <template v-if="service">
     <div class="flex flex-col gap-y-6">
       <div>
         <div class="flex flex-col items-start mb-4">
           <div class="w-full flex flex-col gap-3 mt-4">
-            <NeToggle v-model="redistributeConnect" label="Redisribute Connect" />
-            <NeToggle v-model="redistributeStatic" label="Redisribute Static" />
-            <NeToggle v-model="redistributeKernel" label="Redisribute Kernel" />
+            <NeToggle v-model="redistributeConnect" :label="redistributeConnect ? 'Enable' : 'Disable'" :topLabel="'Redisribute Connect'" />
+            <NeToggle v-model="redistributeStatic" :label="redistributeStatic ? 'Enable' : 'Disable'" :topLabel="'Redisribute Static'" />
+            <NeToggle v-model="redistributeKernel" :label="redistributeKernel ? 'Enable' : 'Disable'" :topLabel="'Redisribute Kernel'" />
           </div>
         </div>
 
@@ -143,7 +184,8 @@ const saveNetworkConfig = async () => {
           <NeTableBody>
             <NeTableRow v-for="(item, index) in newNeighbours" :key="`new-${index}`">
               <NeTableCell>
-                <NeTextInput v-model.trim="item.neighbor_ip" placeholder="Neighbour" />
+                <NeTextInput v-model.trim="item.neighbor_ip" placeholder="Neighbour"
+                  @input="(e: Event) => validateIp(e, index, 'neighbor_ip')" />
               </NeTableCell>
               <NeTableCell>
                 <NeButton size="sm" class="mt-5" @click=deleteNeighbour(index)>
@@ -173,7 +215,9 @@ const saveNetworkConfig = async () => {
           <NeTableBody>
             <NeTableRow v-for="(item, index) in networks" :key="`new-${index}`">
               <NeTableCell>
-                <NeTextInput v-model.trim="item.network" placeholder="Neighbour" />
+                <!-- <NeTextInput v-model.trim="item.network" placeholder="Neighbour" /> -->
+                <NeTextInput v-model.trim="item.network" placeholder="Network"
+                  @input="(e: Event) => validateIpNetwork(e, index, 'network')" />
               </NeTableCell>
               <NeTableCell>
                 <NeButton size="sm" class="mt-5" @click=deleteNetwork(index)>

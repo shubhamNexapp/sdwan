@@ -51,7 +51,7 @@ watch(
 
     }
   },
-  { deep: true, immediate: true }
+  { immediate: true }
 );
 
 onMounted(() => {
@@ -130,19 +130,88 @@ const saveNetworkConfig = async () => {
   }
 };
 
+interface Neighbour {
+  neighbor_ip: string;
+}
+
+interface Network {
+  network: string;
+  area_number: string;
+}
+
+interface InterfaceNew {
+  cost: string;
+}
+
+const validateIp = (
+  event: Event,
+  index: number,
+  field: keyof Neighbour
+) => {
+  const input = event.target as HTMLInputElement;
+  input.value = input.value.replace(/[^0-9./]/g, '');
+  newNeighbours.value[index][field] = input.value;
+};
+
+const validateIpNetwork = (
+  event: Event,
+  index: number,
+  field: keyof Network
+) => {
+  const input = event.target as HTMLInputElement;
+  // Apply different validation rules based on the field
+  if (field === 'network') {
+    input.value = input.value.replace(/[^0-9./]/g, '');
+  } else if (field === 'area_number') {
+    // Allow only digits
+    let value = input.value.replace(/[^0-9]/g, '');
+
+    // Convert to number and clamp between 0-65535
+    const num = Math.min(65535, Math.max(0, Number(value)));
+    input.value = isNaN(num) ? '' : num.toString();
+  }
+  newNetwork.value[index][field] = input.value;
+};
+
+const validateInterfaceNew = (
+  event: Event,
+  index: number,
+  field: keyof InterfaceNew
+) => {
+  const input = event.target as HTMLInputElement;
+  // Allow only digits
+  let value = input.value.replace(/[^0-9]/g, '');
+
+  // Convert to number and clamp between 0-65535
+  const num = Math.min(65535, Math.max(0, Number(value)));
+  input.value = isNaN(num) ? '' : num.toString();
+  interfaceNew.value[index][field] = input.value;
+};
+
 </script>
 
 <template>
   <NeHeading tag="h3" class="mb-7">OSPF</NeHeading>
-  <NeToggle v-model="service" label="OSPF Service" />
+  <!-- <NeToggle v-model="service" label="OSPF Service" /> -->
+  <NeToggle v-model="service" :label="service ? 'Enable' : 'Disable'" :topLabel="'OSPF Service'" />
+
   <template v-if="service">
     <div class="flex flex-col gap-y-6">
       <div>
         <div class="flex flex-col items-start mb-4">
           <div class="w-full flex flex-col gap-3 mt-4">
-            <NeToggle v-model="redistributeConnect" label="Redisribute Connect" />
+
+            <NeToggle v-model="redistributeConnect" :label="redistributeConnect ? 'Enable' : 'Disable'"
+              :topLabel="'Redisribute Connect'" />
+            <NeToggle v-model="redistributeStatic" :label="redistributeStatic ? 'Enable' : 'Disable'"
+              :topLabel="'Redisribute Static'" />
+            <NeToggle v-model="redistributeKernel" :label="redistributeKernel ? 'Enable' : 'Disable'"
+              :topLabel="'Redisribute Kernel'" />
+
+
+            <!-- <NeToggle v-model="redistributeConnect" label="Redisribute Connect" />
             <NeToggle v-model="redistributeStatic" label="Redisribute Static" />
-            <NeToggle v-model="redistributeKernel" label="Redisribute Kernel" />
+            <NeToggle v-model="redistributeKernel" label="Redisribute Kernel" /> -->
           </div>
         </div>
 
@@ -165,7 +234,9 @@ const saveNetworkConfig = async () => {
           <NeTableBody>
             <NeTableRow v-for="(item, index) in newNeighbours" :key="`new-${index}`">
               <NeTableCell>
-                <NeTextInput v-model.trim="item.neighbor_ip" placeholder="Neighbour" />
+                <!-- <NeTextInput v-model.trim="item.neighbor_ip" placeholder="Neighbour" /> -->
+                <NeTextInput v-model.trim="item.neighbor_ip" placeholder="Neighbour"
+                  @input="(e: Event) => validateIp(e, index, 'neighbor_ip')" />
               </NeTableCell>
               <NeTableCell>
                 <NeButton size="sm" class="mt-5" @click=deleteNeighbour(index)>
@@ -197,10 +268,13 @@ const saveNetworkConfig = async () => {
           <NeTableBody>
             <NeTableRow v-for="(item, index) in newNetwork" :key="`new-${index}`">
               <NeTableCell>
-                <NeTextInput v-model.trim="item.network" placeholder="Network" />
+                <!-- <NeTextInput v-model.trim="item.network" placeholder="Network" /> -->
+                <NeTextInput v-model.trim="item.network" placeholder="Network"
+                  @input="(e: Event) => validateIpNetwork(e, index, 'network')" />
               </NeTableCell>
               <NeTableCell>
-                <NeTextInput v-model.trim="item.area_number" placeholder="Network" />
+                <NeTextInput v-model.trim="item.area_number" placeholder="Area Number"
+                  @input="(e: Event) => validateIpNetwork(e, index, 'area_number')" />
               </NeTableCell>
               <NeTableCell>
                 <NeButton size="sm" @click="deleteNetwork(index)">
@@ -241,7 +315,9 @@ const saveNetworkConfig = async () => {
                 </select>
               </NeTableCell>
               <NeTableCell>
-                <NeTextInput v-model.trim="item.cost" placeholder="Cost" />
+                <!-- <NeTextInput v-model.trim="item.cost" placeholder="Cost" /> -->
+                <NeTextInput v-model.trim="item.cost" placeholder="Cost"
+                  @input="(e: Event) => validateInterfaceNew(e, index, 'cost')" />
               </NeTableCell>
               <NeTableCell>
                 <select v-model="item.network_type">
