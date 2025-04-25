@@ -17,6 +17,8 @@ import axios from 'axios'
 import { getSDControllerApiEndpoint } from '@/lib/config'
 import { MessageBag } from '@/lib/validation'
 import { useNotificationsStore } from '@/stores/notifications'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faSave } from '@fortawesome/free-solid-svg-icons'
 
 const { t } = useI18n()
 
@@ -274,8 +276,17 @@ const onlyIP = (event: Event) => {
   </template>
   <!-- Save Button -->
   <div class="flex justify-end mt-4">
-    <NeButton kind="primary" size="lg" @click="saveNetworkConfig" :disabled="loading.saveRule">
+    <!-- <NeButton kind="primary" size="lg" @click="saveNetworkConfig" :disabled="loading.saveRule">
       Save
-    </NeButton>
+    </NeButton> -->
+    <div class="flex  flex-col w-[90px]">
+      <NeButton class="ml-1" :disabled="loading.saveRule" :loading="loading.saveRule" kind="primary" size="lg"
+        @click.prevent="saveNetworkConfig()">
+        <template #prefix>
+          <FontAwesomeIcon :icon="faSave" />
+        </template>
+        {{ t('common.save') }}
+      </NeButton>
+    </div>
   </div>
 </template>

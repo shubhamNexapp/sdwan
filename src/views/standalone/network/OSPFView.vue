@@ -15,6 +15,8 @@ import { onMounted, ref, watch } from 'vue'
 import axios from 'axios'
 import { getSDControllerApiEndpoint } from '@/lib/config'
 import { useNotificationsStore } from '@/stores/notifications'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faSave } from '@fortawesome/free-solid-svg-icons'
 
 import { useI18n } from "vue-i18n";
 
@@ -347,8 +349,17 @@ const validateInterfaceNew = (
   </template>
   <!-- Save Button -->
   <div class="mt-4 flex justify-end">
-    <NeButton kind="primary" size="lg" @click="saveNetworkConfig" :disabled="loading.saveRule">
+    <!-- <NeButton kind="primary" size="lg" @click="saveNetworkConfig" :disabled="loading.saveRule">
       Save
-    </NeButton>
+    </NeButton> -->
+    <div class="flex  flex-col w-[90px]">
+      <NeButton class="ml-1" :disabled="loading.saveRule" :loading="loading.saveRule" kind="primary" size="lg"
+        @click.prevent="saveNetworkConfig()">
+        <template #prefix>
+          <FontAwesomeIcon :icon="faSave" />
+        </template>
+        {{ t('common.save') }}
+      </NeButton>
+    </div>
   </div>
 </template>
