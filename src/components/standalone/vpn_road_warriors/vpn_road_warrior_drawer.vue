@@ -148,15 +148,29 @@ const saveRule = async () => {
     if (!validate()) return
 
     try {
-        const payload = {
-            service: service.value ? "enabled" : "disabled",
-            taskName: taskName.value,
-            command: command.value,
-            mode: mode.value,
-            ...(showRangeFields.value && { week: week.value, month: month.value, day: day.value, hour: hour.value, hourminute: hourminute.value }),
-            ...(showIntervalField.value && { interval: interval.value })
-        }
 
+        const rule = {
+            name: taskName.value,
+            service: service.value ? "enable" : "disable",
+            command: command.value,
+            time_mode: mode.value,
+            ...(showRangeFields.value && {
+                week: week.value ?? "*",
+                month: month.value ?? "*",
+                day: day.value ?? "*",
+                hour: hour.value ?? "*",
+                minute: hourminute.value ?? "*"
+            }),
+            ...(showIntervalField.value && {
+                time_interval: interval.value
+            })
+        };
+
+        const payload = {
+            method: "set-config",
+            payload: [rule] // wrapped inside an array
+        };
+        
         const response = await axios.post(`${getSDControllerApiEndpoint()}/schedule`, payload)
 
         if (response.status === 200) {
@@ -191,7 +205,8 @@ const closeDrawer = () => {
                 <div class="space-y-6">
 
                     <!-- Task Name -->
-                    <NeTextInput class="mt-4" label="Task Name" v-model.trim="taskName" :invalidMessage="errorBag.taskName" />
+                    <NeTextInput class="mt-4" label="Task Name" v-model.trim="taskName"
+                        :invalidMessage="errorBag.taskName" />
 
                     <!-- Command -->
                     <NeTextInput label="Command" v-model.trim="command" :invalidMessage="errorBag.command" />

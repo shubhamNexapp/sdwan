@@ -4,6 +4,7 @@ import {
   NeTextInput,
   NeToggle,
   NeButton,
+  NeTooltip
 } from "@nethesis/vue-components";
 import { onMounted, ref, watch, type Ref } from "vue";
 import axios from "axios";
@@ -330,6 +331,16 @@ onMounted(fetchSNMPConfig);
 
           <!-- If version 2c -->
           <template v-if="snmpVersion === '2c'">
+            <NeTextInput v-model="port" :invalid-message="errorBag.getFirstFor('port')"
+              :label="t('Port')" :placeholder="t('Port Number')">
+              <template #tooltip>
+                <NeTooltip>
+                  <template #content>
+                    {{ t('standalone.logs.search_tooltip') }}
+                  </template>
+                </NeTooltip>
+              </template>
+            </NeTextInput>
             <NeTextInput :label="t('Port')" @input="onlyNumbers" type="number" v-model="port"
               :invalidMessage="errorBag.getFirstFor('port')" :disabled="loading.saveRule" />
 

@@ -143,6 +143,7 @@ const getLists = async () => {
   loading.value = false;
 };
 
+
 </script>
 
 <template>
@@ -178,34 +179,34 @@ const getLists = async () => {
           <NeTableHead>
             <NeTableHeadCell>#</NeTableHeadCell>
             <NeTableHeadCell>Task Name</NeTableHeadCell>
-            <NeTableHeadCell>Operation Time</NeTableHeadCell>
-            <NeTableHeadCell>Task</NeTableHeadCell>
-            <NeTableHeadCell>Service</NeTableHeadCell>
+            <NeTableHeadCell>Mode</NeTableHeadCell>
+            <NeTableHeadCell>Details</NeTableHeadCell> <!-- New column for conditional fields -->
           </NeTableHead>
+
           <NeTableBody>
             <NeTableRow v-for="(item, index) in apiResponse" :key="index">
               <NeTableCell>{{ index + 1 }}</NeTableCell>
-              <NeTableCell>{{ item.tunnel_name }}</NeTableCell>
-              <NeTableCell>{{ item.config.service }}</NeTableCell>
-              <NeTableCell>{{ item.config.Local_virtual_ip }}</NeTableCell>
-              <NeTableCell>{{ item.config.peer_virtual_ip }}</NeTableCell>
-              <NeTableCell :data-label="t('common.actions')">
-                <div class="-ml-2.5 flex gap-2 xl:ml-0 xl:justify-end">
-                  <NeButton kind="tertiary" size="lg" :disabled="item.readonly" @click="openEditModal(item)">
-                    <template #prefix>
-                      <font-awesome-icon :icon="['fas', 'pen-to-square']" class="w-4 h-4" aria-hidden="true" />
-                    </template>
-                    {{ t('common.edit') }}
-                  </NeButton>
-                  <NeButton kind="tertiary" size="lg" :disabled="item.readonly"
-                    @click="openDeleteModal(item.tunnel_name)">
-                    <template #prefix>
-                      <font-awesome-icon :icon="['fas', 'trash']" class="w-4 h-4" aria-hidden="true" />
-                    </template>
-                    {{ t('common.delete') }}
-                  </NeButton>
-                </div>
+              <NeTableCell>{{ item.name }}</NeTableCell>
+              <NeTableCell>{{ item.time_mode }}</NeTableCell>
+
+              <NeTableCell>
+                <template v-if="item.time_mode === 'range'">
+                  Hour: <b>{{ item.hour }}</b> |
+                  Minute: <b>{{ item.minute }}</b> |
+                  Day: <b>{{ item.day }}</b> |
+                  Month: <b>{{ item.month }}</b> |
+                  Week: <b>{{ item.week }}</b>
+                </template>
+
+                <template v-else-if="item.time_mode === 'interval'">
+                  <b>{{ item.time_interval }}</b>
+                </template>
+
+                <template v-else>
+                  -
+                </template>
               </NeTableCell>
+
             </NeTableRow>
           </NeTableBody>
         </NeTable>

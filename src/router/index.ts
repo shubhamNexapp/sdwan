@@ -155,11 +155,11 @@ const standaloneRoutes = [
     name: 'BGP',
     component: () => import('../views/standalone/network/BGPView.vue')
   },
-  {
-    path: 'network/speed-test',
-    name: 'Speed Test',
-    component: () => import('../views/standalone/network/SpeedTestView.vue')
-  },
+  // {
+  //   path: 'network/speed-test',
+  //   name: 'Speed Test',
+  //   component: () => import('../views/standalone/network/SpeedTestView.vue')
+  // },
   // {
   //   path: 'network/network-test',
   //   name: 'Network Test',
@@ -195,11 +195,11 @@ const standaloneRoutes = [
     name: 'Conntrack',
     component: () => import('../views/standalone/firewall/ConntrackView.vue')
   },
-  {
-    path: 'security/flashstart',
-    name: 'FlashStart',
-    component: () => import('../views/standalone/security/FlashStartView.vue')
-  },
+  // {
+  //   path: 'security/flashstart',
+  //   name: 'FlashStart',
+  //   component: () => import('../views/standalone/security/FlashStartView.vue')
+  // },
   {
     path: 'security/dpi',
     name: 'Dpi',

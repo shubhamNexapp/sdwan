@@ -181,10 +181,10 @@ const navigation: Ref<MenuItem[]> = ref([
         name: 'BGP',
         to: 'network/bgp'
       },
-      {
-        name: 'Speed Test',
-        to: 'network/speed-test'
-      },
+      // {
+      //   name: 'Speed Test',
+      //   to: 'network/speed-test'
+      // },
       // {
       //   name: 'Network Test',
       //   to: 'network/network-test'
@@ -246,10 +246,10 @@ const navigation: Ref<MenuItem[]> = ref([
         name: 'standalone.threat_shield_dns.title',
         to: 'security/threat-shield-dns'
       },
-      {
-        name: 'standalone.flashstart.title',
-        to: 'security/flashstart'
-      },
+      // {
+      //   name: 'standalone.flashstart.title',
+      //   to: 'security/flashstart'
+      // },
       {
         name: 'standalone.dpi.title',
         to: 'security/dpi'

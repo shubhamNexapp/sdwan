@@ -163,7 +163,8 @@ async function getUpdatesStatus() {
       >
         <FontAwesomeIcon :icon="['fas', 'server']" class="w-5 h-5 text-white" />
       </div>
-      <div>{{ systemInfo?.hardware || '-' }}</div>
+      <!-- <div>{{ systemInfo?.hardware || '-' }}</div> -->
+      <div>Nexapp</div>
     </div>
     <div class="divide-y divide-gray-300 dark:divide-gray-600">
       <div class="py-3">

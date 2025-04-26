@@ -124,7 +124,7 @@ const deleteFile = async (file) => {
 
     <NeTable cardBreakpoint="md" class="mt-2" ariaLabel="Neighbour Table">
       <NeTableHead>
-        <NeTableHeadCell>Sr.no</NeTableHeadCell>
+        <NeTableHeadCell>#</NeTableHeadCell>
         <NeTableHeadCell>Isolate File</NeTableHeadCell>
         <NeTableHeadCell>Operations</NeTableHeadCell>
       </NeTableHead>
