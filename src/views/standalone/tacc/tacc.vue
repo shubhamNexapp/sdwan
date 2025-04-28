@@ -81,19 +81,36 @@ async function saveSettings() {
     <div class="max-w-4xl">
       <div class="space-y-8">
         <FormLayout :description="t('Enable or disable Tacacs ++ configuration and adjust its settings.')">
-          <NeToggle v-model="status" :topLabel="t('Status')" :label="status ? 'Enable' : 'Disable'" />
+          <NeToggle class="mb-4" v-model="status" :topLabel="t('Status')" :label="status ? 'Enable' : 'Disable'" />
 
           <div v-if="status" class="space-y-4">
-
-
-            <NeTextInput class="mt-4" v-model="serverAddress" label="Server Address">
+            <NeTextInput v-model="serverAddress" :label="t('Server Address')" :placeholder="t('Enter Server Address')">
+              <template #tooltip>
+                <NeTooltip>
+                  <template #content>
+                    {{ t('standalone.hotspot.settings.login_helper_username') }}
+                  </template>
+                </NeTooltip>
+              </template>
+            </NeTextInput>
+            <!-- <NeTextInput class="mt-4" v-model="serverAddress" label="Server Address">
               <NeTooltip>
                 <template #content>
                   {{ t('standalone.hotspot.settings.login_helper_username') }}
                 </template>
               </NeTooltip>
+            </NeTextInput> -->
+
+            <NeTextInput type="password" v-model="sharedSecret" :label="t('Secret')" :placeholder="t('Enter Secret')">
+              <template #tooltip>
+                <NeTooltip>
+                  <template #content>
+                    {{ t('standalone.hotspot.settings.login_helper_username') }}
+                  </template>
+                </NeTooltip>
+              </template>
             </NeTextInput>
-            <NeTextInput v-model="sharedSecret" label="Secret" type="password" />
+            <!-- <NeTextInput v-model="sharedSecret" label="Secret" type="password" /> -->
           </div>
           <NeButton class="mt-5 ml-1" :disabled="saving" :loading="saving" kind="primary" size="lg"
             @click.prevent="saveSettings()">

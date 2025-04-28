@@ -453,9 +453,6 @@ const saveRule = async () => {
       }
     });
 
-
-    console.log("response======", response)
-
     if (response.data.code === 200) {
       notificationsStore.createNotification({
         title: 'Success',
@@ -497,8 +494,18 @@ const saveRule = async () => {
         <NeToggle v-model="isRuleEnabled" :label="isRuleEnabled ? t('common.enabled') : t('common.disabled')"
           :topLabel="t('common.status')" :disabled="loading.saveRule" />
         <!-- zero tier id -->
-        <NeTextInput :label="t('standalone.zero-tier.join')" v-model.trim="zeroTierID"
-          :invalidMessage="errorBag.getFirstFor('zeroTierID')" :disabled="loading.saveRule" ref="zeroTierIDRef" />
+        <NeTextInput  v-model="zeroTierID" :invalidMessage="errorBag.getFirstFor('zeroTierID')"
+          :label="t('Join')" :placeholder="t('Enter ID')">
+          <template #tooltip>
+            <NeTooltip>
+              <template #content>
+                {{ t('standalone.logs.search_tooltip') }}
+              </template>
+            </NeTooltip>
+          </template>
+        </NeTextInput>
+        <!-- <NeTextInput :label="t('standalone.zero-tier.join')" v-model.trim="zeroTierID"
+          :invalidMessage="errorBag.getFirstFor('zeroTierID')" :disabled="loading.saveRule" ref="zeroTierIDRef" /> -->
       </div>
       <!-- footer -->
       <hr class="my-8 border-gray-200 dark:border-gray-700" />

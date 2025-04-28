@@ -479,19 +479,19 @@ onMounted(() => {
 const apiResponse = ref()
 const getLists = async () => {
 
-try {
+  try {
 
-  const response = await axios.post(`${getSDControllerApiEndpoint()}/wireguard`, {
-    method: 'get-config',
-    payload: {}
-  });
-  
-  if(response.data.code === 200){
-  apiResponse.value = [response.data.data] // Store API response
-}
-} catch (err) {
-  console.error("Error:====", err);
-} 
+    const response = await axios.post(`${getSDControllerApiEndpoint()}/wireguard`, {
+      method: 'get-config',
+      payload: {}
+    });
+
+    if (response.data.code === 200) {
+      apiResponse.value = [response.data.data] // Store API response
+    }
+  } catch (err) {
+    console.error("Error:====", err);
+  }
 };
 
 watch(
@@ -530,7 +530,7 @@ const validate = () => {
   errorBag.value.clear();
   let isValid = true;
 
-  const requiredFields  = [
+  const requiredFields = [
     { key: 'localNetwork', value: localNetwork, ref: localNetworkRef },
     { key: 'listenPort', value: listenPort, ref: listenPortRef },
     // { key: 'listenip', value: listenip, ref: listenipRef },
@@ -652,129 +652,148 @@ const saveRule = async () => {
 </script>
 
 <template>
-  <NeSideDrawer
-    :isShown="isShown"
-    :title="t('standalone.wire_guard.add_client_tunnel')"
-    :closeAriaLabel="t('standalone.wire_guard.add_client_tunnel')"
-    @close="closeDrawer"
-  >
+  <NeSideDrawer :isShown="isShown" :title="t('standalone.wire_guard.add_client_tunnel')"
+    :closeAriaLabel="t('standalone.wire_guard.add_client_tunnel')" @close="closeDrawer">
     <form>
       <div class="space-y-6">
         <!-- editing system rule warning -->
-        <NeInlineNotification
-          v-if="isEditingRule && props.currentRule?.system_rule"
-          kind="warning"
+        <NeInlineNotification v-if="isEditingRule && props.currentRule?.system_rule" kind="warning"
           :title="t('standalone.firewall_rules.editing_system_rule_warning_title')"
-          :description="t('standalone.firewall_rules.editing_system_rule_warning_description')"
-        />
+          :description="t('standalone.firewall_rules.editing_system_rule_warning_description')" />
         <!-- enabled -->
-        <NeToggle
-          v-model="isRuleEnabled"
-          :topLabel="t('common.status')"
-          :disabled="loading.saveRule"
-        />
+        <NeToggle v-model="isRuleEnabled" :topLabel="t('common.status')" :disabled="loading.saveRule" />
 
-        <NeToggle
-          v-model="status"
-          :topLabel="t('Connection')"
-          :disabled="loading.saveRule"
-        />
+        <NeToggle v-model="status" :topLabel="t('Connection')" :disabled="loading.saveRule" />
 
-         <!-- local network -->
-         <NeTextInput
-          :label="t('standalone.wire_guard.local_network')"
-          v-model.trim="localNetwork"
-          :invalidMessage="errorBag.getFirstFor('localNetwork')"
-          :disabled="loading.saveRule"
-          ref="localNetworkRef"
-        />
-         <!-- listen port -->
-         <NeTextInput
-          :label="t('standalone.wire_guard.listen_port')"
-          v-model.trim="listenPort"
-          :invalidMessage="errorBag.getFirstFor('listenPort')"
-          :disabled="loading.saveRule"
-          ref="listenPortRef"
-        />
-         <!-- listen ip or domain -->
-         <!-- <NeTextInput
+        <!-- local network -->
+        <NeTextInput v-model="localNetwork" :invalidMessage="errorBag.getFirstFor('localNetwork')"
+          :label="t('Local Network')" :placeholder="t('Enter Local Network')">
+          <template #tooltip>
+            <NeTooltip>
+              <template #content>
+                {{ t('standalone.logs.search_tooltip') }}
+              </template>
+            </NeTooltip>
+          </template>
+        </NeTextInput>
+        <!-- <NeTextInput :label="t('standalone.wire_guard.local_network')" v-model.trim="localNetwork"
+          :invalidMessage="errorBag.getFirstFor('localNetwork')" :disabled="loading.saveRule" ref="localNetworkRef" /> -->
+
+        <!-- listen port -->
+        <NeTextInput v-model="listenPort" :invalidMessage="errorBag.getFirstFor('listenPort')" :label="t('Listen port')"
+          :placeholder="t('Enter Listen Port')">
+          <template #tooltip>
+            <NeTooltip>
+              <template #content>
+                {{ t('standalone.logs.search_tooltip') }}
+              </template>
+            </NeTooltip>
+          </template>
+        </NeTextInput>
+        <!-- <NeTextInput :label="t('standalone.wire_guard.listen_port')" v-model.trim="listenPort"
+          :invalidMessage="errorBag.getFirstFor('listenPort')" :disabled="loading.saveRule" ref="listenPortRef" /> -->
+        <!-- listen ip or domain -->
+        <!-- <NeTextInput
           :label="t('standalone.wire_guard.listen_ip')"
           v-model.trim="listenip"
           :invalidMessage="errorBag.getFirstFor('listenip')"
           :disabled="loading.saveRule"
           ref="listenipRef"
         /> -->
-         <!-- server port -->
-         <NeTextInput
-          :label="t('standalone.wire_guard.server_port')"
-          v-model.trim="serverPort"
-          :invalidMessage="errorBag.getFirstFor('serverPort')"
-          :disabled="loading.saveRule"
-          ref="serverPortRef"
-        />
+        <!-- server port -->
+        <NeTextInput v-model="serverPort" :invalidMessage="errorBag.getFirstFor('serverPort')" :label="t('Server port')"
+          :placeholder="t('Enter Server Port')">
+          <template #tooltip>
+            <NeTooltip>
+              <template #content>
+                {{ t('standalone.logs.search_tooltip') }}
+              </template>
+            </NeTooltip>
+          </template>
+        </NeTextInput>
+        <!-- <NeTextInput :label="t('standalone.wire_guard.server_port')" v-model.trim="serverPort"
+          :invalidMessage="errorBag.getFirstFor('serverPort')" :disabled="loading.saveRule" ref="serverPortRef" /> -->
 
-         <!-- server IP -->
-         <NeTextInput
-          :label="t('standalone.wire_guard.server_ip')"
-          v-model.trim="serverIP"
-          :invalidMessage="errorBag.getFirstFor('serverIP')"
-          :disabled="loading.saveRule"
-          ref="serverIPRef"
-        />
-        
+        <!-- server IP -->
+        <NeTextInput v-model="serverIP" :invalidMessage="errorBag.getFirstFor('serverIP')" :label="t('Server IP')"
+          :placeholder="t('Enter Server IP')">
+          <template #tooltip>
+            <NeTooltip>
+              <template #content>
+                {{ t('standalone.logs.search_tooltip') }}
+              </template>
+            </NeTooltip>
+          </template>
+        </NeTextInput>
+        <!-- <NeTextInput :label="t('standalone.wire_guard.server_ip')" v-model.trim="serverIP"
+          :invalidMessage="errorBag.getFirstFor('serverIP')" :disabled="loading.saveRule" ref="serverIPRef" /> -->
+
         <!-- peer public key -->
-        <NeTextInput
-          :label="t('standalone.wire_guard.peer_public_key')"
-          v-model.trim="peerPublicKey"
-          :invalidMessage="errorBag.getFirstFor('peerPublicKey')"
-          :disabled="loading.saveRule"
-          ref="peerPublicKeyRef"
-        />
+        <NeTextInput v-model="peerPublicKey" :invalidMessage="errorBag.getFirstFor('peerPublicKey')"
+          :label="t('Peer Public Key')" :placeholder="t('Enter Peer Public Key')">
+          <template #tooltip>
+            <NeTooltip>
+              <template #content>
+                {{ t('standalone.logs.search_tooltip') }}
+              </template>
+            </NeTooltip>
+          </template>
+        </NeTextInput>
+        <!-- <NeTextInput :label="t('standalone.wire_guard.peer_public_key')" v-model.trim="peerPublicKey"
+          :invalidMessage="errorBag.getFirstFor('peerPublicKey')" :disabled="loading.saveRule" ref="peerPublicKeyRef" /> -->
+
         <!-- allowed ip -->
-        <NeTextInput
-          :label="t('standalone.wire_guard.allowed_ip')"
-          v-model.trim="allowedIP"
-          :invalidMessage="errorBag.getFirstFor('allowedIP')"
-          :disabled="loading.saveRule"
-          ref="allowedIPRef"
-        />
-        <!-- allowed ip -->
-        <NeTextInput
-          :label="t('standalone.wire_guard.persist_keep_alive')"
-          v-model.trim="persistKeepAlive"
-          :invalidMessage="errorBag.getFirstFor('persistKeepAlive')"
-          :disabled="loading.saveRule"
-          ref="persistKeepAliveRef"
-        />
-         <!-- mtu -->
-         <NeTextInput
-          :label="t('standalone.wire_guard.mtu')"
-          v-model.trim="mtu"
-          :invalidMessage="errorBag.getFirstFor('mtu')"
-          :disabled="loading.saveRule"
-          ref="mtuRef"
-        />
-       
+        <NeTextInput v-model="allowedIP" :invalidMessage="errorBag.getFirstFor('allowedIP')" :label="t('Allowed IP')"
+          :placeholder="t('Enter Allowed IP')">
+          <template #tooltip>
+            <NeTooltip>
+              <template #content>
+                {{ t('standalone.logs.search_tooltip') }}
+              </template>
+            </NeTooltip>
+          </template>
+        </NeTextInput>
+        <!-- <NeTextInput :label="t('standalone.wire_guard.allowed_ip')" v-model.trim="allowedIP"
+          :invalidMessage="errorBag.getFirstFor('allowedIP')" :disabled="loading.saveRule" ref="allowedIPRef" /> -->
+
+        <!-- persist keep alive -->
+        <NeTextInput v-model="persistKeepAlive" :invalidMessage="errorBag.getFirstFor('persistKeepAlive')"
+          :label="t('Persist Keep Alive')" :placeholder="t('Enter Persist Keep Alive')">
+          <template #tooltip>
+            <NeTooltip>
+              <template #content>
+                {{ t('standalone.logs.search_tooltip') }}
+              </template>
+            </NeTooltip>
+          </template>
+        </NeTextInput>
+        <!-- <NeTextInput :label="t('standalone.wire_guard.persist_keep_alive')" v-model.trim="persistKeepAlive"
+          :invalidMessage="errorBag.getFirstFor('persistKeepAlive')" :disabled="loading.saveRule"
+          ref="persistKeepAliveRef" /> -->
+
+        <!-- mtu -->
+        <NeTextInput v-model="mtu" :invalidMessage="errorBag.getFirstFor('mtu')" :label="t('MTU')"
+          :placeholder="t('Enter MTU')">
+          <template #tooltip>
+            <NeTooltip>
+              <template #content>
+                {{ t('standalone.logs.search_tooltip') }}
+              </template>
+            </NeTooltip>
+          </template>
+        </NeTextInput>
+        <!-- <NeTextInput :label="t('standalone.wire_guard.mtu')" v-model.trim="mtu"
+          :invalidMessage="errorBag.getFirstFor('mtu')" :disabled="loading.saveRule" ref="mtuRef" /> -->
+
       </div>
       <!-- footer -->
       <hr class="my-8 border-gray-200 dark:border-gray-700" />
       <div class="flex justify-end">
-        <NeButton
-          kind="tertiary"
-          size="lg"
-          @click.prevent="closeDrawer"
-          :disabled="loading.saveRule"
-          class="mr-3"
-        >
+        <NeButton kind="tertiary" size="lg" @click.prevent="closeDrawer" :disabled="loading.saveRule" class="mr-3">
           {{ t('common.cancel') }}
         </NeButton>
-        <NeButton
-          kind="primary"
-          size="lg"
-          @click.prevent="saveRule"
-          :disabled="loading.saveRule"
-          :loading="loading.saveRule"
-        >
+        <NeButton kind="primary" size="lg" @click.prevent="saveRule" :disabled="loading.saveRule"
+          :loading="loading.saveRule">
           {{
             isCreatingRule
               ? t('standalone.wire_guard.save')
@@ -784,7 +803,7 @@ const saveRule = async () => {
       </div>
     </form>
 
-    
+
 
   </NeSideDrawer>
 </template>

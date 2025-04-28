@@ -4,7 +4,8 @@ import {
   NeButton,
   NeTextInput,
   NeToggle,
-  getAxiosErrorMessage
+  getAxiosErrorMessage,
+  NeTooltip
 } from '@nethesis/vue-components'
 import { onMounted, ref } from 'vue'
 import { useNotificationsStore } from '../../../stores/notifications'
@@ -159,26 +160,86 @@ const getLists = async () => {
       <template v-if="service">
         <div class="flex flex-col space-y-6 w-[400px]">
 
-          <NeTextInput label="ACS Url" v-model.trim="acsUrl" @input="onlyValidUrlCharacters"
-            :invalidMessage="errorBag.acsUrl" />
+          <NeTextInput @input="onlyValidUrlCharacters" v-model="acsUrl" :invalidMessage="errorBag.acsUrl"
+            :label="t('ACS Url')" :placeholder="t('Enter ACS Url')">
+            <template #tooltip>
+              <NeTooltip>
+                <template #content>
+                  {{ t('standalone.logs.search_tooltip') }}
+                </template>
+              </NeTooltip>
+            </template>
+          </NeTextInput>
+          <!-- <NeTextInput label="ACS Url" v-model.trim="acsUrl" @input="onlyValidUrlCharacters"
+            :invalidMessage="errorBag.acsUrl" /> -->
 
-          <NeTextInput label="ACS Username" v-model.trim="acsUsername" @input="onlyLetters"
-            :invalidMessage="errorBag.acsUsername" />
+          <NeTextInput @input="onlyLetters" v-model="acsUsername" :invalidMessage="errorBag.acsUsername"
+            :label="t('ACS Username')" :placeholder="t('Enter ACS Username')">
+            <template #tooltip>
+              <NeTooltip>
+                <template #content>
+                  {{ t('standalone.logs.search_tooltip') }}
+                </template>
+              </NeTooltip>
+            </template>
+          </NeTextInput>
+          <!-- <NeTextInput label="ACS Username" v-model.trim="acsUsername" @input="onlyLetters"
+            :invalidMessage="errorBag.acsUsername" /> -->
 
-          <NeTextInput label="ACS Password" v-model.trim="acsPassword" @input="onlyLetters"
-            :invalidMessage="errorBag.acsPassword" />
+          <NeTextInput @input="onlyLetters" v-model="acsPassword" :invalidMessage="errorBag.acsPassword"
+            :label="t('ACS Password')" :placeholder="t('Enter ACS Password')">
+            <template #tooltip>
+              <NeTooltip>
+                <template #content>
+                  {{ t('standalone.logs.search_tooltip') }}
+                </template>
+              </NeTooltip>
+            </template>
+          </NeTextInput>
+          <!-- <NeTextInput label="ACS Password" v-model.trim="acsPassword" @input="onlyLetters"
+            :invalidMessage="errorBag.acsPassword" /> -->
 
-          <NeTextInput label="CPE Username" v-model.trim="cpeUsername" @input="onlyLetters"
-            :invalidMessage="errorBag.cpeUsername" />
+          <NeTextInput @input="onlyLetters" v-model="cpeUsername" :invalidMessage="errorBag.cpeUsername"
+            :label="t('CPE Username')" :placeholder="t('Enter CPE Username')">
+            <template #tooltip>
+              <NeTooltip>
+                <template #content>
+                  {{ t('standalone.logs.search_tooltip') }}
+                </template>
+              </NeTooltip>
+            </template>
+          </NeTextInput>
+          <!-- <NeTextInput label="CPE Username" v-model.trim="cpeUsername" @input="onlyLetters"
+            :invalidMessage="errorBag.cpeUsername" /> -->
 
-          <NeTextInput label="CPE Password" v-model.trim="cpePassword" @input="onlyLetters"
-            :invalidMessage="errorBag.cpePassword" />
+          <NeTextInput @input="onlyLetters" v-model="cpePassword" :invalidMessage="errorBag.cpePassword"
+            :label="t('CPE Password')" :placeholder="t('Enter CPE Password')">
+            <template #tooltip>
+              <NeTooltip>
+                <template #content>
+                  {{ t('standalone.logs.search_tooltip') }}
+                </template>
+              </NeTooltip>
+            </template>
+          </NeTextInput>
+          <!-- <NeTextInput label="CPE Password" v-model.trim="cpePassword" @input="onlyLetters"
+            :invalidMessage="errorBag.cpePassword" /> -->
 
           <NeToggle v-model="enableInterval" :label="enableInterval ? 'Enabled' : 'Disabled'"
             :topLabel="'Enable Interval'" />
 
-          <NeTextInput label="Interval" :disabled="!enableInterval" v-model.trim="interval" @input="onlyNumbers"
-            :invalidMessage="errorBag.interval" />
+          <NeTextInput :disabled="!enableInterval" @input="onlyNumbers" v-model="interval" :invalidMessage="errorBag.interval"
+            :label="t('Interval')" :placeholder="t('Enter Interval')">
+            <template #tooltip>
+              <NeTooltip>
+                <template #content>
+                  {{ t('standalone.logs.search_tooltip') }}
+                </template>
+              </NeTooltip>
+            </template>
+          </NeTextInput>
+          <!-- <NeTextInput label="Interval" :disabled="!enableInterval" v-model.trim="interval" @input="onlyNumbers"
+            :invalidMessage="errorBag.interval" /> -->
         </div>
       </template>
     </div>

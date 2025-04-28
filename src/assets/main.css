@@ -131,3 +131,15 @@ hr {
 .peer:checked ~ .peer-checked\:bg-primary-600 {
   background-color: rgb(0, 165, 255) !important;
 }
+
+/* Shubham CSS Starts */
+.peer:focus ~ .peer-focus\:ring-primary-500 {
+  --tw-ring-opacity: 1;
+  --tw-ring-color: rgb(0, 165, 255) !important;
+}
+
+.text-orange-900 {
+  --tw-text-opacity: 1;
+  color: rgb(239 139 30);
+}
+/* Shubham CSS End */

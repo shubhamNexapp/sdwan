@@ -4,7 +4,8 @@ import {
     NeButton,
     NeTextInput,
     NeToggle,
-    getAxiosErrorMessage
+    getAxiosErrorMessage,
+    NeTooltip
 } from '@nethesis/vue-components'
 import { ref } from 'vue'
 import { useNotificationsStore } from '../../../stores/notifications'
@@ -35,11 +36,11 @@ const password = ref("")
 const errorBag = ref<{ [key: string]: string }>({})
 
 let loading = ref({
-  listServiceSuggestions: false,
-  listObjectSuggestions: false,
-  listProtocols: false,
-  saveRule: false,
-  fetchRule: false,
+    listServiceSuggestions: false,
+    listObjectSuggestions: false,
+    listProtocols: false,
+    saveRule: false,
+    fetchRule: false,
 });
 
 // Function to allow only letters in string fields
@@ -122,22 +123,62 @@ const closeDrawer = () => {
 </script>
 
 <template>
-    <NeSideDrawer :isShown="isShown" title="Add ICMP Check" closeAriaLabel="Close" @close="closeDrawer">
+    <NeSideDrawer :isShown="isShown" title="Add L2TP" closeAriaLabel="Close" @close="closeDrawer">
         <form @submit.prevent="saveRule">
             <div class="space-y-6">
-                <NeToggle v-model="service" :label="service ? 'Enabled' : 'Disabled'" :topLabel="'Service'" />
+                <NeToggle v-model="service" :label="service ? 'Enable' : 'Disable'" :topLabel="'Service'" />
 
                 <!-- Show form fields only if service is enabled -->
                 <template v-if="service">
-                    <NeTextInput label="Interface Name" v-model.trim="interfaceName"
-                        :invalidMessage="errorBag.interfaceName" />
+                    <NeTextInput v-model.trim="interfaceName" :invalidMessage="errorBag.interfaceName"
+                        :label="t('Interface Name')" :placeholder="t('Enter Interface Name')">
+                        <template #tooltip>
+                            <NeTooltip>
+                                <template #content>
+                                    {{ t('standalone.logs.search_tooltip') }}
+                                </template>
+                            </NeTooltip>
+                        </template>
+                    </NeTextInput>
+                    <!-- <NeTextInput label="Interface Name" v-model.trim="interfaceName"
+                        :invalidMessage="errorBag.interfaceName" /> -->
 
-                    <NeTextInput label="Server IP" @input="ipInputHandler" v-model.trim="serverIP"
-                        :invalidMessage="errorBag.serverIP" />
+                    <NeTextInput @input="ipInputHandler" v-model.trim="serverIP" :invalidMessage="errorBag.serverIP"
+                        :label="t('Server IP')" :placeholder="t('Enter Server IP')">
+                        <template #tooltip>
+                            <NeTooltip>
+                                <template #content>
+                                    {{ t('standalone.logs.search_tooltip') }}
+                                </template>
+                            </NeTooltip>
+                        </template>
+                    </NeTextInput>
+                    <!-- <NeTextInput label="Server IP" @input="ipInputHandler" v-model.trim="serverIP"
+                        :invalidMessage="errorBag.serverIP" /> -->
 
-                    <NeTextInput label="User Name" v-model.trim="userName" :invalidMessage="errorBag.userName" />
+                    <NeTextInput v-model.trim="userName" :invalidMessage="errorBag.userName" :label="t('User Name')"
+                        :placeholder="t('Enter User Name')">
+                        <template #tooltip>
+                            <NeTooltip>
+                                <template #content>
+                                    {{ t('standalone.logs.search_tooltip') }}
+                                </template>
+                            </NeTooltip>
+                        </template>
+                    </NeTextInput>
+                    <!-- <NeTextInput label="User Name" v-model.trim="userName" :invalidMessage="errorBag.userName" /> -->
 
-                    <NeTextInput label="Password" v-model.trim="password" :invalidMessage="errorBag.password" />
+                    <NeTextInput v-model.trim="password" :invalidMessage="errorBag.password" :label="t('Password')"
+                        :placeholder="t('Enter Password')">
+                        <template #tooltip>
+                            <NeTooltip>
+                                <template #content>
+                                    {{ t('standalone.logs.search_tooltip') }}
+                                </template>
+                            </NeTooltip>
+                        </template>
+                    </NeTextInput>
+                    <!-- <NeTextInput label="Password" v-model.trim="password" :invalidMessage="errorBag.password" /> -->
 
                 </template>
             </div>

@@ -10,7 +10,8 @@ import {
   NeTableRow,
   NeTableCell,
   NeToggle,
-  NeTextInput
+  NeTextInput,
+  NeTooltip
 } from '@nethesis/vue-components'
 import { onMounted, ref, watch } from 'vue'
 import axios from 'axios'
@@ -193,10 +194,32 @@ const onlyIP = (event: Event) => {
       <div>
         <div class="flex flex-col items-start space-y-4">
           <div class="flex flex-col w-full gap-3">
-            <NeTextInput :label="t('Route ID')" v-model.trim="routeID" @input="onlyIP"
-              :invalidMessage="errorBag.getFirstFor('routeID')" :disabled="loading.saveRule" ref="routeIDRef" />
-            <NeTextInput :label="t('Route AS')" v-model.trim="routeAS" @input="onlyNumbers"
-              :invalidMessage="errorBag.getFirstFor('routeAS')" :disabled="loading.saveRule" ref="routeASRef" />
+            <NeTextInput @input="onlyIP" :disabled="loading.saveRule" ref="routeIDRef" v-model="routeID"
+              :invalidMessage="errorBag.getFirstFor('routeID')" :label="t('Route ID')"
+              :placeholder="t('Enter Route ID')">
+              <template #tooltip>
+                <NeTooltip>
+                  <template #content>
+                    {{ t('standalone.logs.search_tooltip') }}
+                  </template>
+                </NeTooltip>
+              </template>
+            </NeTextInput>
+            <!-- <NeTextInput :label="t('Route ID')" v-model.trim="routeID" @input="onlyIP"
+              :invalidMessage="errorBag.getFirstFor('routeID')" :disabled="loading.saveRule" ref="routeIDRef" /> -->
+            <NeTextInput @input="onlyNumbers" :disabled="loading.saveRule" ref="routeASRef" v-model="routeAS"
+              :invalidMessage="errorBag.getFirstFor('routeAS')" :label="t('Route AS')"
+              :placeholder="t('Enter Route AS')">
+              <template #tooltip>
+                <NeTooltip>
+                  <template #content>
+                    {{ t('standalone.logs.search_tooltip') }}
+                  </template>
+                </NeTooltip>
+              </template>
+            </NeTextInput>
+            <!-- <NeTextInput :label="t('Route AS')" v-model.trim="routeAS" @input="onlyNumbers"
+              :invalidMessage="errorBag.getFirstFor('routeAS')" :disabled="loading.saveRule" ref="routeASRef" /> -->
           </div>
         </div>
 

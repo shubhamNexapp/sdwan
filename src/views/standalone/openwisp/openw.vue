@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import FormLayout from '@/components/standalone/FormLayout.vue';
 import { useNotificationsStore } from '@/stores/notifications';
-import { NeToggle, NeTextInput, NeCheckbox, NeButton, NeCombobox, NeHeading, NeInlineNotification } from '@nethesis/vue-components';
+import { NeToggle, NeTextInput, NeCheckbox, NeButton, NeCombobox, NeHeading, NeInlineNotification, NeTooltip } from '@nethesis/vue-components';
 import axios from 'axios';
 import { getSDControllerApiEndpoint } from '@/lib/config';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -98,7 +98,16 @@ async function saveSettings() {
     <NeToggle v-model="status" :topLabel="t('Status')" :label="status ? 'Enabled' : 'Disabled'" />
 
     <div v-if="status" class="mt-4 flex flex-col gap-y-3">
-      <NeTextInput v-model="serverAddress" label="Server Address" />
+      <NeTextInput v-model="serverAddress" :label="t('Server Address')" :placeholder="t('Enter Server Address')">
+        <template #tooltip>
+          <NeTooltip>
+            <template #content>
+              {{ t('standalone.logs.search_tooltip') }}
+            </template>
+          </NeTooltip>
+        </template>
+      </NeTextInput>
+      <!-- <NeTextInput v-model="serverAddress" label="Server Address" /> -->
 
       <label for="">Interface</label>
       <select v-model="managementInterface" style="width: 100%;
@@ -116,7 +125,16 @@ async function saveSettings() {
         </option>
       </select>
 
-      <NeTextInput v-model="sharedSecret" label="Secret" type="password" />
+      <NeTextInput v-model="sharedSecret" :label="t('Secret')" type="password" :placeholder="t('Enter Secret')">
+        <template #tooltip>
+          <NeTooltip>
+            <template #content>
+              {{ t('standalone.logs.search_tooltip') }}
+            </template>
+          </NeTooltip>
+        </template>
+      </NeTextInput>
+      <!-- <NeTextInput v-model="sharedSecret" label="Secret" type="password" /> -->
 
       <!-- TLS Verify Row -->
       <div class="flex items-center  mt-4">

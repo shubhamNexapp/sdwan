@@ -493,43 +493,150 @@ const saveRule = async () => {
     :closeAriaLabel="t('standalone.wire_guard.add_client_tunnel')" @close="closeDrawer">
     <form>
       <div class="space-y-6">
+
         <!-- editing system rule warning -->
         <NeInlineNotification v-if="isEditingRule && props.currentRule?.system_rule" kind="warning"
           :title="t('standalone.firewall_rules.editing_system_rule_warning_title')"
           :description="t('standalone.firewall_rules.editing_system_rule_warning_description')" />
+
         <!-- service -->
         <NeToggle v-model="service" :label="service ? t('common.enabled') : t('common.disabled')"
           :topLabel="t('Service')" :disabled="loading.saveRule" />
         <template v-if="service">
+
           <!-- tunnel name -->
-          <NeTextInput :label="t('standalone.gre.tunnel_name')" v-model.trim="tunnelName"
-            :invalidMessage="errorBag.getFirstFor('tunnelName')" :disabled="loading.saveRule" ref="tunnelNameRef" />
+          <NeTextInput v-model.trim="tunnelName" :invalidMessage="errorBag.getFirstFor('tunnelName')"
+            :label="t('standalone.gre.tunnel_name')" :placeholder="t('Enter Tunnel Name')" :disabled="loading.saveRule"
+            ref="tunnelNameRef">
+            <template #tooltip>
+              <NeTooltip>
+                <template #content>
+                  {{ t('standalone.logs.search_tooltip') }}
+                </template>
+              </NeTooltip>
+            </template>
+          </NeTextInput>
+          <!-- <NeTextInput :label="t('standalone.gre.tunnel_name')" v-model.trim="tunnelName"
+            :invalidMessage="errorBag.getFirstFor('tunnelName')" :disabled="loading.saveRule" ref="tunnelNameRef" /> -->
+
           <!-- interface name -->
-          <NeTextInput :label="t('standalone.gre.interface_name')" v-model.trim="interfaceName"
+          <NeTextInput v-model.trim="interfaceName" :invalidMessage="errorBag.getFirstFor('interfaceName')"
+            :label="t('standalone.gre.interface_name')" :placeholder="t('Enter Interface Name')"
+            :disabled="loading.saveRule" ref="interfaceNameRef">
+            <template #tooltip>
+              <NeTooltip>
+                <template #content>
+                  {{ t('standalone.logs.search_tooltip') }}
+                </template>
+              </NeTooltip>
+            </template>
+          </NeTextInput>
+          <!-- <NeTextInput :label="t('standalone.gre.interface_name')" v-model.trim="interfaceName"
             :invalidMessage="errorBag.getFirstFor('interfaceName')" :disabled="loading.saveRule"
-            ref="interfaceNameRef" />
+            ref="interfaceNameRef" /> -->
+
           <!-- local virtual ip -->
-          <NeTextInput :label="t('standalone.gre.local_virtual_ip')" v-model.trim="localVirtulaIP"
+          <NeTextInput v-model.trim="localVirtulaIP" :invalidMessage="errorBag.getFirstFor('localVirtulaIP')"
+            :label="t('standalone.gre.local_virtual_ip')" :placeholder="t('Enter Virtual IP')"
+            :disabled="loading.saveRule" ref="localVirtulaIPRef">
+            <template #tooltip>
+              <NeTooltip>
+                <template #content>
+                  {{ t('standalone.logs.search_tooltip') }}
+                </template>
+              </NeTooltip>
+            </template>
+          </NeTextInput>
+          <!-- <NeTextInput :label="t('standalone.gre.local_virtual_ip')" v-model.trim="localVirtulaIP"
             :invalidMessage="errorBag.getFirstFor('localVirtulaIP')" :disabled="loading.saveRule"
-            ref="localVirtulaIPRef" />
+            ref="localVirtulaIPRef" /> -->
+
           <!-- peer virtual ip -->
-          <NeTextInput :label="t('standalone.gre.peer_virtual_ip')" v-model.trim="peerVirtulaIP"
+          <NeTextInput v-model.trim="peerVirtulaIP" :invalidMessage="errorBag.getFirstFor('peerVirtulaIP')"
+            :label="t('standalone.gre.peer_virtual_ip')" :placeholder="t('Enter Peer Virtual IP')"
+            :disabled="loading.saveRule" ref="peerVirtulaIPRef">
+            <template #tooltip>
+              <NeTooltip>
+                <template #content>
+                  {{ t('standalone.logs.search_tooltip') }}
+                </template>
+              </NeTooltip>
+            </template>
+          </NeTextInput>
+          <!-- <NeTextInput :label="t('standalone.gre.peer_virtual_ip')" v-model.trim="peerVirtulaIP"
             :invalidMessage="errorBag.getFirstFor('peerVirtulaIP')" :disabled="loading.saveRule"
-            ref="peerVirtulaIPRef" />
+            ref="peerVirtulaIPRef" /> -->
+
           <!-- local extern ip -->
-          <NeTextInput :label="t('standalone.gre.local_extern_ip')" v-model.trim="localExternIP"
+          <NeTextInput v-model.trim="localExternIP" :invalidMessage="errorBag.getFirstFor('localExternIP')"
+            :label="t('standalone.gre.local_extern_ip')" :placeholder="t('Enter Local Extern IP')"
+            :disabled="loading.saveRule" ref="localExternIPRef">
+            <template #tooltip>
+              <NeTooltip>
+                <template #content>
+                  {{ t('standalone.logs.search_tooltip') }}
+                </template>
+              </NeTooltip>
+            </template>
+          </NeTextInput>
+          <!-- <NeTextInput :label="t('standalone.gre.local_extern_ip')" v-model.trim="localExternIP"
             :invalidMessage="errorBag.getFirstFor('localExternIP')" :disabled="loading.saveRule"
-            ref="localExternIPRef" />
+            ref="localExternIPRef" /> -->
+
           <!-- peer extern ip -->
-          <NeTextInput :label="t('standalone.gre.peer_extern_ip')" v-model.trim="peerExternIP"
-            :invalidMessage="errorBag.getFirstFor('peerExternIP')" :disabled="loading.saveRule" ref="peerExternIPRef" />
+          <NeTextInput v-model.trim="peerExternIP" :invalidMessage="errorBag.getFirstFor('peerExternIP')"
+            :label="t('standalone.gre.peer_extern_ip')" :placeholder="t('Enter Peer Extern IP')"
+            :disabled="loading.saveRule" ref="peerExternIPRef">
+            <template #tooltip>
+              <NeTooltip>
+                <template #content>
+                  {{ t('standalone.logs.search_tooltip') }}
+                </template>
+              </NeTooltip>
+            </template>
+          </NeTextInput>
+          <!-- <NeTextInput :label="t('standalone.gre.peer_extern_ip')" v-model.trim="peerExternIP"
+            :invalidMessage="errorBag.getFirstFor('peerExternIP')" :disabled="loading.saveRule" ref="peerExternIPRef" /> -->
+
           <!-- key -->
-          <NeTextInput :label="t('standalone.gre.key')" v-model.trim="key" :invalidMessage="errorBag.getFirstFor('key')"
-            :disabled="loading.saveRule" ref="keyRef" />
-          <NeTextInput :label="t('standalone.gre.mtu')" v-model.trim="mtu" :invalidMessage="errorBag.getFirstFor('mtu')"
-            :disabled="loading.saveRule" ref="mtuRef" />
-          <NeTextInput :label="t('standalone.gre.net_mask')" v-model.trim="netmask"
-            :invalidMessage="errorBag.getFirstFor('netmask')" :disabled="loading.saveRule" ref="netMaskRef" />
+          <NeTextInput v-model.trim="key" :invalidMessage="errorBag.getFirstFor('key')" :label="t('standalone.gre.key')"
+            :placeholder="t('Enter Key')" :disabled="loading.saveRule" ref="keyRef">
+            <template #tooltip>
+              <NeTooltip>
+                <template #content>
+                  {{ t('standalone.logs.search_tooltip') }}
+                </template>
+              </NeTooltip>
+            </template>
+          </NeTextInput>
+          <!-- <NeTextInput :label="t('standalone.gre.key')" v-model.trim="key" :invalidMessage="errorBag.getFirstFor('key')"
+            :disabled="loading.saveRule" ref="keyRef" /> -->
+
+          <NeTextInput v-model.trim="mtu" :invalidMessage="errorBag.getFirstFor('mtu')" :label="t('standalone.gre.mtu')"
+            :placeholder="t('Enter MTU')" :disabled="loading.saveRule" ref="mtuRef">
+            <template #tooltip>
+              <NeTooltip>
+                <template #content>
+                  {{ t('standalone.logs.search_tooltip') }}
+                </template>
+              </NeTooltip>
+            </template>
+          </NeTextInput>
+          <!-- <NeTextInput :label="t('standalone.gre.mtu')" v-model.trim="mtu" :invalidMessage="errorBag.getFirstFor('mtu')"
+            :disabled="loading.saveRule" ref="mtuRef" /> -->
+
+          <NeTextInput v-model.trim="netmask" :invalidMessage="errorBag.getFirstFor('netmask')" :label="t('standalone.gre.net_mask')"
+            :placeholder="t('Enter Netmask')" :disabled="loading.saveRule" ref="netMaskRef">
+            <template #tooltip>
+              <NeTooltip>
+                <template #content>
+                  {{ t('standalone.logs.search_tooltip') }}
+                </template>
+              </NeTooltip>
+            </template>
+          </NeTextInput>
+          <!-- <NeTextInput :label="t('standalone.gre.net_mask')" v-model.trim="netmask"
+            :invalidMessage="errorBag.getFirstFor('netmask')" :disabled="loading.saveRule" ref="netMaskRef" /> -->
         </template>
       </div>
       <!-- footer -->

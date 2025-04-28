@@ -3,13 +3,17 @@ import {
     NeButton,
     NeTextInput,
     NeToggle,
-    getAxiosErrorMessage
+    getAxiosErrorMessage,
+    NeTooltip
 } from '@nethesis/vue-components'
 import { onMounted, ref } from 'vue'
 import { useNotificationsStore } from '../../../../stores/notifications'
 import Textarea from './Textarea.vue'
 import { getSDControllerApiEndpoint } from '@/lib/config'
 import axios from 'axios'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n();
 
 const notificationsStore = useNotificationsStore()
 
@@ -191,8 +195,18 @@ const getLists = async () => {
                     </select>
                 </div>
 
-                <NeTextInput label="Scan Interval" v-model.trim="scanInterval" @input="onlyNumbers"
-                    :invalidMessage="errorBag.scanInterval" />
+                <NeTextInput @input="onlyNumbers" v-model="scanInterval" :invalidMessage="errorBag.scanInterval"
+                    :label="t('Scan Interval')" :placeholder="t('Enter Scan Interval')">
+                    <template #tooltip>
+                        <NeTooltip>
+                            <template #content>
+                                {{ t('standalone.logs.search_tooltip') }}
+                            </template>
+                        </NeTooltip>
+                    </template>
+                </NeTextInput>
+                <!-- <NeTextInput label="Scan Interval" v-model.trim="scanInterval" @input="onlyNumbers"
+                    :invalidMessage="errorBag.scanInterval" /> -->
 
                 <NeToggle v-model="autoUpdate" :label="autoUpdate ? 'Enable' : 'Disable'" :topLabel="'Auto Update'" />
 

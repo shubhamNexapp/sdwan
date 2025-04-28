@@ -84,16 +84,16 @@ async function login() {
   try {
 
     let taccValue
-    if(tacc.value){
+    if (tacc.value) {
       taccValue = 1
-    }else{
+    } else {
       taccValue = 0
     }
 
     jwtToken.value = await loginStore.login(username.value, password.value, taccValue)
 
     // set or remove username to/from local storage
-    if ( tacc.value) {
+    if (tacc.value) {
       saveToStorage('standaloneUsername', username.value)
     } else {
       deleteFromStorage('standaloneUsername')
@@ -204,18 +204,10 @@ async function verifyOtp() {
 
 <template>
   <div class="flex flex-1 h-screen min-h-full login-bg">
-    <div
-      class="relative items-center justify-center flex-1 hidden w-0 from-gray-950 xl:flex"
-    >
-        <img
-          src="/nexappos.png"
-          :alt="`${getCompanyName()} logo`"
-          class="w-2/3 xl:w-2/5 3xl:w-1/3 5xl:w-1/4"
-        />
+    <div class="relative items-center justify-center flex-1 hidden w-0 from-gray-950 xl:flex">
+      <img src="/nexappos.png" :alt="`${getCompanyName()} logo`" class="w-2/3 xl:w-2/5 3xl:w-1/3 5xl:w-1/4" />
     </div>
-    <div
-      class="flex flex-col justify-center flex-1 px-4 py-12 sm:px-6 lg:flex-none lg:px-20 lg:px-24"
-    >                                                                                                                                                                                                                        
+    <div class="flex flex-col justify-center flex-1 px-4 py-12 sm:px-6 lg:flex-none lg:px-20 lg:px-24">
       <div class="w-full max-w-md mx-auto login-form">
         <div class="px-6 py-12 shadow bg-gray-50 dark:bg-gray-900 sm:rounded-lg sm:px-12">
           <NeHeading tag="h4" class="mb-4">
@@ -232,14 +224,9 @@ async function verifyOtp() {
             <template v-if="step === 'login'">
               <!-- {{ t('login.welcome_description_standalone', { product: getProductName() }) }} -->
               <!-- session expired notification -->
-              <NeInlineNotification
-                v-if="loginStore.isSessionExpired"
-                kind="info"
-                :title="t('login.session_has_expired')"
-                :description="t('login.please_sign_in_again')"
-                :closeAriaLabel="t('common.close')"
-                class="mt-6"
-              />
+              <NeInlineNotification v-if="loginStore.isSessionExpired" kind="info"
+                :title="t('login.session_has_expired')" :description="t('login.please_sign_in_again')"
+                :closeAriaLabel="t('common.close')" class="mt-6" />
             </template>
             <template v-if="step === '2fa'">
               <p>
@@ -257,108 +244,71 @@ async function verifyOtp() {
           </div>
           <form class="space-y-6">
             <template v-if="step === 'login'">
-              <NeInlineNotification
-                v-if="error.login"
-                kind="error"
-                :title="t('login.cannot_login')"
-                :description="t(error.login)"
-              />
-              <NeTextInput
-                :label="t('login.username')"
-                v-model.trim="username"
-                :invalidMessage="t(error.username)"
-                autocomplete="username"
-                ref="usernameRef"
-              />
-              <NeTextInput
-                :label="t('login.password')"
-                v-model="password"
-                isPassword
+              <NeInlineNotification v-if="error.login" kind="error" :title="t('login.cannot_login')"
+                :description="t(error.login)" />
+              <NeTextInput :label="t('login.username')" v-model.trim="username" :invalidMessage="t(error.username)"
+                autocomplete="username" ref="usernameRef"
+                style="border: 1px solid #00a5ff; outline: none; box-shadow: none;" />
+
+              <NeTextInput :label="t('login.password')" v-model="password" isPassword
                 :showPasswordLabel="t('ne_text_input.show_password')"
-                :hidePasswordLabel="t('ne_text_input.hide_password')"
-                :invalidMessage="t(error.password)"
-                autocomplete="current-password"
-                ref="passwordRef"
-              />
+                :hidePasswordLabel="t('ne_text_input.hide_password')" :invalidMessage="t(error.password)"
+                autocomplete="current-password" ref="passwordRef"
+                style="border: 1px solid #00a5ff; outline: none; box-shadow: none;" />
               <div class="flex items-center justify-between">
                 <div class="flex items-center">
-                  <input
-                    id="remember-me"
-                    name="remember-me"
-                    type="checkbox"
-                    v-model="rememberMe"
-                    class="w-4 h-4 border-gray-300 rounded text-primary-600 focus:ring-primary-600 dark:border-gray-700 dark:text-primary-600 dark:focus:ring-primary-400"
-                  />
-                  <label
-                    for="remember-me"
-                    class="block ml-3 text-sm leading-6 text-gray-900 dark:text-gray-100"
-                    >{{ t('login.remember_me') }}</label
-                  >
+                  <input id="remember-me" name="remember-me" type="checkbox" v-model="rememberMe"
+                    class="w-4 h-4 border-gray-300 rounded text-primary-600 focus:ring-primary-600 dark:border-gray-700 dark:text-primary-600 dark:focus:ring-primary-400" />
+                  <label for="remember-me" class="block ml-3 text-sm leading-6 text-gray-900 dark:text-gray-100">{{
+                    t('login.remember_me') }}</label>
                 </div>
               </div>
               <div class="flex items-center justify-between">
                 <div class="flex items-center">
-                  <input
-                    id="tacc"
-                    name="tacc"
-                    type="checkbox"
-                    v-model="tacc"
-                    class="w-4 h-4 border-gray-300 rounded text-primary-600 focus:ring-primary-600 dark:border-gray-700 dark:text-primary-600 dark:focus:ring-primary-400"
-                  />
-                  <label
-                    for="tacc"
-                    class="block ml-3 text-sm leading-6 text-gray-900 dark:text-gray-100"
-                    >Tacacs+Auth</label
-                  >
+                  <input id="tacc" name="tacc" type="checkbox" v-model="tacc"
+                    class="w-4 h-4 border-gray-300 rounded text-primary-600 focus:ring-primary-600 dark:border-gray-700 dark:text-primary-600 dark:focus:ring-primary-400" />
+                  <label for="tacc"
+                    class="block ml-3 text-sm leading-6 text-gray-900 dark:text-gray-100">Tacacs+Auth</label>
                 </div>
               </div>
               <div>
-                <NeButton
-                  kind="primary"
-                  size="lg"
-                  @click.prevent="login"
-                  type="submit"
-                  :disabled="loading.login"
-                  :loading="loading.login"
-                  class="w-full login-btn"
-                  >{{ t('login.sign_in') }}</NeButton
-                >
+                <NeButton kind="primary" size="lg" @click.prevent="login" type="submit" :disabled="loading.login"
+                  :loading="loading.login" class="w-full login-btn">{{ t('login.sign_in') }}</NeButton>
               </div>
             </template>
             <template v-if="step === '2fa'">
               <!-- verifyOtp error notification -->
-              <NeInlineNotification
-                v-if="error.verifyOtp"
-                kind="error"
-                :title="t('error.cannot_verify_otp')"
-                :description="error.verifyOtp"
-              >
+              <NeInlineNotification v-if="error.verifyOtp" kind="error" :title="t('error.cannot_verify_otp')"
+                :description="error.verifyOtp">
                 <template #details v-if="error.verifyOtpDetails">
                   {{ error.verifyOtpDetails }}
                 </template>
               </NeInlineNotification>
               <!-- 2fa otp -->
-              <NeTextInput
-                :label="t('standalone.two_fa.otp')"
-                v-model.trim="twoFaOtp"
-                :invalidMessage="t(errorBag.getFirstI18nKeyFor('otp'))"
-                ref="twoFaOtpRef"
-              />
-              <NeButton
-                kind="primary"
-                size="lg"
-                @click.prevent="verifyOtp"
-                type="submit"
-                :disabled="loading.verifyOtp"
-                :loading="loading.verifyOtp"
-                class="w-full"
-                >{{ t('standalone.two_fa.verify_code') }}</NeButton
-              >
+              <NeTextInput :label="t('standalone.two_fa.otp')" v-model.trim="twoFaOtp"
+                :invalidMessage="t(errorBag.getFirstI18nKeyFor('otp'))" ref="twoFaOtpRef" />
+              <NeButton kind="primary" size="lg" @click.prevent="verifyOtp" type="submit" :disabled="loading.verifyOtp"
+                :loading="loading.verifyOtp" class="w-full">{{ t('standalone.two_fa.verify_code') }}</NeButton>
             </template>
           </form>
         </div>
       </div>
     </div>
- 
+
   </div>
 </template>
+<style>
+input {
+  border: 1px solid #00a5ff;
+  outline: none;
+  box-shadow: none;
+}
+
+input:focus {
+  --tw-ring-color: transparent;
+  /* removes Tailwind's focus ring */
+  box-shadow: none;
+  border: 1px solid #00a5ff;
+  /* keeps #00a5ff even after focus */
+}
+</style>

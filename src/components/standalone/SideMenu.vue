@@ -367,7 +367,7 @@ function loadMenuItemsExpanded() {
     <template v-if="isEmpty(item.children)">
       <router-link :to="`${getStandaloneRoutePrefix()}/${item.to}`" :class="[
         isCurrentRoute(item.to)
-          ? 'border-l-4 border-primary-700 bg-gray-100 text-gray-900 dark:border-primary-500 dark:bg-gray-800 dark:text-gray-50'
+          ? 'border-l-4 border-primary-700 bg-gray-100 text-orange-900 dark:border-primary-500 dark:bg-gray-800 dark:text-gray-50'
           : 'text-gray-600 side-bar-grey hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-50',
         'group flex cursor-pointer items-center gap-x-3 rounded-md px-3 py-2 text-sm font-semibold leading-6 hover:bg-gray-100 dark:hover:bg-gray-800'
       ]">
@@ -380,7 +380,7 @@ function loadMenuItemsExpanded() {
     <template v-else>
       <a @click="toggleExpand(item)" :class="[
         isCurrentRoute(item.to)
-          ? 'text-gray-900 dark:text-gray-50'
+          ? 'text-orange-900 dark:text-gray-50'
           : 'text-gray-600 hover:text-gray-900 side-bar-grey dark:text-gray-300 dark:hover:text-gray-50',
         'group flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm font-semibold leading-6 hover:bg-gray-100 dark:hover:bg-gray-800'
       ]">
@@ -400,7 +400,7 @@ function loadMenuItemsExpanded() {
             <div class="ml-10">
               <router-link :to="`${getStandaloneRoutePrefix()}/${child.to}`" :class="[
                 isCurrentRoute(child.to)
-                  ? 'border-l-4 border-primary-700 bg-gray-100 text-gray-900 dark:border-primary-500 dark:bg-gray-800 dark:text-gray-50'
+                  ? 'border-l-4 border-primary-700 bg-gray-100 text-orange-900 dark:border-primary-500 dark:bg-gray-800 dark:text-gray-50'
                   : 'text-gray-600 side-bar-grey hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-50',
                 'group flex cursor-pointer items-center gap-x-3 rounded-md px-3 py-1 text-sm font-semibold leading-6 hover:bg-gray-100 dark:hover:bg-gray-800'
               ]">

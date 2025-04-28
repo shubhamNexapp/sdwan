@@ -6,7 +6,8 @@ import {
     NeTextInput,
     NeToggle,
     NeDropdown,
-    getAxiosErrorMessage
+    getAxiosErrorMessage,
+    NeTooltip
 } from '@nethesis/vue-components'
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -170,7 +171,7 @@ const saveRule = async () => {
             method: "set-config",
             payload: [rule] // wrapped inside an array
         };
-        
+
         const response = await axios.post(`${getSDControllerApiEndpoint()}/schedule`, payload)
 
         if (response.status === 200) {
@@ -199,17 +200,37 @@ const closeDrawer = () => {
     <NeSideDrawer :isShown="isShown" title="Add Rule" closeAriaLabel="Close" @close="closeDrawer">
         <form>
             <!-- Status -->
-            <NeToggle v-model="service" :label="service ? 'Enable' : 'Disable'" :topLabel="'Service'" />
+            <NeToggle class="mb-4" v-model="service" :label="service ? 'Enable' : 'Disable'" :topLabel="'Service'" />
 
             <template v-if="service">
                 <div class="space-y-6">
 
                     <!-- Task Name -->
-                    <NeTextInput class="mt-4" label="Task Name" v-model.trim="taskName"
-                        :invalidMessage="errorBag.taskName" />
+                    <NeTextInput class="mt-4" v-model.trim="taskName" :invalidMessage="errorBag.taskName"
+                        :label="t('Task Name')" :placeholder="t('Enter Task Name')">
+                        <template #tooltip>
+                            <NeTooltip>
+                                <template #content>
+                                    {{ t('standalone.logs.search_tooltip') }}
+                                </template>
+                            </NeTooltip>
+                        </template>
+                    </NeTextInput>
+                    <!-- <NeTextInput class="mt-4" label="Task Name" v-model.trim="taskName"
+                        :invalidMessage="errorBag.taskName" /> -->
 
                     <!-- Command -->
-                    <NeTextInput label="Command" v-model.trim="command" :invalidMessage="errorBag.command" />
+                    <NeTextInput class="mt-4" v-model.trim="command" :invalidMessage="errorBag.command"
+                        :label="t('Command')" :placeholder="t('Enter Command')">
+                        <template #tooltip>
+                            <NeTooltip>
+                                <template #content>
+                                    {{ t('standalone.logs.search_tooltip') }}
+                                </template>
+                            </NeTooltip>
+                        </template>
+                    </NeTextInput>
+                    <!-- <NeTextInput label="Command" v-model.trim="command" :invalidMessage="errorBag.command" /> -->
 
 
                     <div>
@@ -228,16 +249,76 @@ const closeDrawer = () => {
                     </span>
                     <!-- Fields for "Range" mode -->
                     <template v-if="showRangeFields">
-                        <NeTextInput label="Week" v-model.trim="week" :invalidMessage="errorBag.week" />
-                        <NeTextInput label="Month" v-model.trim="month" :invalidMessage="errorBag.month" />
-                        <NeTextInput label="Day" v-model.trim="day" :invalidMessage="errorBag.day" />
-                        <NeTextInput label="Hour" v-model.trim="hour" :invalidMessage="errorBag.hour" />
-                        <NeTextInput label="Minute" v-model.trim="hourminute" :invalidMessage="errorBag.hourminute" />
+                        <NeTextInput v-model.trim="week" :invalidMessage="errorBag.week" :label="t('Week')"
+                            :placeholder="t('Enter Week')">
+                            <template #tooltip>
+                                <NeTooltip>
+                                    <template #content>
+                                        {{ t('standalone.logs.search_tooltip') }}
+                                    </template>
+                                </NeTooltip>
+                            </template>
+                        </NeTextInput>
+                        <!-- <NeTextInput label="Week" v-model.trim="week" :invalidMessage="errorBag.week" /> -->
+                        <NeTextInput v-model.trim="month" :invalidMessage="errorBag.month" :label="t('Month')"
+                            :placeholder="t('Enter Month')">
+                            <template #tooltip>
+                                <NeTooltip>
+                                    <template #content>
+                                        {{ t('standalone.logs.search_tooltip') }}
+                                    </template>
+                                </NeTooltip>
+                            </template>
+                        </NeTextInput>
+                        <!-- <NeTextInput label="Month" v-model.trim="month" :invalidMessage="errorBag.month" /> -->
+                        <NeTextInput v-model.trim="day" :invalidMessage="errorBag.day" :label="t('Day')"
+                            :placeholder="t('Enter Day')">
+                            <template #tooltip>
+                                <NeTooltip>
+                                    <template #content>
+                                        {{ t('standalone.logs.search_tooltip') }}
+                                    </template>
+                                </NeTooltip>
+                            </template>
+                        </NeTextInput>
+                        <!-- <NeTextInput label="Day" v-model.trim="day" :invalidMessage="errorBag.day" /> -->
+                        <NeTextInput v-model.trim="hour" :invalidMessage="errorBag.hour" :label="t('Hour')"
+                            :placeholder="t('Enter Hour')">
+                            <template #tooltip>
+                                <NeTooltip>
+                                    <template #content>
+                                        {{ t('standalone.logs.search_tooltip') }}
+                                    </template>
+                                </NeTooltip>
+                            </template>
+                        </NeTextInput>
+                        <!-- <NeTextInput label="Hour" v-model.trim="hour" :invalidMessage="errorBag.hour" /> -->
+                        <NeTextInput v-model.trim="hourminute" :invalidMessage="errorBag.hourminute"
+                            :label="t('Minute')" :placeholder="t('Enter Minute')">
+                            <template #tooltip>
+                                <NeTooltip>
+                                    <template #content>
+                                        {{ t('standalone.logs.search_tooltip') }}
+                                    </template>
+                                </NeTooltip>
+                            </template>
+                        </NeTextInput>
+                        <!-- <NeTextInput label="Minute" v-model.trim="hourminute" :invalidMessage="errorBag.hourminute" /> -->
                     </template>
 
                     <!-- Field for "Interval" mode -->
-                    <NeTextInput v-if="showIntervalField" @input="onlyNumbers" label="Interval" v-model.trim="interval"
-                        :invalidMessage="errorBag.interval" />
+                    <NeTextInput v-if="showIntervalField" class="mt-4" @input="onlyNumbers" v-model.trim="interval"
+                        :invalidMessage="errorBag.interval" :label="t('Interval')" :placeholder="t('Enter Interval')">
+                        <template #tooltip>
+                            <NeTooltip>
+                                <template #content>
+                                    {{ t('standalone.logs.search_tooltip') }}
+                                </template>
+                            </NeTooltip>
+                        </template>
+                    </NeTextInput>
+                    <!-- <NeTextInput v-if="showIntervalField" @input="onlyNumbers" label="Interval" v-model.trim="interval"
+                        :invalidMessage="errorBag.interval" /> -->
                 </div>
             </template>
             <!-- Footer -->

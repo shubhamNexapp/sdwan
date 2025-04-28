@@ -4,7 +4,8 @@ import {
     NeButton,
     NeTextInput,
     NeToggle,
-    getAxiosErrorMessage
+    getAxiosErrorMessage,
+    NeTooltip
 } from '@nethesis/vue-components'
 import { ref } from 'vue'
 import { useNotificationsStore } from '../../../stores/notifications'
@@ -145,20 +146,70 @@ const closeDrawer = () => {
 
                 <!-- Show form fields only if service is enabled -->
                 <template v-if="service">
-                    <NeTextInput label="Task Name" v-model.trim="name" @input="onlyLetters"
-                        :invalidMessage="errorBag.name" />
+                    <NeTextInput @input="onlyLetters" v-model="name" :invalidMessage="errorBag.name"
+                        :label="t('Task Name')" :placeholder="t('Enter Task Name')">
+                        <template #tooltip>
+                            <NeTooltip>
+                                <template #content>
+                                    {{ t('standalone.logs.search_tooltip') }}
+                                </template>
+                            </NeTooltip>
+                        </template>
+                    </NeTextInput>
+                    <!-- <NeTextInput label="Task Name" v-model.trim="name" @input="onlyLetters"
+                        :invalidMessage="errorBag.name" /> -->
 
-                    <NeTextInput label="Destination" v-model.trim="destination" @input="ipInputHandler"
-                        :invalidMessage="errorBag.destination" />
+                    <NeTextInput @input="ipInputHandler" v-model="destination" :invalidMessage="errorBag.destination"
+                        :label="t('Destination')" :placeholder="t('Enter Destination')">
+                        <template #tooltip>
+                            <NeTooltip>
+                                <template #content>
+                                    {{ t('standalone.logs.search_tooltip') }}
+                                </template>
+                            </NeTooltip>
+                        </template>
+                    </NeTextInput>
+                    <!-- <NeTextInput label="Destination" v-model.trim="destination" @input="ipInputHandler"
+                        :invalidMessage="errorBag.destination" /> -->
 
-                    <NeTextInput label="Time Interval" v-model.trim="timeInterval" @input="onlyNumbers"
-                        :invalidMessage="errorBag.timeInterval" />
+                    <NeTextInput @input="onlyNumbers" v-model="timeInterval" :invalidMessage="errorBag.timeInterval"
+                        :label="t('Time Interval')" :placeholder="t('Enter Time Interval')">
+                        <template #tooltip>
+                            <NeTooltip>
+                                <template #content>
+                                    {{ t('standalone.logs.search_tooltip') }}
+                                </template>
+                            </NeTooltip>
+                        </template>
+                    </NeTextInput>
+                    <!-- <NeTextInput label="Time Interval" v-model.trim="timeInterval" @input="onlyNumbers"
+                        :invalidMessage="errorBag.timeInterval" /> -->
 
-                    <NeTextInput label="Retry Times" v-model.trim="retryTimes" @input="onlyNumbers"
-                        :invalidMessage="errorBag.retryTimes" />
+                    <NeTextInput @input="onlyNumbers" v-model="retryTimes" :invalidMessage="errorBag.retryTimes"
+                        :label="t('Retry Times')" :placeholder="t('Enter Retry Times')">
+                        <template #tooltip>
+                            <NeTooltip>
+                                <template #content>
+                                    {{ t('standalone.logs.search_tooltip') }}
+                                </template>
+                            </NeTooltip>
+                        </template>
+                    </NeTextInput>
+                    <!-- <NeTextInput label="Retry Times" v-model.trim="retryTimes" @input="onlyNumbers"
+                        :invalidMessage="errorBag.retryTimes" /> -->
 
-                    <NeTextInput label="Command" v-model.trim="command" @input="onlyLetters"
-                        :invalidMessage="errorBag.command" />
+                    <NeTextInput @input="onlyLetters" v-model="command" :invalidMessage="errorBag.command"
+                        :label="t('Command')" :placeholder="t('Enter Command')">
+                        <template #tooltip>
+                            <NeTooltip>
+                                <template #content>
+                                    {{ t('standalone.logs.search_tooltip') }}
+                                </template>
+                            </NeTooltip>
+                        </template>
+                    </NeTextInput>
+                    <!-- <NeTextInput label="Command" v-model.trim="command" @input="onlyLetters"
+                        :invalidMessage="errorBag.command" /> -->
                 </template>
             </div>
 

@@ -4,7 +4,8 @@ import {
     NeButton,
     NeTextInput,
     NeToggle,
-    getAxiosErrorMessage
+    getAxiosErrorMessage,
+    NeTooltip
 } from '@nethesis/vue-components'
 import { ref } from 'vue'
 import { useNotificationsStore } from '../../../stores/notifications'
@@ -153,9 +154,32 @@ const closeDrawer = () => {
 
                 <!-- Show form fields only if status is enabled -->
                 <template v-if="service">
+
+
                     <!--   <NeToggle v-model="status" :label="status ? 'connected' : 'disconnect'" :topLabel="'Status'" /> -->
-                    <NeTextInput label="Interface Name" v-model.trim="interfaceName" @input="onlyLetters"
-                        :invalidMessage="errorBag.interfaceName" />
+                    <!-- <NeTextInput @input="onlyLetters" :disabled="loading.saveRule" 
+                        v-model="interfaceName" :label="t('Route AS')" :placeholder="t('Enter Route AS')">
+                        <template #tooltip>
+                            <NeTooltip>
+                                <template #content>
+                                    {{ t('standalone.logs.search_tooltip') }}
+                                </template>
+                            </NeTooltip>
+                        </template>
+                    </NeTextInput> -->
+
+                    <NeTextInput @input="onlyLetters" v-model.trim="interfaceName" :label="t('Interface Name')"
+                        :placeholder="t('Enter Interface Name')" :invalidMessage="errorBag.interfaceName">
+                        <template #tooltip>
+                            <NeTooltip>
+                                <template #content>
+                                    {{ t('standalone.logs.search_tooltip') }}
+                                </template>
+                            </NeTooltip>
+                        </template>
+                    </NeTextInput>
+                    <!-- <NeTextInput label="Interface Name" v-model.trim="interfaceName" @input="onlyLetters"
+                        :invalidMessage="errorBag.interfaceName" /> -->
 
                     <div>
                         <label class="block text-sm font-medium mb-1">Interface:</label>
@@ -170,16 +194,56 @@ const closeDrawer = () => {
                         </select>
                     </div>
 
-                    <NeTextInput label="Vid" v-model.trim="vid" @input="onlyNumbers" :invalidMessage="errorBag.vid" />
+                    <NeTextInput @input="onlyNumbers" v-model.trim="vid" :label="t('Vid')" :placeholder="t('Enter Vid')"
+                        :invalidMessage="errorBag.vid">
+                        <template #tooltip>
+                            <NeTooltip>
+                                <template #content>
+                                    {{ t('standalone.logs.search_tooltip') }}
+                                </template>
+                            </NeTooltip>
+                        </template>
+                    </NeTextInput>
+                    <!-- <NeTextInput label="Vid" v-model.trim="vid" @input="onlyNumbers" :invalidMessage="errorBag.vid" /> -->
 
-                    <NeTextInput label="Peer" v-model.trim="peer" @input="ipInputHandler"
-                        :invalidMessage="errorBag.peer" />
+                    <NeTextInput @input="ipInputHandler" v-model.trim="peer" :label="t('Peer')"
+                        :placeholder="t('Enter Peer')" :invalidMessage="errorBag.peer">
+                        <template #tooltip>
+                            <NeTooltip>
+                                <template #content>
+                                    {{ t('standalone.logs.search_tooltip') }}
+                                </template>
+                            </NeTooltip>
+                        </template>
+                    </NeTextInput>
+                    <!-- <NeTextInput label="Peer" v-model.trim="peer" @input="ipInputHandler"
+                        :invalidMessage="errorBag.peer" /> -->
 
-                    <NeTextInput label="Port" v-model.trim="port" @input="onlyNumbers"
-                        :invalidMessage="errorBag.port" />
+                    <NeTextInput @input="onlyNumbers" v-model.trim="port" :label="t('Port')"
+                        :placeholder="t('Enter Port')" :invalidMessage="errorBag.port">
+                        <template #tooltip>
+                            <NeTooltip>
+                                <template #content>
+                                    {{ t('standalone.logs.search_tooltip') }}
+                                </template>
+                            </NeTooltip>
+                        </template>
+                    </NeTextInput>
+                    <!-- <NeTextInput label="Port" v-model.trim="port" @input="onlyNumbers"
+                        :invalidMessage="errorBag.port" /> -->
 
-                    <NeTextInput label="IP" v-model.trim="ipaddr" @input="ipInputHandler"
-                        :invalidMessage="errorBag.ipaddr" />
+                    <NeTextInput @input="ipInputHandler" v-model.trim="ipaddr" :label="t('IP')"
+                        :placeholder="t('Enter IP')" :invalidMessage="errorBag.ipaddr">
+                        <template #tooltip>
+                            <NeTooltip>
+                                <template #content>
+                                    {{ t('standalone.logs.search_tooltip') }}
+                                </template>
+                            </NeTooltip>
+                        </template>
+                    </NeTextInput>
+                    <!-- <NeTextInput label="IP" v-model.trim="ipaddr" @input="ipInputHandler"
+                        :invalidMessage="errorBag.ipaddr" /> -->
                 </template>
             </div>
 

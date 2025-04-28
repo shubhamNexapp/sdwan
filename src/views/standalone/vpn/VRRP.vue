@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import FormLayout from '@/components/standalone/FormLayout.vue';
 import { useNotificationsStore } from '@/stores/notifications';
-import { NeToggle, NeTextInput, NeButton, NeInlineNotification, NeHeading } from '@nethesis/vue-components';
+import { NeToggle, NeTextInput, NeButton, NeInlineNotification, NeHeading, NeTooltip } from '@nethesis/vue-components';
 import axios from 'axios';
 import { getSDControllerApiEndpoint } from '@/lib/config';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -202,14 +202,58 @@ async function saveSettings() {
                     </select>
                 </div>
 
-                <NeTextInput @input="onlyNumbers" v-model="virtualID" label="Virtual ID"
-                    :invalidMessage="errorBag.virtualID" />
-                <NeTextInput @input="onlyNumbers" v-model="virtualPriority" label="Virtual Priority"
-                    :invalidMessage="errorBag.virtualPriority" />
-                <NeTextInput @input="validateIp" v-model="virtualIP" label="Virtual IP"
-                    :invalidMessage="errorBag.virtualIP" />
-                <NeTextInput @input="onlyNumbers" v-model="password" label="Password"
-                    :invalidMessage="errorBag.password" />
+                <NeTextInput @input="onlyNumbers" v-model="virtualID" :invalidMessage="errorBag.virtualID"
+                    :label="t('Virtual ID')" :placeholder="t('Enter Virtual ID')">
+                    <template #tooltip>
+                        <NeTooltip>
+                            <template #content>
+                                {{ t('standalone.logs.search_tooltip') }}
+                            </template>
+                        </NeTooltip>
+                    </template>
+                </NeTextInput>
+                <!-- <NeTextInput @input="onlyNumbers" v-model="virtualID" label="Virtual ID"
+                    :invalidMessage="errorBag.virtualID" /> -->
+
+
+                <NeTextInput @input="onlyNumbers" v-model="virtualPriority" :invalidMessage="errorBag.virtualPriority"
+                    :label="t('Virtual Priority')" :placeholder="t('Enter Virtual Priority')">
+                    <template #tooltip>
+                        <NeTooltip>
+                            <template #content>
+                                {{ t('standalone.logs.search_tooltip') }}
+                            </template>
+                        </NeTooltip>
+                    </template>
+                </NeTextInput>
+                <!-- <NeTextInput @input="onlyNumbers" v-model="virtualPriority" label="Virtual Priority"
+                    :invalidMessage="errorBag.virtualPriority" /> -->
+
+                <NeTextInput @input="validateIp" v-model="virtualIP" :invalidMessage="errorBag.virtualIP"
+                    :label="t('Virtual IP')" :placeholder="t('Enter Virtual IP')">
+                    <template #tooltip>
+                        <NeTooltip>
+                            <template #content>
+                                {{ t('standalone.logs.search_tooltip') }}
+                            </template>
+                        </NeTooltip>
+                    </template>
+                </NeTextInput>
+                <!-- <NeTextInput @input="validateIp" v-model="virtualIP" label="Virtual IP"
+                    :invalidMessage="errorBag.virtualIP" /> -->
+
+                <NeTextInput @input="onlyNumbers" v-model="password" :invalidMessage="errorBag.password"
+                    :label="t('Password')" :placeholder="t('Enter Password')">
+                    <template #tooltip>
+                        <NeTooltip>
+                            <template #content>
+                                {{ t('standalone.logs.search_tooltip') }}
+                            </template>
+                        </NeTooltip>
+                    </template>
+                </NeTextInput>
+                <!-- <NeTextInput @input="onlyNumbers" v-model="password" label="Password"
+                    :invalidMessage="errorBag.password" /> -->
             </div>
 
         </template>

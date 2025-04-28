@@ -331,8 +331,8 @@ onMounted(fetchSNMPConfig);
 
           <!-- If version 2c -->
           <template v-if="snmpVersion === '2c'">
-            <NeTextInput v-model="port" :invalid-message="errorBag.getFirstFor('port')"
-              :label="t('Port')" :placeholder="t('Port Number')">
+            <NeTextInput v-model="port" :invalid-message="errorBag.getFirstFor('port')" :label="t('Port')"
+              :placeholder="t('Enter Port Number')">
               <template #tooltip>
                 <NeTooltip>
                   <template #content>
@@ -341,31 +341,91 @@ onMounted(fetchSNMPConfig);
                 </NeTooltip>
               </template>
             </NeTextInput>
-            <NeTextInput :label="t('Port')" @input="onlyNumbers" type="number" v-model="port"
-              :invalidMessage="errorBag.getFirstFor('port')" :disabled="loading.saveRule" />
+            <!-- <NeTextInput :label="t('Port')" @input="onlyNumbers" type="number" v-model="port"
+              :invalidMessage="errorBag.getFirstFor('port')" :disabled="loading.saveRule" /> -->
 
-            <NeTextInput :label="t('Community')" @input="onlyLetters" type="text" v-model="community"
-              :invalidMessage="errorBag.getFirstFor('community')" :disabled="loading.saveRule" />
+            <NeTextInput v-model="community" :invalid-message="errorBag.getFirstFor('community')"
+              :label="t('Community')" :placeholder="t('Community')">
+              <template #tooltip>
+                <NeTooltip>
+                  <template #content>
+                    {{ t('standalone.logs.search_tooltip') }}
+                  </template>
+                </NeTooltip>
+              </template>
+            </NeTextInput>
+            <!-- <NeTextInput :label="t('Community')" @input="onlyLetters" type="text" v-model="community"
+              :invalidMessage="errorBag.getFirstFor('community')" :disabled="loading.saveRule" /> -->
 
-            <NeTextInput :label="t('Trap IP')" @input="validateIp" type="text" v-model="trapIp"
-              :invalidMessage="errorBag.getFirstFor('trapIp')" :disabled="loading.saveRule" />
+            <NeTextInput v-model="trapIp" :invalid-message="errorBag.getFirstFor('trapIp')" :label="t('Trap IP')"
+              :placeholder="t('Enter Trap IP')">
+              <template #tooltip>
+                <NeTooltip>
+                  <template #content>
+                    {{ t('standalone.logs.search_tooltip') }}
+                  </template>
+                </NeTooltip>
+              </template>
+            </NeTextInput>
+            <!-- <NeTextInput :label="t('Trap IP')" @input="validateIp" type="text" v-model="trapIp"
+              :invalidMessage="errorBag.getFirstFor('trapIp')" :disabled="loading.saveRule" /> -->
 
-            <NeTextInput :label="t('Trap Port')" @input="onlyNumbers" type="text" v-model="trapPort"
-              :invalidMessage="errorBag.getFirstFor('trapPort')" :disabled="loading.saveRule" />
+            <NeTextInput v-model="trapPort" :invalid-message="errorBag.getFirstFor('trapPort')" :label="t('Trap Port')"
+              :placeholder="t('Enter Trap Port')">
+              <template #tooltip>
+                <NeTooltip>
+                  <template #content>
+                    {{ t('standalone.logs.search_tooltip') }}
+                  </template>
+                </NeTooltip>
+              </template>
+            </NeTextInput>
+            <!-- <NeTextInput :label="t('Trap Port')" @input="onlyNumbers" type="text" v-model="trapPort"
+              :invalidMessage="errorBag.getFirstFor('trapPort')" :disabled="loading.saveRule" /> -->
           </template>
 
           <!-- If version 3 -->
           <template v-if="snmpVersion === '3'">
             <h4 class="text-lg font-semibold mb-2">SNMPv3 Account</h4>
 
-            <NeTextInput :label="t('Port')" type="text" v-model="snmp3port"
-              :invalidMessage="errorBag.getFirstFor('snmp3port')" :disabled="loading.saveRule" />
+            <NeTextInput v-model="snmp3port" :invalid-message="errorBag.getFirstFor('snmp3port')" :label="t('Port')"
+              :placeholder="t('Enter Port Number')">
+              <template #tooltip>
+                <NeTooltip>
+                  <template #content>
+                    {{ t('standalone.logs.search_tooltip') }}
+                  </template>
+                </NeTooltip>
+              </template>
+            </NeTextInput>
+            <!-- <NeTextInput :label="t('Port')" type="text" v-model="snmp3port"
+              :invalidMessage="errorBag.getFirstFor('snmp3port')" :disabled="loading.saveRule" /> -->
 
-            <NeTextInput :label="t('User Name')" type="text" v-model="username"
-              :invalidMessage="errorBag.getFirstFor('username')" :disabled="loading.saveRule" />
+            <NeTextInput v-model="username" :invalid-message="errorBag.getFirstFor('username')" :label="t('User Name')"
+              :placeholder="t('Enter Username')">
+              <template #tooltip>
+                <NeTooltip>
+                  <template #content>
+                    {{ t('standalone.logs.search_tooltip') }}
+                  </template>
+                </NeTooltip>
+              </template>
+            </NeTextInput>
+            <!-- <NeTextInput :label="t('User Name')" type="text" v-model="username"
+              :invalidMessage="errorBag.getFirstFor('username')" :disabled="loading.saveRule" /> -->
 
-            <NeTextInput :label="t('Password')" type="text" v-model="password"
-              :invalidMessage="errorBag.getFirstFor('password')" :disabled="loading.saveRule" />
+              <NeTextInput v-model="password" :invalid-message="errorBag.getFirstFor('password')" :label="t('Password')"
+              :placeholder="t('Enter Password')">
+              <template #tooltip>
+                <NeTooltip>
+                  <template #content>
+                    {{ t('standalone.logs.search_tooltip') }}
+                  </template>
+                </NeTooltip>
+              </template>
+            </NeTextInput>
+            <!-- <NeTextInput :label="t('Password')" type="text" v-model="password"
+              :invalidMessage="errorBag.getFirstFor('password')" :disabled="loading.saveRule" /> -->
 
             <div>
               <label class="block text-sm font-medium mb-1">Hash:</label>
@@ -385,8 +445,18 @@ onMounted(fetchSNMPConfig);
               </select>
             </div>
 
-            <NeTextInput :label="t('Encryption Key')" type="text" v-model="encryptionKey"
-              :invalidMessage="errorBag.getFirstFor('encryptionKey')" :disabled="loading.saveRule" />
+            <NeTextInput v-model="encryptionKey" :invalid-message="errorBag.getFirstFor('encryptionKey')" :label="t('Encryption Key')"
+              :placeholder="t('Enter Encryption Key')">
+              <template #tooltip>
+                <NeTooltip>
+                  <template #content>
+                    {{ t('standalone.logs.search_tooltip') }}
+                  </template>
+                </NeTooltip>
+              </template>
+            </NeTextInput>
+            <!-- <NeTextInput :label="t('Encryption Key')" type="text" v-model="encryptionKey"
+              :invalidMessage="errorBag.getFirstFor('encryptionKey')" :disabled="loading.saveRule" /> -->
           </template>
         </div>
       </template>

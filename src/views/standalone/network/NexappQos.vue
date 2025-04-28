@@ -214,7 +214,7 @@ const saveNetworkConfig = async () => {
         <div class="flex flex-col items-start mb-">
             <NeToggle v-model="service" label="Service Status" />
         </div>
-        <p class="mb-6 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
+        <p class="mb-4 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
             {{ t('standalone.ping_latency_monitor.description') }}
         </p>
         <template v-if="service">
