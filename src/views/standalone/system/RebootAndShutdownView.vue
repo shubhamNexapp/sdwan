@@ -84,7 +84,7 @@ onMounted(() => {
   <div>
     <NeHeading tag="h3" class="mb-4">{{ t('standalone.reboot_and_shutdown.title') }}</NeHeading>
     <p class="mb-6 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
-      {{ t('standalone.ping_latency_monitor.description') }}
+      {{ t('Reboot or shut down the unit to apply changes or perform system maintenance.') }}
     </p>
     <div class="flex flex-col gap-y-4">
       <NeHeading tag="h5" class="mb-2">{{ t('standalone.reboot_and_shutdown.reboot') }}</NeHeading>

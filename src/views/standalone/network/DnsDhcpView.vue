@@ -47,7 +47,7 @@ const { tabs, selectedTab } = useTabs([
 <template>
   <NeHeading tag="h3" class="mb-4">{{ t('standalone.dns_dhcp.title') }}</NeHeading>
   <p class="mb-6 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
-    {{ t('standalone.ping_latency_monitor.description') }}
+    {{ t('Configure DHCP settings, manage static and dynamic leases, bind MAC addresses, and set DNS records for network devices') }}
   </p>
   <div>
     <NeTabs :selected="selectedTab" :srSelectTabLabel="t('ne_tabs.select_a_tab')" :srTabsLabel="t('ne_tabs.tabs')"

@@ -80,7 +80,7 @@ function editZone(zone: Zone) {
   <div class="space-y-8">
     <NeHeading tag="h3" class="mb-4">{{ t('standalone.zones_and_policies.title') }}</NeHeading>
     <p class="mb-6 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
-      {{ t('standalone.ping_latency_monitor.description') }}
+      {{ t('Define network zones and configure policies to control traffic flow between zones, interfaces, and firewall rules') }}
     </p>
     <div class="flex flex-wrap gap-6">
       <p class="grow text-sm font-normal dark:text-gray-400">

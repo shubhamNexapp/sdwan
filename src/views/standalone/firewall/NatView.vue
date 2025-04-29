@@ -23,7 +23,7 @@ const { tabs, selectedTab } = useTabs([
   <div>
     <NeHeading tag="h3" class="mb-4">{{ t('standalone.nat.title') }}</NeHeading>
     <p class="mb-6 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
-      {{ t('standalone.ping_latency_monitor.description') }}
+      {{ t('Configure NAT and NETMAP rules to modify network address information, implement source NAT, and map private networks to public addresses.') }}
     </p>
     <NeTabs :tabs="tabs" :selected="selectedTab" :srTabsLabel="t('ne_tabs.tabs')"
       :srSelectTabLabel="t('ne_tabs.select_a_tab')" @selectTab="selectedTab = $event" class="mb-8" />

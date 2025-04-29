@@ -152,7 +152,7 @@ const validateIpNetwork = (
 <template>
   <NeHeading tag="h3" class="mb-4">RIP</NeHeading>
   <p class="mb-6 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
-    {{ t('standalone.ping_latency_monitor.description') }}
+    {{ t('Configure RIP service settings, including redistribution of connected, static, and kernel routes, as well as managing neighbors and networks.') }}
   </p>
   <!-- <NeToggle v-model="service" label="RIP Service" /> -->
   <NeToggle v-model="service" :label="service ? 'Enable' : 'Disable'" :topLabel="'RIP Service'" />

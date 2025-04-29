@@ -119,7 +119,7 @@ async function fetchSubscriptionInfo() {
     </NeTooltip>
   </div>
   <p class="mb-4 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
-    {{ t('standalone.ping_latency_monitor.description') }}
+    {{ t('Manage local and remote user databases, configure authentication methods for VPN access, and add or edit user credentials for OpenVPN services.') }}
   </p>
   <!-- list databases error -->
   <NeInlineNotification v-if="error.listDatabases" :title="t('error.cannot_retrieve_databases')"

@@ -214,7 +214,7 @@ onMounted(() => {
 <template>
   <NeHeading tag="h3" class="mb-4">{{ t('standalone.update.title') }}</NeHeading>
   <p class="mb-6 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
-    {{ t('standalone.ping_latency_monitor.description') }}
+    {{ t('Update the system with new features or a firmware image, ensuring to back up your configuration to preserve settings and data.') }}
   </p>
   <NeInlineNotification v-if="error.notificationTitle" :title="error.notificationTitle"
     :description="error.notificationDescription" class="my-4" kind="error"><template #details

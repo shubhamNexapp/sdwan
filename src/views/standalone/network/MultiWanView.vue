@@ -27,7 +27,7 @@ const { tabs, selectedTab } = useTabs([
 <template>
   <NeHeading tag="h3" class="mb-4">{{ t('standalone.multi_wan.title') }}</NeHeading>
   <p class="mb-6 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
-    {{ t('standalone.ping_latency_monitor.description') }}
+    {{ t('Configure multi-WAN settings, including routing policies and rules to manage traffic across multiple WAN connections') }}
   </p>
   <div>
     <NeTabs :selected="selectedTab" :srSelectTabLabel="t('ne_tabs.select_a_tab')" :srTabsLabel="t('ne_tabs.tabs')"

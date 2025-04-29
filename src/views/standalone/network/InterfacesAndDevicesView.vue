@@ -555,7 +555,7 @@ function formatPackets(packets: number) {
       </div>
     </div>
     <p class="max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
-      {{ t('standalone.ping_latency_monitor.description') }}
+      {{ t('Manage network interfaces and devices, including VLANs, logical interfaces, and active connections, with real-time monitoring of traffic and device status.') }}
     </p>
     <NeInlineNotification v-if="error.notificationTitle" kind="error" :title="error.notificationTitle"
       :description="error.notificationDescription" class="mb-4">

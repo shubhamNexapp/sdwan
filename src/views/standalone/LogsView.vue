@@ -149,7 +149,7 @@ function downloadLogsAsExcel() {
 <template>
   <h1 class="mb-4 text-xl font-semibold">Logs</h1>
   <p class="mb-2 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
-    {{ t('standalone.ping_latency_monitor.description') }}
+    {{ t('View and search logs, download log files, and manage log settings, including line limits and log wrapping.') }}
   </p>
   <div class="flex justify-end">
     <button @click="downloadLogsAsExcel"

@@ -38,7 +38,7 @@ watch(selectedTab, () => {
 <template>
   <NeHeading tag="h3" class="mb-4">{{ t('standalone.hotspot.title') }}</NeHeading>
   <p class="mb-6 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
-    {{ t('standalone.ping_latency_monitor.description') }}
+    {{ t('Configure and manage hotspot settings, including authentication and network access configurations.') }}
   </p>
   <NeTabs :selected="selectedTab" :srSelectTabLabel="t('ne_tabs.select_a_tab')" :srTabsLabel="t('ne_tabs.tabs')"
     :tabs="tabs" class="mb-8" @selectTab="selectedTab = $event" />

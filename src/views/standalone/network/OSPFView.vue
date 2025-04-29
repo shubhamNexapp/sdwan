@@ -199,7 +199,7 @@ const validateInterfaceNew = (
 <template>
   <NeHeading tag="h3" class="mb-4">OSPF</NeHeading>
   <p class="mb-6 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
-    {{ t('standalone.ping_latency_monitor.description') }}
+    {{ t('Configure OSPF service settings, including redistribution of connected, static, and kernel routes, and manage neighbors, networks, and interfaces.') }}
   </p>
   <!-- <NeToggle v-model="service" label="OSPF Service" /> -->
   <NeToggle v-model="service" :label="service ? 'Enable' : 'Disable'" :topLabel="'OSPF Service'" />

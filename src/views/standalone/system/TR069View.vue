@@ -149,7 +149,7 @@ const getLists = async () => {
 <template>
   <NeHeading tag="h3" class="mb-4">TR069</NeHeading>
   <p class="mb-6 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
-    {{ t('standalone.ping_latency_monitor.description') }}
+    {{ t('Configure TR069 service settings, including ACS credentials and connection intervals for remote device management.') }}
   </p>
   <!-- <form @submit.prevent="saveRule"> -->
   <form>

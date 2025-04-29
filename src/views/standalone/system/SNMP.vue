@@ -191,7 +191,7 @@ async function saveSettings() {
       <NeHeading tag="h3">SNMP</NeHeading>
     </div>
     <p class="mb-6 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
-      {{ t('standalone.ping_latency_monitor.description') }}
+      {{ t('Configure SNMP settings, including version selection, user account details, and encryption for secure network management.') }}
     </p>
     <form class="flex flex-col space-y-6 w-[400px]">
       <NeToggle v-model="service" :topLabel="t('Service')" :label="service ? 'Enable' : 'Disable'" />

@@ -185,7 +185,7 @@ const saveNetworkConfig = async () => {
 <template>
     <NeHeading tag="h3" class="mb-7">Anti Spam</NeHeading>
     <p class="mb-6 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
-        {{ t('standalone.ping_latency_monitor.description') }}
+        {{ t('Configure anti-spam service, including Bayes filtering, IP address management, and custom rule creation to filter spam messages') }}
     </p>
     <div class="flex flex-col gap-y-6">
         <div>

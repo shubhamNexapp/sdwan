@@ -152,7 +152,7 @@ const getLists = async () => {
       <NeHeading tag="h3" class="mb-4">{{ t('standalone.openvpn_warrior.short_name') }}</NeHeading>
     </div>
     <p class="mb-6 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
-      {{ t('standalone.ping_latency_monitor.description') }}
+      {{ t('Configure scheduled tasks with specified operation times and associated services for automated management.') }}
     </p>
     <div class="space-y-6">
 
