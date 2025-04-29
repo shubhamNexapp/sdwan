@@ -1,308 +1,190 @@
 <script setup lang="ts">
+import { ref, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
+import axios from 'axios';
+import { getSDControllerApiEndpoint } from '@/lib/config';
+import { useNotificationsStore } from '@/stores/notifications';
+import FormLayout from '@/components/standalone/FormLayout.vue';
 import {
-  NeHeading,
-  NeTextInput,
   NeToggle,
-  NeButton,
-  NeTooltip
-} from "@nethesis/vue-components";
-import { onMounted, ref, watch, type Ref } from "vue";
-import axios from "axios";
-import { getSDControllerApiEndpoint } from "@/lib/config";
-import { MessageBag } from "@/lib/validation";
-import { useNotificationsStore } from "../../../stores/notifications";
+  NeTextInput,
+  NeButton, NeHeading, NeTooltip
+} from '@nethesis/vue-components';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faSave } from '@fortawesome/free-solid-svg-icons'
-import { useI18n } from "vue-i18n";
 
-
+const { t } = useI18n();
 const notificationsStore = useNotificationsStore();
 
-export type IpsecTunnel = {
-  id: string;
-  name: string;
-  local: string[];
-  remote: string[];
-  enabled: "0" | "1";
-  connected: boolean;
-};
-
-// const t = (key: string) => key; // Mock translation function
-const { t } = useI18n()
-
-// Form Fields
 const service = ref(false);
-const snmpService = ref(false); // Initially set to false
-const snmpVersion = ref("2c"); // "2c" or "3"
-const port = ref("");
-const community = ref("");
-const trapIp = ref("");
-const trapPort = ref("");
-const username = ref("");
-const password = ref("");
-const hash = ref("");
-const encryption = ref("");
-const encryptionKey = ref("");
-const snmp3port = ref("");
-// 🔍 Function to check if a field is empty
-const validateRequired = (value: string) => {
-  return value.trim() !== "";
-};
+const snmpVersion = ref('2c');
+const loading = ref(false);
+const saving = ref(false);
+const errorBag = ref<{ [key: string]: string }>({});
 
-let loading = ref({
-  listServiceSuggestions: false,
-  listObjectSuggestions: false,
-  listProtocols: false,
-  saveRule: false,
-  fetchRule: false,
-});
+const community = ref('');
+const port = ref('');
+const trapIp = ref('');
+const trapPort = ref('');
+const clientaddr = ref('');
 
-// ✅ Fetch SNMP Configuration
-const fetchSNMPConfig = async () => {
-  loading.value.fetchRule = true;
+const snmp3port = ref('');
+const username = ref('');
+const password = ref('');
+const hash = ref('');
+const encryption = ref('');
+const encryptionKey = ref('');
+
+onMounted(fetchConfiguration);
+
+async function fetchConfiguration() {
   try {
-    const response = await axios.post(`${getSDControllerApiEndpoint()}/snmp`, {
-      method: "get-config",
-      payload: {},
+    loading.value = true;
+    const res = await axios.post(`${getSDControllerApiEndpoint()}/snmp`, {
+      method: 'get-config',
+      payload: {}
     });
 
-    if (response.data) {
-      const data = response.data.payload;
-      const dataValue = response.data.data;
-      snmpService.value = dataValue.service || "";
-      // service.value = newValue.service === 'enable';
-      service.value = dataValue.service === 'enable';
-      snmpVersion.value = dataValue.version || "";
-      port.value = dataValue.snmpv2.port || "";
-      community.value = dataValue.snmpv2.community || "";
-      trapIp.value = dataValue.snmpv2.trap_ip || "";
-      trapPort.value = dataValue.snmpv2.trap_port || "";
-      username.value = dataValue.snmpv3.account[0].username || "";
-      password.value = dataValue.snmpv3.account[0].password || "";
-      hash.value = dataValue.snmpv3.account[0].hash || "";
-      encryption.value = dataValue.snmpv3.account[0].encrypt || "";
-      encryptionKey.value = dataValue.snmpv3.account[0].key || "";
-      snmp3port.value = dataValue.snmpv3.port || "";
+    if (res.data.code === 200) {
+      const config = res.data.data;
+      service.value = config.service === 'enable';
+      snmpVersion.value = config.version || '2c';
+
+      if (snmpVersion.value === '2c' && config.snmpv2) {
+        community.value = config.snmpv2.community || '';
+        port.value = config.snmpv2.port || '';
+        trapIp.value = config.snmpv2.trap_ip || '';
+        trapPort.value = config.snmpv2.trap_port || '';
+        clientaddr.value = config.snmpv2.clientaddr || '';
+      }
+
+      if (snmpVersion.value === '3' && config.snmpv3?.account?.[0]) {
+        const acc = config.snmpv3.account[0];
+        username.value = acc.username || '';
+        password.value = acc.password || '';
+        hash.value = acc.hash || '';
+        encryption.value = acc.encrypt || '';
+        encryptionKey.value = acc.key || '';
+        snmp3port.value = config.snmpv3.port || '';
+        clientaddr.value = config.snmpv3.clientaddr || '';
+      }
     }
-  } catch (error) {
-    console.error("Error fetching SNMP configuration:", error);
+  } catch {
+    console.error('Fetch failed');
   } finally {
-    loading.value.fetchRule = false;
+    loading.value = false;
   }
-};
-
-const errorBag = ref(new MessageBag());
-
-// Define a type for required fields
-interface ValidationField {
-  key: string;
-  value: Ref<string>;
-  type?: "string" | "number";
-  minLength?: number;
-  maxLength?: number;
-  min?: number;
-  max?: number;
 }
 
-// 🛠 Validation Function
-// Define a type for required fields
-interface ValidationField {
-  key: string;
-  value: Ref<string>;
-  type?: "string" | "number";
-  minLength?: number;
-  maxLength?: number;
-  min?: number;
-  max?: number;
-}
+function validate(): boolean {
+  errorBag.value = {};
 
-const isAlphabetic = (val: string) => /^[a-zA-Z]+$/.test(val);
-const isNumeric = (val: string) => /^[0-9]+$/.test(val);
+  const isRequired = (val: any) => typeof val === 'string' && val.trim() !== '';
 
-// Function to allow only letters in string fields
-const onlyLetters = (event: Event) => {
-  const input = event.target as HTMLInputElement
-  input.value = input.value.replace(/[^a-zA-Z\s]/g, '') // Allow only letters and spaces
-}
+  const isPortValid = (val: string) =>
+    /^\d+$/.test(val) && Number(val) >= 1 && Number(val) <= 65535;
 
-const validateIp = (event: Event) => {
-  const input = event.target as HTMLInputElement;
-  input.value = input.value.replace(/[^0-9./]/g, ''); // allow only numbers, dots, slash
-  trapIp.value = input.value; // Update your v-model
-};
+  const isStrLen = (val: string, max: number) =>
+    isRequired(val) && val.length <= max;
 
-// Function to allow only numbers in number fields
-const onlyNumbers = (event: Event) => {
-  const input = event.target as HTMLInputElement
-  input.value = input.value.replace(/[^0-9]/g, '') // Allow only numbers
-}
+  const isStrLenRange = (val: string, min: number, max: number) =>
+    isRequired(val) && val.length >= min && val.length <= max;
 
+  const isValidIPv4 = (val: string) =>
+    /^((25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)(\.|$)){4}$/.test(val);
 
-const validate = () => {
-  errorBag.value.clear();
-
-  // ✅ Allow submission without validation if service is disabled
-  if (!service.value) {
-    return true;
+  if (!['2c', '3'].includes(snmpVersion.value)) {
+    errorBag.value.snmpVersion = 'Invalid SNMP version';
   }
 
-  let isValid = true;
-
-  // Define required fields based on SNMP version
-  const requiredFields: ValidationField[] = [
-    { key: "snmpVersion", value: snmpVersion, type: "string" },
-  ];
-
-  if (snmpVersion.value === "2c") {
-    requiredFields.push(
-      { key: "port", value: port, type: "number", min: 1, max: 65535 },
-      { key: "community", value: community, type: "string", maxLength: 32 },
-      { key: "trapIp", value: trapIp, type: "string", maxLength: 16 },
-      { key: "trapPort", value: trapPort, type: "number", min: 1, max: 65535 }
-    );
-  } else if (snmpVersion.value === "3") {
-    requiredFields.push(
-      { key: "snmp3port", value: snmp3port, type: "number", min: 1, max: 65535 },
-      { key: "username", value: username, type: "string", maxLength: 32 },
-      { key: "password", value: password, type: "string", maxLength: 32 },
-      { key: "hash", value: hash, type: "string" }, // Assuming this is required but doesn't need length validation
-      { key: "encryptionKey", value: encryptionKey, type: "string", minLength: 8, maxLength: 32 },
-      { key: "encryption", value: encryption, type: "string" }
-    );
+  if (snmpVersion.value === '2c') {
+    if (!isPortValid(port.value)) errorBag.value.port = 'Port must be 1–65535';
+    if (!isStrLen(community.value, 32)) errorBag.value.community = 'Max 32 characters';
+    if (!isValidIPv4(trapIp.value)) errorBag.value.trapIp = 'Invalid IP address';
+    if (!isPortValid(trapPort.value)) errorBag.value.trapPort = 'Trap port must be 1–65535';
   }
 
-  requiredFields.forEach((field) => {
-    const fieldValue = field.value.value.trim();
-
-    // Required check
-    if (!fieldValue) {
-      errorBag.value.set(field.key, t("Required"));
-      isValid = false;
-      return;
+  if (snmpVersion.value === '3') {
+    if (!isPortValid(snmp3port.value)) errorBag.value.snmp3port = 'Port must be 1–65535';
+    if (!isValidIPv4(clientaddr.value)) errorBag.value.clientaddr = 'Invalid IP address';
+    if (!isRequired(username.value)) {
+      errorBag.value.username = 'Username is required';
+    } else if (!isStrLen(username.value, 32)) {
+      errorBag.value.username = 'Max 32 characters';
     }
 
-    // String length validation
-    if (field.type === "string") {
-      if (!isAlphabetic(fieldValue)) {
-        errorBag.value.set(field.key, t("Only alphabetic characters allowed"));
-        isValid = false;
-      }
-      if (field.maxLength && fieldValue.length > field.maxLength) {
-        errorBag.value.set(field.key, t(`Max length is ${field.maxLength}`));
-        isValid = false;
-      }
-      if (field.minLength && fieldValue.length < field.minLength) {
-        errorBag.value.set(field.key, t(`Min length is ${field.minLength}`));
-        isValid = false;
-      }
+    if (!isRequired(password.value)) {
+      errorBag.value.password = 'Password is required';
+    } else if (!isStrLen(password.value, 32)) {
+      errorBag.value.password = 'Max 32 characters';
     }
+    if (!hash.value) errorBag.value.hash = 'Hash is required';
+    if (!encryption.value) errorBag.value.encryption = 'Encryption is required';
+    if (!isStrLenRange(encryptionKey.value, 8, 32))
+      errorBag.value.encryptionKey = 'Length must be 8–32 characters';
+  }
+  return Object.keys(errorBag.value).length === 0;
+}
 
+async function saveSettings() {
+  if (!validate()) return;
 
-    if (field.type === "number") {
-      if (!isNumeric(fieldValue)) {
-        errorBag.value.set(field.key, t("Only numeric values allowed"));
-        isValid = false;
-      } else {
-        const num = parseInt(fieldValue, 10);
-        if ((field.min !== undefined && num < field.min) || (field.max !== undefined && num > field.max)) {
-          errorBag.value.set(field.key, t(`Value must be between ${field.min} and ${field.max}`));
-          isValid = false;
-        }
-      }
-    }
-  });
+  try {
+    saving.value = true;
+    const payload: any = {
+      service: service.value ? 'enable' : 'disable',
+      version: snmpVersion.value
+    };
 
-
-  return isValid;
-};
-
-
-// ✅ Watch each field separately to clear errors when the user types
-const fieldsToWatch: Record<string, Ref<string>> = {
-  // snmpService,
-  snmpVersion,
-  port,
-  community,
-  trapIp,
-  trapPort,
-  username,
-  password,
-  encryptionKey,
-};
-
-Object.keys(fieldsToWatch).forEach((fieldKey) => {
-  watch(fieldsToWatch[fieldKey], (newValue) => {
-    if (newValue.trim() !== "") {
-      errorBag.value.delete(fieldKey);
-    }
-  });
-});
-
-
-const submitForm = async () => {
-  if (validate()) {
-    let payload;
-
-    if (!service.value) {
-      // ✅ If service is disabled, send only service status
-      payload = { service: "disable" };
-    } else if (snmpVersion.value === "2c") {
-      payload = {
-        service: "enable",
-        version: snmpVersion.value,
-        snmpv2: {
-          port: port.value,
-          community: community.value,
-          trap_ip: trapIp.value,
-          trap_port: trapPort.value,
-        },
-      };
-    } else {
-      payload = {
-        service: "enable",
-        version: snmpVersion.value,
-        snmpv3: {
-          port: snmp3port.value,
-          account: [
-            {
-              username: username.value,
-              password: password.value,
-              hash: hash.value,
-              encrypt: encryption.value,
-              key: encryptionKey.value,
-            },
-          ],
-        },
+    if (snmpVersion.value === '2c') {
+      payload.snmpv2 = {
+        community: community.value,
+        port: port.value,
+        trap_ip: trapIp.value,
+        trap_port: trapPort.value,
+        clientaddr: clientaddr.value
       };
     }
 
-    try {
-      const response = await axios.post(`${getSDControllerApiEndpoint()}/snmp`, {
-        method: "set-config",
-        payload,
+    if (snmpVersion.value === '3') {
+      payload.snmpv3 = {
+        port: snmp3port.value,
+        clientaddr: clientaddr.value,
+        account: [{
+          username: username.value,
+          password: password.value,
+          hash: hash.value,
+          encrypt: encryption.value,
+          key: encryptionKey.value
+        }]
+      };
+    }
+
+    const res = await axios.post(`${getSDControllerApiEndpoint()}/snmp`, {
+      method: 'set-config',
+      payload
+    });
+
+    if (res.data.code === 200) {
+      notificationsStore.createNotification({
+        title: 'Success',
+        description: 'Settings saved',
+        kind: 'success'
       });
-
-      if (response.data.code === 200) {
-        notificationsStore.createNotification({
-          title: "Success",
-          description: "Configuration saved successfully.",
-          kind: "success",
-        });
-        await fetchSNMPConfig();
-      }
-    } catch (error) {
-      console.error("Error saving SNMP configuration:", error);
+    } else {
+      throw new Error('Server error');
     }
-  } else {
-    console.log("Validation failed.");
+  } catch (err) {
+    notificationsStore.createNotification({
+      title: 'Error',
+      description: 'Failed to save settings',
+      kind: 'danger'
+    });
+  } finally {
+    saving.value = false;
   }
-};
-
-
-// ✅ Fetch data on component mount
-onMounted(fetchSNMPConfig);
+}
 </script>
-
 <template>
   <div class="flex flex-col">
     <div class="mb-4">
@@ -311,168 +193,166 @@ onMounted(fetchSNMPConfig);
     <p class="mb-6 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
       {{ t('standalone.ping_latency_monitor.description') }}
     </p>
-    <form class="flex flex-col space-y-6">
-      <!-- Status Toggle (fixed width and left aligned) -->
-      <div class="flex flex-col w-[400px]">
-        <NeToggle v-model="service" :topLabel="t('Status')" :label="service ? 'Enable' : 'Disable'" />
+    <form class="flex flex-col space-y-6 w-[400px]">
+      <NeToggle v-model="service" :topLabel="t('Service')" :label="service ? 'Enable' : 'Disable'" />
+
+      <div class="my-4">
+        <label class="block font-medium mb-1">SNMP Version</label>
+        <select v-model="snmpVersion" class="border rounded px-3 py-2 w-full">
+          <option value="2c">2c</option>
+          <option value="3">3</option>
+        </select>
       </div>
 
-      <!-- Fields only if enabled -->
-      <template v-if="service">
-        <div class="flex flex-col space-y-6 w-[400px]">
-          <div>
-            <label class="block text-sm font-medium mb-1">SNMP Version:</label>
-            <select v-model="snmpVersion"
-              class="border rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-400 w-full">
-              <option value="2c">2c</option>
-              <option value="3">3</option>
-            </select>
-          </div>
-
-          <!-- If version 2c -->
-          <template v-if="snmpVersion === '2c'">
-            <NeTextInput v-model="port" :invalid-message="errorBag.getFirstFor('port')" :label="t('Port')"
-              :placeholder="t('Enter Port Number')">
-              <template #tooltip>
-                <NeTooltip>
-                  <template #content>
-                    {{ t('standalone.logs.search_tooltip') }}
-                  </template>
-                </NeTooltip>
+      <!-- SNMPv2 Section -->
+      <template v-if="snmpVersion === '2c'">
+        <NeTextInput v-model="port" :invalidMessage="errorBag.port" :label="t('Port')"
+          :placeholder="t('Enter Port Number')">
+          <template #tooltip>
+            <NeTooltip>
+              <template #content>
+                {{ t('standalone.logs.search_tooltip') }}
               </template>
-            </NeTextInput>
-            <!-- <NeTextInput :label="t('Port')" @input="onlyNumbers" type="number" v-model="port"
-              :invalidMessage="errorBag.getFirstFor('port')" :disabled="loading.saveRule" /> -->
-
-            <NeTextInput v-model="community" :invalid-message="errorBag.getFirstFor('community')"
-              :label="t('Community')" :placeholder="t('Community')">
-              <template #tooltip>
-                <NeTooltip>
-                  <template #content>
-                    {{ t('standalone.logs.search_tooltip') }}
-                  </template>
-                </NeTooltip>
-              </template>
-            </NeTextInput>
-            <!-- <NeTextInput :label="t('Community')" @input="onlyLetters" type="text" v-model="community"
-              :invalidMessage="errorBag.getFirstFor('community')" :disabled="loading.saveRule" /> -->
-
-            <NeTextInput v-model="trapIp" :invalid-message="errorBag.getFirstFor('trapIp')" :label="t('Trap IP')"
-              :placeholder="t('Enter Trap IP')">
-              <template #tooltip>
-                <NeTooltip>
-                  <template #content>
-                    {{ t('standalone.logs.search_tooltip') }}
-                  </template>
-                </NeTooltip>
-              </template>
-            </NeTextInput>
-            <!-- <NeTextInput :label="t('Trap IP')" @input="validateIp" type="text" v-model="trapIp"
-              :invalidMessage="errorBag.getFirstFor('trapIp')" :disabled="loading.saveRule" /> -->
-
-            <NeTextInput v-model="trapPort" :invalid-message="errorBag.getFirstFor('trapPort')" :label="t('Trap Port')"
-              :placeholder="t('Enter Trap Port')">
-              <template #tooltip>
-                <NeTooltip>
-                  <template #content>
-                    {{ t('standalone.logs.search_tooltip') }}
-                  </template>
-                </NeTooltip>
-              </template>
-            </NeTextInput>
-            <!-- <NeTextInput :label="t('Trap Port')" @input="onlyNumbers" type="text" v-model="trapPort"
-              :invalidMessage="errorBag.getFirstFor('trapPort')" :disabled="loading.saveRule" /> -->
+            </NeTooltip>
           </template>
+        </NeTextInput>
+        <!-- <NeTextInput v-model="port" :label="t('Port')" :invalidMessage="errorBag.port" /> -->
 
-          <!-- If version 3 -->
-          <template v-if="snmpVersion === '3'">
-            <h4 class="text-lg font-semibold mb-2">SNMPv3 Account</h4>
-
-            <NeTextInput v-model="snmp3port" :invalid-message="errorBag.getFirstFor('snmp3port')" :label="t('Port')"
-              :placeholder="t('Enter Port Number')">
-              <template #tooltip>
-                <NeTooltip>
-                  <template #content>
-                    {{ t('standalone.logs.search_tooltip') }}
-                  </template>
-                </NeTooltip>
+        <NeTextInput v-model="community" :invalidMessage="errorBag.community" :label="t('Community')"
+          :placeholder="t('Enter Community')">
+          <template #tooltip>
+            <NeTooltip>
+              <template #content>
+                {{ t('standalone.logs.search_tooltip') }}
               </template>
-            </NeTextInput>
-            <!-- <NeTextInput :label="t('Port')" type="text" v-model="snmp3port"
-              :invalidMessage="errorBag.getFirstFor('snmp3port')" :disabled="loading.saveRule" /> -->
-
-            <NeTextInput v-model="username" :invalid-message="errorBag.getFirstFor('username')" :label="t('User Name')"
-              :placeholder="t('Enter Username')">
-              <template #tooltip>
-                <NeTooltip>
-                  <template #content>
-                    {{ t('standalone.logs.search_tooltip') }}
-                  </template>
-                </NeTooltip>
-              </template>
-            </NeTextInput>
-            <!-- <NeTextInput :label="t('User Name')" type="text" v-model="username"
-              :invalidMessage="errorBag.getFirstFor('username')" :disabled="loading.saveRule" /> -->
-
-              <NeTextInput v-model="password" :invalid-message="errorBag.getFirstFor('password')" :label="t('Password')"
-              :placeholder="t('Enter Password')">
-              <template #tooltip>
-                <NeTooltip>
-                  <template #content>
-                    {{ t('standalone.logs.search_tooltip') }}
-                  </template>
-                </NeTooltip>
-              </template>
-            </NeTextInput>
-            <!-- <NeTextInput :label="t('Password')" type="text" v-model="password"
-              :invalidMessage="errorBag.getFirstFor('password')" :disabled="loading.saveRule" /> -->
-
-            <div>
-              <label class="block text-sm font-medium mb-1">Hash:</label>
-              <select v-model="hash"
-                class="border rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-400 w-full">
-                <option value="MD5">MD5</option>
-                <option value="SHA">SHA</option>
-              </select>
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium mb-1">Encryption:</label>
-              <select v-model="encryption"
-                class="border rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-400 w-full">
-                <option value="AES">AES</option>
-                <option value="DES">DES</option>
-              </select>
-            </div>
-
-            <NeTextInput v-model="encryptionKey" :invalid-message="errorBag.getFirstFor('encryptionKey')" :label="t('Encryption Key')"
-              :placeholder="t('Enter Encryption Key')">
-              <template #tooltip>
-                <NeTooltip>
-                  <template #content>
-                    {{ t('standalone.logs.search_tooltip') }}
-                  </template>
-                </NeTooltip>
-              </template>
-            </NeTextInput>
-            <!-- <NeTextInput :label="t('Encryption Key')" type="text" v-model="encryptionKey"
-              :invalidMessage="errorBag.getFirstFor('encryptionKey')" :disabled="loading.saveRule" /> -->
+            </NeTooltip>
           </template>
-        </div>
+        </NeTextInput>
+        <!-- <NeTextInput v-model="community" :label="t('Community')" :invalidMessage="errorBag.community" /> -->
+
+        <NeTextInput v-model="trapIp" :invalidMessage="errorBag.trapIp" :label="t('Trap IP')"
+          :placeholder="t('Enter Trap IP')">
+          <template #tooltip>
+            <NeTooltip>
+              <template #content>
+                {{ t('standalone.logs.search_tooltip') }}
+              </template>
+            </NeTooltip>
+          </template>
+        </NeTextInput>
+        <!-- <NeTextInput v-model="trapIp" :label="t('Trap IP')" :invalidMessage="errorBag.trapIp" /> -->
+
+        <NeTextInput v-model="trapPort" :invalidMessage="errorBag.trapPort" :label="t('Trap Port')"
+          :placeholder="t('Enter Trap Port')">
+          <template #tooltip>
+            <NeTooltip>
+              <template #content>
+                {{ t('standalone.logs.search_tooltip') }}
+              </template>
+            </NeTooltip>
+          </template>
+        </NeTextInput>
+        <!-- <NeTextInput v-model="trapPort" :label="t('Trap Port')" :invalidMessage="errorBag.trapPort" /> -->
       </template>
 
-      <!-- Submit button (left aligned) -->
+      <!-- SNMPv3 Section -->
+      <template v-else>
+        <NeTextInput v-model="snmp3port" :invalidMessage="errorBag.snmp3port" :label="t('Port')"
+          :placeholder="t('Enter Port')">
+          <template #tooltip>
+            <NeTooltip>
+              <template #content>
+                {{ t('standalone.logs.search_tooltip') }}
+              </template>
+            </NeTooltip>
+          </template>
+        </NeTextInput>
+        <!-- <NeTextInput v-model="snmp3port" :label="t('Port')" :invalidMessage="errorBag.snmp3port" /> -->
+
+        <NeTextInput v-model="clientaddr" :invalidMessage="errorBag.clientaddr" :label="t('Trap IP')"
+          :placeholder="t('Enter Trap IP')">
+          <template #tooltip>
+            <NeTooltip>
+              <template #content>
+                {{ t('standalone.logs.search_tooltip') }}
+              </template>
+            </NeTooltip>
+          </template>
+        </NeTextInput>
+        <!-- <NeTextInput v-model="clientaddr" :label="t('Trap IP')" :invalidMessage="errorBag.clientaddr" /> -->
+
+        <NeTextInput v-model="username" :invalidMessage="errorBag.username" :label="t('Username')"
+          :placeholder="t('Enter Username')">
+          <template #tooltip>
+            <NeTooltip>
+              <template #content>
+                {{ t('standalone.logs.search_tooltip') }}
+              </template>
+            </NeTooltip>
+          </template>
+        </NeTextInput>
+        <!-- <NeTextInput v-model="username" :label="t('Username')" :invalidMessage="errorBag.username" /> -->
+
+        <NeTextInput v-model="password" :invalidMessage="errorBag.password" :label="t('Password')"
+          :placeholder="t('Enter Password')">
+          <template #tooltip>
+            <NeTooltip>
+              <template #content>
+                {{ t('standalone.logs.search_tooltip') }}
+              </template>
+            </NeTooltip>
+          </template>
+        </NeTextInput>
+        <!-- <NeTextInput v-model="password" :label="t('Password')" :invalidMessage="errorBag.password" /> -->
+
+        <div class="my-4">
+          <label class="block font-medium mb-1">Hash</label>
+          <select v-model="hash" class="border rounded px-3 py-2 w-full">
+            <option value="MD5">MD5</option>
+            <option value="SHA">SHA</option>
+          </select>
+          <p v-if="errorBag.hash" class="text-sm mt-1" style="color: rgba(190, 18, 60, 0.9);">
+            {{ errorBag.hash }}
+          </p>
+        </div>
+
+        <div class="my-4">
+          <label class="block font-medium mb-1">Encrypt</label>
+          <select v-model="encryption" class="border rounded px-3 py-2 w-full">
+            <option value="AES">AES</option>
+            <option value="DES">DES</option>
+          </select>
+          <p v-if="errorBag.encryption" class="text-sm mt-1" style="color: rgba(190, 18, 60, 0.9);">
+            {{ errorBag.encryption }}
+          </p>
+        </div>
+
+        <NeTextInput v-model="encryptionKey" :invalidMessage="errorBag.encryptionKey" :label="t('Encryption Key')"
+          :placeholder="t('Enter Encryption Key')">
+          <template #tooltip>
+            <NeTooltip>
+              <template #content>
+                {{ t('standalone.logs.search_tooltip') }}
+              </template>
+            </NeTooltip>
+          </template>
+        </NeTextInput>
+        <!-- <NeTextInput v-model="encryptionKey" :label="t('Encryption Key')" :invalidMessage="errorBag.encryptionKey" /> -->
+      </template>
+
+      <!-- Save Button -->
+      <!-- <div class="mt-6">
+        <NeButton :loading="saving" @click="saveSettings">
+          {{ t('Save') }}
+        </NeButton>
+      </div> -->
       <div class="flex mt-4 flex-col w-[90px]">
-        <NeButton class=" ml-1" :disabled="loading.saveRule" :loading="loading.saveRule" kind="primary" size="lg"
-          @click.prevent="submitForm()">
+        <NeButton class=" ml-1" kind="primary" size="lg" @click.prevent="saveSettings()">
           <template #prefix>
             <FontAwesomeIcon :icon="faSave" />
           </template>
-          {{ t('Save') }}
+          {{ t('common.save') }}
         </NeButton>
-        <!-- <NeButton kind="primary" size="lg" :disabled="loading.saveRule" :loading="loading.saveRule" @click="submitForm">
-          Save
-        </NeButton> -->
       </div>
     </form>
   </div>
