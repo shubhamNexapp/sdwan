@@ -21,9 +21,9 @@ const loginStore = useLoginStore()
     t('standalone.account_management.title', { name: loginStore.username })
   }}</NeHeading>
   <div class="max-w-3xl space-y-8">
-    <FormLayout :title="t('standalone.account_management.ui_language')">
+    <!-- <FormLayout :title="t('standalone.account_management.ui_language')">
       <ChangeLangCombobox />
-    </FormLayout>
+    </FormLayout> -->
     <!-- divider -->
     <div class="border-b border-gray-200 dark:border-gray-700"></div>
     <FormLayout
