@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import FormLayout from '@/components/standalone/FormLayout.vue';
 import { useNotificationsStore } from '@/stores/notifications';
-import { NeToggle, NeTextInput, NeButton, NeInlineNotification, NeHeading, NeTooltip } from '@nethesis/vue-components';
+import { NeToggle, NeTextInput, NeButton, NeInlineNotification, NeHeading, NeTooltip, NeCombobox } from '@nethesis/vue-components';
 import axios from 'axios';
 import { getSDControllerApiEndpoint } from '@/lib/config';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -177,12 +177,20 @@ async function saveSettings() {
 
             <div class="flex flex-col gap-y-3">
                 <div>
-                    <label class="block text-sm font-medium mb-1">Interface Name:</label>
+                    <NeCombobox v-model="state" :options="[
+                        { label: 'MASTER', id: 'MASTER' },
+                        { label: 'BACKUP', id: 'BACKUP' },
+                    ]" :label="t('State')" class="grow" :noResultsLabel="t('ne_combobox.no_results')"
+                        :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
+                        :noOptionsLabel="t('ne_combobox.no_options_label')" :selected-label="t('ne_combobox.selected')"
+                        :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" />
+
+                    <!-- <label class="block text-sm font-medium mb-1">Interface Name:</label>
                     <select v-model="state"
                         class="border rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-400 w-full">
                         <option value="MASTER">MASTER</option>
                         <option value="BACKUP">BACKUP</option>
-                    </select>
+                    </select> -->
                 </div>
                 <!-- Display error manually -->
                 <span v-if="errorBag.state" style="color: rgb(190 18 60 / var(--tw-text-opacity));">
@@ -190,7 +198,20 @@ async function saveSettings() {
                 </span>
 
                 <div>
-                    <label class="block text-sm font-medium mb-1">Interface Name:</label>
+
+                    <NeCombobox v-model="interfaceName" :options="[
+                        { label: 'eth0', id: 'eth0' },
+                        { label: 'eth1', id: 'eth1' },
+                        { label: 'eth2', id: 'eth2' },
+                        { label: 'eth3', id: 'eth3' },
+                        { label: 'eth4', id: 'eth4' },
+                        { label: 'eth5', id: 'eth5' },
+                    ]" :label="t('Interface Name')" class="grow" :noResultsLabel="t('ne_combobox.no_results')"
+                        :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
+                        :noOptionsLabel="t('ne_combobox.no_options_label')" :selected-label="t('ne_combobox.selected')"
+                        :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" />
+
+                    <!-- <label class="block text-sm font-medium mb-1">Interface Name:</label>
                     <select v-model="interfaceName"
                         class="border rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-400 w-full">
                         <option value="eth0">eth0</option>
@@ -199,7 +220,7 @@ async function saveSettings() {
                         <option value="eth3">eth3</option>
                         <option value="eth4">eth4</option>
                         <option value="eth5">eth5</option>
-                    </select>
+                    </select> -->
                 </div>
 
                 <NeTextInput @input="onlyNumbers" v-model="virtualID" :invalidMessage="errorBag.virtualID"

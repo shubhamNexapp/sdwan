@@ -109,7 +109,15 @@ async function saveSettings() {
       </NeTextInput>
       <!-- <NeTextInput v-model="serverAddress" label="Server Address" /> -->
 
-      <label for="">Interface</label>
+      <NeCombobox v-model="managementInterface" :options="[
+        { label: 'wg0', id: 'wg0' },
+        { label: 'zt0', id: 'zt0' }
+      ]" :label="t('Interface')" class="grow" :noResultsLabel="t('ne_combobox.no_results')"
+        :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
+        :noOptionsLabel="t('ne_combobox.no_options_label')" :selected-label="t('ne_combobox.selected')"
+        :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" />
+
+      <!-- <label for="">Interface</label>
       <select v-model="managementInterface" style="width: 100%;
     height: 36px;
     
@@ -123,7 +131,7 @@ async function saveSettings() {
         <option v-for="iface in interfaces" :key="iface.value" :value="iface.value">
           {{ iface.label }}
         </option>
-      </select>
+      </select> -->
 
       <NeTextInput v-model="sharedSecret" :label="t('Secret')" type="password" :placeholder="t('Enter Secret')">
         <template #tooltip>

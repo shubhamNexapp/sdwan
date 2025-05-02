@@ -338,6 +338,7 @@ onMounted(() => {
 })
 
 function isCurrentRoute(itemPath: string) {
+  console.log("itemPath=====",itemPath)
   return route.path.includes(itemPath)
 }
 
@@ -367,9 +368,9 @@ function loadMenuItemsExpanded() {
     <template v-if="isEmpty(item.children)">
       <router-link :to="`${getStandaloneRoutePrefix()}/${item.to}`" :class="[
         isCurrentRoute(item.to)
-          ? 'border-l-4 border-primary-700 bg-gray-100 text-orange-900 dark:border-primary-500 dark:bg-gray-800 dark:text-gray-50'
+          ? 'border-l-4 border-primary-700 bg-gray-100 text-orange-900 dark:border-primary-500 dark:text-orange-600 dark:text-gray-50'
           : 'text-gray-600 side-bar-grey hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-50',
-        'group flex cursor-pointer items-center gap-x-3 rounded-md px-3 py-2 text-sm font-semibold leading-6 hover:bg-gray-100 dark:hover:bg-gray-800'
+        'group flex cursor-pointer items-center gap-x-3 rounded-md px-3 py-2 text-sm font-semibold leading-6 hover:bg-gray-100 '
       ]">
         <font-awesome-icon :icon="[isCurrentRoute(item.to) ? 'fas' : 'fal', item.icon]" class="w-8 h-6 shrink-0"
           aria-hidden="true" />
@@ -380,9 +381,9 @@ function loadMenuItemsExpanded() {
     <template v-else>
       <a @click="toggleExpand(item)" :class="[
         isCurrentRoute(item.to)
-          ? 'text-orange-900 dark:text-gray-50'
-          : 'text-gray-600 hover:text-gray-900 side-bar-grey dark:text-gray-300 dark:hover:text-gray-50',
-        'group flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm font-semibold leading-6 hover:bg-gray-100 dark:hover:bg-gray-800'
+          ? 'text-orange-600 text-orange-600'
+          : 'text-gray-600 hover:text-gray-900 side-bar-grey dark:text-gray-300 dark:dark-orange-600',
+        'group flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm font-semibold leading-6 hover:bg-gray-100 '
       ]">
         <div class="flex items-center gap-x-3">
           <font-awesome-icon :icon="[isCurrentRoute(item.to) ? 'fas' : 'fal', item.icon]" class="w-8 h-6 shrink-0"
@@ -400,9 +401,9 @@ function loadMenuItemsExpanded() {
             <div class="ml-10">
               <router-link :to="`${getStandaloneRoutePrefix()}/${child.to}`" :class="[
                 isCurrentRoute(child.to)
-                  ? 'border-l-4 border-primary-700 bg-gray-100 text-orange-900 dark:border-primary-500 dark:bg-gray-800 dark:text-gray-50'
+                  ? 'border-l-4 border-primary-700 bg-gray-100 text-orange-900  dark:text-orange-600 dark:text-gray-50'
                   : 'text-gray-600 side-bar-grey hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-50',
-                'group flex cursor-pointer items-center gap-x-3 rounded-md px-3 py-1 text-sm font-semibold leading-6 hover:bg-gray-100 dark:hover:bg-gray-800'
+                'group flex cursor-pointer items-center gap-x-3 rounded-md px-3 py-1 text-sm font-semibold leading-6 hover:bg-gray-100 '
               ]">
                 {{ t(child.name) }}
               </router-link>

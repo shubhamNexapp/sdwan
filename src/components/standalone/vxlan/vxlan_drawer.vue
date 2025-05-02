@@ -5,7 +5,8 @@ import {
     NeTextInput,
     NeToggle,
     getAxiosErrorMessage,
-    NeTooltip
+    NeTooltip,
+    NeCombobox
 } from '@nethesis/vue-components'
 import { ref } from 'vue'
 import { useNotificationsStore } from '../../../stores/notifications'
@@ -164,9 +165,9 @@ const closeDrawer = () => {
                                 <template #content>
                                     {{ t('standalone.logs.search_tooltip') }}
                                 </template>
-                            </NeTooltip>
-                        </template>
-                    </NeTextInput> -->
+</NeTooltip>
+</template>
+</NeTextInput> -->
 
                     <NeTextInput @input="onlyLetters" v-model.trim="interfaceName" :label="t('Interface Name')"
                         :placeholder="t('Enter Interface Name')" :invalidMessage="errorBag.interfaceName">
@@ -182,7 +183,20 @@ const closeDrawer = () => {
                         :invalidMessage="errorBag.interfaceName" /> -->
 
                     <div>
-                        <label class="block text-sm font-medium mb-1">Interface:</label>
+                        <NeCombobox v-model="baseInterface" :options="[
+                            { label: 'eth1', id: 'eth1' },
+                            { label: 'eth2', id: 'eth2' },
+                            { label: 'eth3', id: 'eth3' },
+                            { label: 'eth4', id: 'eth4' },
+                            { label: 'eth5', id: 'eth5' },
+                        ]" :label="t('Interface')" class="grow" :noResultsLabel="t('ne_combobox.no_results')"
+                            :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
+                            :noOptionsLabel="t('ne_combobox.no_options_label')"
+                            :selected-label="t('ne_combobox.selected')"
+                            :user-input-label="t('ne_combobox.user_input_label')"
+                            :optionalLabel="t('common.optional')" />
+
+                        <!-- <label class="block text-sm font-medium mb-1">Interface:</label>
                         <select v-model="baseInterface"
                             class="border rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-400 w-full">
                             <option value="eth0">eth0</option>
@@ -191,7 +205,7 @@ const closeDrawer = () => {
                             <option value="eth3">eth3</option>
                             <option value="eth4">eth4</option>
                             <option value="eth5">eth5</option>
-                        </select>
+                        </select> -->
                     </div>
 
                     <NeTextInput @input="onlyNumbers" v-model.trim="vid" :label="t('Vid')" :placeholder="t('Enter Vid')"

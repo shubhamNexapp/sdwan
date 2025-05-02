@@ -9,7 +9,8 @@ import {
     NeTableRow,
     NeTableCell,
     NeToggle,
-    NeTextInput
+    NeTextInput,
+    NeCombobox
 } from '@nethesis/vue-components'
 import { useNotificationsStore } from '../../../stores/notifications'
 import { onMounted, ref } from 'vue'
@@ -219,15 +220,27 @@ const saveNetworkConfig = async () => {
         </p>
         <template v-if="service">
             <div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">Mode:</label>
+                <div class="w-[300px]">
+
+                    <NeCombobox v-model="mode" :options="[
+                    { label: 'game', id: 'game' },
+                    { label: 'custom', id: 'custom' },
+                    { label: 'meeting', id: 'meeting' },
+                    { label: 'balance', id: 'balance' },
+                ]" :label="t('Mode')" class="grow" :noResultsLabel="t('ne_combobox.no_results')"
+                    :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
+                    :noOptionsLabel="t('ne_combobox.no_options_label')" :selected-label="t('ne_combobox.selected')"
+                    :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" />
+
+
+                    <!-- <label class="block text-sm font-medium mb-1">Mode:</label>
                     <select v-model="mode"
                         class="border rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-400 w-[300px]">
                         <option value="game">game</option>
                         <option value="custom">custom</option>
                         <option value="meeting">meeting</option>
                         <option value="balance">balance</option>
-                    </select>
+                    </select> -->
                 </div>
 
                 <!-- Show Table Only if mode is custom -->

@@ -177,7 +177,7 @@ function goTo(path: string) {
   >
     <!-- title slot -->
     <template #title>
-      <NeLink @click="goTo('/security/threat-shield-ip')">
+      <NeLink @click="goTo('/security/threat-shield-ip')" class="text-primary-900">
         {{ t('standalone.dashboard.thread_shield_ip') }}
       </NeLink>
     </template>

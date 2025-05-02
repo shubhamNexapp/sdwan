@@ -47,7 +47,7 @@ watch(
     :skeleton-lines="2"
   >
     <template #title>
-      <NeLink @click="$router.push(`${getStandaloneRoutePrefix($route)}/security/ips`)">
+      <NeLink @click="$router.push(`${getStandaloneRoutePrefix($route)}/security/ips`)" class="text-primary-900">
         {{ t('standalone.ips.sidebar_title') }}
       </NeLink>
     </template>

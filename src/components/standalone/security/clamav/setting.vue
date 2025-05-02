@@ -4,7 +4,8 @@ import {
     NeTextInput,
     NeToggle,
     getAxiosErrorMessage,
-    NeTooltip
+    NeTooltip,
+    NeCombobox
 } from '@nethesis/vue-components'
 import { onMounted, ref } from 'vue'
 import { useNotificationsStore } from '../../../../stores/notifications'
@@ -177,8 +178,18 @@ const getLists = async () => {
             <NeToggle v-model="service" :label="service ? 'Enabled' : 'Disabled'" :topLabel="'Service'" />
             <template v-if="service">
 
-                <div>
-                    <label class="mr-4">Scan Path</label>
+                <div class="w-[300px]">
+                    <NeCombobox v-model="scanPath" :options="[
+                    { label: 'system', id: 'system' },
+                    { label: 'overall', id: 'overall' },
+                    { label: 'cache', id: 'cache' },
+                ]" :label="t('Mode')" class="grow" :noResultsLabel="t('ne_combobox.no_results')"
+                    :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
+                    :noOptionsLabel="t('ne_combobox.no_options_label')" :selected-label="t('ne_combobox.selected')"
+                    :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" />
+
+
+                    <!-- <label class="mr-4">Scan Path</label>
                     <select v-model="scanPath" style="
                 width: 30%;
                 height: 36px;
@@ -192,10 +203,10 @@ const getLists = async () => {
                         <option value="system">system</option>
                         <option value="overall">overall</option>
                         <option value="cache">cache</option>
-                    </select>
+                    </select> -->
                 </div>
 
-                <NeTextInput @input="onlyNumbers" v-model="scanInterval" :invalidMessage="errorBag.scanInterval"
+                <NeTextInput class="w-[300px]" @input="onlyNumbers" v-model="scanInterval" :invalidMessage="errorBag.scanInterval"
                     :label="t('Scan Interval')" :placeholder="t('Enter Scan Interval')">
                     <template #tooltip>
                         <NeTooltip>

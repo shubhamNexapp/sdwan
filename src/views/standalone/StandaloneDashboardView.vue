@@ -41,7 +41,7 @@ function goTo(path: string) {
     <!-- multiwan -->
     <ServiceCard serviceName="mwan" hasStatus :icon="['fas', 'earth-americas']">
       <template #title>
-        <NeLink @click="goTo('/network/multi-wan')">
+        <NeLink @click="goTo('/network/multi-wan')" class="text-primary-900" >
           {{ t('standalone.dashboard.multiwan') }}
         </NeLink>
       </template>
@@ -64,22 +64,22 @@ function goTo(path: string) {
       :icon="['fas', 'globe']"
     >
       <template #title>
-        <NeLink @click="goTo('/vpn/openvpn-rw')">
+        <NeLink @click="goTo('/vpn/openvpn-rw')" class="text-primary-900">
           {{ t('standalone.dashboard.openvpn_rw') }}
         </NeLink>
       </template>
     </ServiceCard>
     <!-- ipsec tunnels -->
-    <OpenVpnTunnelOrIpsecCard method="ipsec-tunnels">
+    <OpenVpnTunnelOrIpsecCard method="ipsec-tunnels" >
       <template #title>
-        <NeLink @click="goTo('/vpn/ipsec-tunnel')">
+        <NeLink @click="goTo('/vpn/ipsec-tunnel')" class="text-primary-900">
           {{ t('standalone.ipsec_tunnel.title') }}
         </NeLink>
       </template>
     </OpenVpnTunnelOrIpsecCard>
     <OpenVpnTunnelOrIpsecCard method="ipsec-tunnels">
       <template #title>
-        <NeLink @click="goTo('/vpn/wire-guard')">
+        <NeLink @click="goTo('/vpn/wire-guard')" class="text-primary-900">
           {{ t('standalone.wire_guard.title') }}
         </NeLink>
       </template>
@@ -87,7 +87,7 @@ function goTo(path: string) {
     <!-- ovpn tunnels -->
     <OpenVpnTunnelOrIpsecCard method="ovpn-tunnels">
       <template #title>
-        <NeLink @click="goTo('/vpn/openvpn-tunnel')">
+        <NeLink @click="goTo('/vpn/openvpn-tunnel')" class="text-primary-900">
           {{ t('standalone.openvpn_tunnel.title') }}
         </NeLink>
       </template>
@@ -103,7 +103,7 @@ function goTo(path: string) {
     <!-- threat shield dns -->
     <ServiceCard serviceName="threat_shield_dns" hasStatus :icon="['fas', 'shield']">
       <template #title>
-        <NeLink @click="goTo('/security/threat-shield-dns')">
+        <NeLink @click="goTo('/security/threat-shield-dns')" class="text-primary-900" >
           {{ t('standalone.threat_shield_dns.title') }}
         </NeLink>
       </template>
@@ -111,7 +111,7 @@ function goTo(path: string) {
     <!-- hotspot -->
     <ServiceCard serviceName="dedalo" hasStatus :icon="['fas', 'wifi']">
       <template #title>
-        <NeLink @click="goTo('/network/hotspot')">
+        <NeLink @click="goTo('/network/hotspot')" class="text-primary-900">
           {{ t('standalone.dashboard.hotspot') }}
         </NeLink>
       </template>

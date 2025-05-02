@@ -142,4 +142,15 @@ hr {
   --tw-text-opacity: 1;
   color: rgb(239 139 30);
 }
+
+.text-orange-600 {
+  --tw-text-opacity: 1;
+  color: rgb(239 139 30);
+}
+
+.text-primary-900{
+  --tw-text-opacity: 1;
+  color: rgb(0, 165, 255);
+}
+
 /* Shubham CSS End */

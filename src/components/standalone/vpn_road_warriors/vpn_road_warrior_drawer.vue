@@ -7,7 +7,8 @@ import {
     NeToggle,
     NeDropdown,
     getAxiosErrorMessage,
-    NeTooltip
+    NeTooltip,
+    NeCombobox
 } from '@nethesis/vue-components'
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -232,8 +233,16 @@ const closeDrawer = () => {
                     </NeTextInput>
                     <!-- <NeTextInput label="Command" v-model.trim="command" :invalidMessage="errorBag.command" /> -->
 
+                    <NeCombobox v-model="mode" :options="[
+                        { label: 'Range', id: 'range' },
+                        { label: 'Interval', id: 'interval' }
+                    ]" :label="t('Interface')" class="grow" :noResultsLabel="t('ne_combobox.no_results')"
+                        :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
+                        :noOptionsLabel="t('ne_combobox.no_options_label')" :selected-label="t('ne_combobox.selected')"
+                        :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" />
 
-                    <div>
+
+                    <!-- <div>
                         <label class="block text-sm font-medium mb-1">Mode:</label>
                         <select v-model="mode"
                             class="border rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-400 w-full">
@@ -241,7 +250,7 @@ const closeDrawer = () => {
                             <option value="range">Range</option>
                             <option value="interval">Interval</option>
                         </select>
-                    </div>
+                    </div> -->
                     <br>
                     <!-- Display error manually -->
                     <span v-if="errorBag.mode" style="color: rgb(190 18 60 / var(--tw-text-opacity));">

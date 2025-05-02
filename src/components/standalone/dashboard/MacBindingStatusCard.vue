@@ -61,7 +61,7 @@ const errorDescription = computed((): string => {
     :skeleton-lines="2"
   >
     <template #title>
-      <NeLink @click="$router.push(`${getStandaloneRoutePrefix($route)}/network/dns-dhcp`)">
+      <NeLink @click="$router.push(`${getStandaloneRoutePrefix($route)}/network/dns-dhcp`)" class="text-primary-900">
         {{ t('standalone.dns_dhcp.mac_binding') }}
       </NeLink>
     </template>

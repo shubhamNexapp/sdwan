@@ -21,11 +21,12 @@ const { t } = useI18n()
 const sidebarOpen = ref(false)
 
 const logoFilename = computed(() => {
-  if (themeStore.isLight) {
-    return 'insta-w.png'
-  } else {
-    return 'logo_dark.svg'
-  }
+  return 'insta-w.png'
+  // if (themeStore.isLight) {
+  //   return 'insta-w.png'
+  // } else {
+  //   return 'logo_dark.svg'
+  // }
 })
 </script>
 
