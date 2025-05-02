@@ -294,7 +294,9 @@ async function verifyOtp() {
         </div>
       </div>
     </div>
-
+  </div>
+  <div class="text-center">
+    <div>Copyright Nexapp Technologies Pvt.Ltd@{{ new Date().getFullYear() }}</div>
   </div>
 </template>
 <style>

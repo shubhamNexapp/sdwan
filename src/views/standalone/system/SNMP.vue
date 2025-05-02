@@ -8,7 +8,7 @@ import FormLayout from '@/components/standalone/FormLayout.vue';
 import {
   NeToggle,
   NeTextInput,
-  NeButton, NeHeading, NeTooltip
+  NeButton, NeHeading, NeTooltip,NeCombobox
 } from '@nethesis/vue-components';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faSave } from '@fortawesome/free-solid-svg-icons'
@@ -159,6 +159,7 @@ async function saveSettings() {
         }]
       };
     }
+    console.log("payload=====",payload)
 
     const res = await axios.post(`${getSDControllerApiEndpoint()}/snmp`, {
       method: 'set-config',
@@ -197,11 +198,20 @@ async function saveSettings() {
       <NeToggle v-model="service" :topLabel="t('Service')" :label="service ? 'Enable' : 'Disable'" />
 
       <div class="my-4">
-        <label class="block font-medium mb-1">SNMP Version</label>
+        <NeCombobox v-model="snmpVersion" :options="[
+              { label: '2c', id: '2c' },
+              { label: '3', id: '3' }
+            ]" :label="t('SNMP Version')" 
+              class="grow" :noResultsLabel="t('ne_combobox.no_results')"
+              :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
+              :noOptionsLabel="t('ne_combobox.no_options_label')" :selected-label="t('ne_combobox.selected')"
+              :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" />
+
+        <!-- <label class="block font-medium mb-1">SNMP Version</label>
         <select v-model="snmpVersion" class="border rounded px-3 py-2 w-full">
           <option value="2c">2c</option>
           <option value="3">3</option>
-        </select>
+        </select> -->
       </div>
 
       <!-- SNMPv2 Section -->
@@ -306,25 +316,41 @@ async function saveSettings() {
         <!-- <NeTextInput v-model="password" :label="t('Password')" :invalidMessage="errorBag.password" /> -->
 
         <div class="my-4">
-          <label class="block font-medium mb-1">Hash</label>
+          <NeCombobox v-model="hash" :options="[
+              { label: 'MD5', id: 'MD5' },
+              { label: 'SHA', id: 'SHA' }
+            ]" :label="t('Hash')" 
+              class="grow" :noResultsLabel="t('ne_combobox.no_results')"
+              :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
+              :noOptionsLabel="t('ne_combobox.no_options_label')" :selected-label="t('ne_combobox.selected')"
+              :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" />
+              <p v-if="errorBag.hash" class="text-sm mt-1" style="color: rgba(190, 18, 60, 0.9);">
+            {{ errorBag.hash }}
+          </p>
+          <!-- <label class="block font-medium mb-1">Hash</label>
           <select v-model="hash" class="border rounded px-3 py-2 w-full">
             <option value="MD5">MD5</option>
             <option value="SHA">SHA</option>
-          </select>
-          <p v-if="errorBag.hash" class="text-sm mt-1" style="color: rgba(190, 18, 60, 0.9);">
-            {{ errorBag.hash }}
-          </p>
+          </select> -->
         </div>
 
         <div class="my-4">
-          <label class="block font-medium mb-1">Encrypt</label>
+          <NeCombobox v-model="encryption" :options="[
+              { label: 'AES', id: 'AES' },
+              { label: 'DES', id: 'DES' }
+            ]" :label="t('Encrypt')" 
+              class="grow" :noResultsLabel="t('ne_combobox.no_results')"
+              :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
+              :noOptionsLabel="t('ne_combobox.no_options_label')" :selected-label="t('ne_combobox.selected')"
+              :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" />
+              <p v-if="errorBag.encryption" class="text-sm mt-1" style="color: rgba(190, 18, 60, 0.9);">
+            {{ errorBag.encryption }}
+          </p>
+              <!-- <label class="block font-medium mb-1">Encrypt</label>
           <select v-model="encryption" class="border rounded px-3 py-2 w-full">
             <option value="AES">AES</option>
             <option value="DES">DES</option>
-          </select>
-          <p v-if="errorBag.encryption" class="text-sm mt-1" style="color: rgba(190, 18, 60, 0.9);">
-            {{ errorBag.encryption }}
-          </p>
+          </select> -->
         </div>
 
         <NeTextInput v-model="encryptionKey" :invalidMessage="errorBag.encryptionKey" :label="t('Encryption Key')"

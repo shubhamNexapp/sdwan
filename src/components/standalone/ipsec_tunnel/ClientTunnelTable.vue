@@ -38,18 +38,18 @@ const tableHeaders = [
 
 function getDropdownItems(item: IpsecTunnel) {
   return [
-    {
-      id: 'enable_disable',
-      label:
-        item.enabled === '1'
-          ? t('standalone.ipsec_tunnel.disable')
-          : t('standalone.ipsec_tunnel.enable'),
-      iconStyle: 'fas',
-      icon: item.enabled === '1' ? 'circle-xmark' : 'circle-check',
-      action: () => {
-        emit('tunnel-toggle-enable', item)
-      }
-    },
+    // {
+    //   id: 'enable_disable',
+    //   label:
+    //     item.enabled === '1'
+    //       ? t('standalone.ipsec_tunnel.disable')
+    //       : t('standalone.ipsec_tunnel.enable'),
+    //   iconStyle: 'fas',
+    //   icon: item.enabled === '1' ? 'circle-xmark' : 'circle-check',
+    //   action: () => {
+    //     emit('tunnel-toggle-enable', item)
+    //   }
+    // },
     {
       id: 'delete',
       label: t('common.delete'),
@@ -92,7 +92,7 @@ function getCellClasses(item: IpsecTunnel) {
     <template #service="{ item }: { item: IpsecTunnel }">
       {{ console.log("item.service======",item.service) }}
       <div :class="['flex', 'flex-row', 'items-center', ...getCellClasses(item)]">
-        <font-awesome-icon :icon="['fas', item.service === '1' ? 'circle-check' : 'circle-xmark']" class="mr-2 h-5 w-5"
+        <font-awesome-icon :icon="['fas', item.service === 'enable' ? 'circle-check' : 'circle-xmark']" class="mr-2 h-5 w-5"
           aria-hidden="true" />
         <p>
           {{
