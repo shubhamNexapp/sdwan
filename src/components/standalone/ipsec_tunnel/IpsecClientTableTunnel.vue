@@ -3,7 +3,7 @@ import { useI18n } from 'vue-i18n'
 import NeTable from '../NeTable.vue'
 import { NeDropdown } from '@nethesis/vue-components'
 import { NeButton } from '@nethesis/vue-components'
-import type { IpsecTunnel } from '@/views/standalone/vpn/IPsecTunnelView.vue'
+import type { IpsecTunnel } from '@/types/tunnel'
 
 const { t } = useI18n()
 
@@ -80,7 +80,8 @@ function getCellClasses(item: IpsecTunnel) {
       <div :class="[...getCellClasses(item)]">
         <div v-if="Array.isArray(item.remote) && item.remote.length > 0">
           <div v-for="(remoteEntry, index) in item.remote" :key="index">
-            {{ remoteEntry.ip }}
+            {{console.log("remoteEntry=======",remoteEntry)}}
+            {{ remoteEntry }}
           </div>
         </div>
         <div v-else>

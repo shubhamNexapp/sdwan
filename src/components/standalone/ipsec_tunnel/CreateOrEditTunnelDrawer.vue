@@ -13,7 +13,8 @@ import {
   validateRequiredOption,
   type validationOutput
 } from '@/lib/validation'
-import type { IpsecTunnel } from '@/views/standalone/vpn/IPsecTunnelView.vue'
+import type { Tunnel } from '@/types/tunnel'
+
 import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import NeStepper from '../NeStepper.vue'
@@ -38,7 +39,7 @@ import NeCopyField from '../NeCopyField.vue'
 
 const props = defineProps<{
   isShown: boolean
-  itemToEdit: IpsecTunnel | null
+  itemToEdit: Tunnel | null
 }>()
 
 type CreateEditIpsecTunnelPayload = {
@@ -291,7 +292,7 @@ function validateNetworkFields(
         validationResult = false
       } else {
         // check if remote network is already in local networks
-        if (localNetworks.value.find((x) => x.id === networkEntry)) {
+        if (localNetworks.value.find((x :  any) => x.id === networkEntry)) {
           validationErrors[index] = t(
             'standalone.ipsec_tunnel.ipsec_network_already_used_in_local_networks'
           )
@@ -315,7 +316,7 @@ function validateFormByStep(step: number): boolean {
     )
     remoteNetworksValidationErrors.value = remoteValidationError
 
-    const localNetworksCidrValidation = localNetworks.value.map((x) => validateIp4Cidr(x.id))
+    const localNetworksCidrValidation = localNetworks.value.map((x :  any) => validateIp4Cidr(x.id))
 
     const step1Validators: [validationOutput[], string][] = [
       [[validateRequired(name.value)], 'name'],
@@ -327,7 +328,7 @@ function validateFormByStep(step: number): boolean {
       [
         [
           validateRequiredOption(localNetworks.value),
-          localNetworksCidrValidation.find((x) => !x.valid) ?? { valid: true }
+          localNetworksCidrValidation.find((x :  any) => !x.valid) ?? { valid: true }
         ],
         'localNetworks'
       ],
@@ -417,7 +418,7 @@ async function createOrEditTunnel() {
     dpdaction: dpd.value ? 'restart' : 'none',
     keyexchange: ikeVersion.value,
     remote_subnet: remoteNetworks.value.filter((x) => x != ''),
-    local_subnet: localNetworks.value.filter((x) => x.id != '').map((x) => x.id),
+    local_subnet: localNetworks.value.filter((x:  any) => x.id != '').map((x :  any) => x.id),
     gateway: remoteIpAddress.value,
     local_identifier: localIdentifier.value,
     remote_identifier: remoteIdentifier.value,
@@ -669,7 +670,7 @@ watch(
           :invalidMessage="validationErrorBag.getFirstFor('ikeDiffieHellmanGroup')"
           :noOptionsLabel="t('ne_combobox.no_options_label')"
           :noResultsLabel="t('ne_combobox.no_results')"
-          :options="diffieHellmanOptions.filter((x) => x.id != '')"
+          :options="diffieHellmanOptions.filter((x :  any) => x.id != '')"
           :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
           :selected-label="t('ne_combobox.selected')"
           :user-input-label="t('ne_combobox.user_input_label')"

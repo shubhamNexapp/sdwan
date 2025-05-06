@@ -13,7 +13,8 @@ import {
   validateRequiredOption,
   type validationOutput
 } from '@/lib/validation'
-import type { IpsecTunnel } from '@/views/standalone/vpn/IPsecTunnelView.vue'
+// import type { IpsecTunnel } from '@/views/standalone/vpn/IPsecTunnelView.vue'
+import type { IpsecTunnel } from '@/types/tunnel'
 import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import NeStepper from '../NeStepper.vue'
@@ -326,7 +327,7 @@ function validateNetworkFields(
         validationResult = false
       } else {
         // check if remote network is already in local networks
-        if (localNetworks.value.find((x) => x.id === networkEntry)) {
+        if (localNetworks.value.find((x : any) => x.id === networkEntry)) {
           validationErrors[index] = t(
             'standalone.ipsec_tunnel.ipsec_network_already_used_in_local_networks'
           )
@@ -350,7 +351,7 @@ function validateFormByStep(step: number): boolean {
     )
     remoteNetworksValidationErrors.value = remoteValidationError
 
-    const localNetworksCidrValidation = localNetworks.value.map((x) => validateIp4Cidr(x.id))
+    const localNetworksCidrValidation = localNetworks.value.map((x : any) => validateIp4Cidr(x.id))
 
     const step1Validators: [validationOutput[], string][] = [
       // [[validateRequired(name.value)], 'name'],
@@ -363,7 +364,7 @@ function validateFormByStep(step: number): boolean {
       [
         [
           validateRequiredOption(localNetworks.value),
-          localNetworksCidrValidation.find((x) => !x.valid) ?? { valid: true }
+          localNetworksCidrValidation.find((x: any) => !x.valid) ?? { valid: true }
         ],
         'localNetworks'
       ],
@@ -436,7 +437,7 @@ async function createOrEditTunnel() {
   const requestType = isEditing ? 'edit-tunnel' : 'add-tunnel'
   const subnet = [];
 
-  const localSubnets = localNetworks.value.filter((x) => x.id !== '').map((x) => x.id);
+  const localSubnets = localNetworks.value.filter((x : any) => x.id !== '').map((x : any) => x.id);
   const remoteSubnets = remoteNetworks.value.filter((x) => x !== '');
 
   // Match each pair by index
@@ -471,7 +472,7 @@ async function createOrEditTunnel() {
     keyexchange: ikeVersion.value,
     subnet: subnet,
     remote_subnet: remoteNetworks.value.filter((x) => x != ''),
-    local_subnet: localNetworks.value.filter((x) => x.id != '').map((x) => x.id),
+    local_subnet: localNetworks.value.filter((x : any) => x.id != '').map((x : any) => x.id),
     gateway: remoteIpAddress.value,
     local_identifier: localIdentifier.value,
     remote_identifier: remoteIdentifier.value,
@@ -538,8 +539,8 @@ watch(
 
 <template>
   <NeSideDrawer :is-shown="isShown" @close="close()" :closeAriaLabel="t('common.shell.close_side_drawer')" :title="id
-    ? t('standalone.ipsec_tunnel.edit_ipsec_tunnel')
-    : t('standalone.ipsec_tunnel.add_ipsec_tunnel')
+    ? t('IPsec tunnel')
+    : t('IPsec tunnel')
     ">
     <NeInlineNotification v-if="error.notificationTitle" :title="error.notificationTitle"
       :description="error.notificationDescription" class="mb-6" kind="error">
@@ -646,7 +647,7 @@ watch(
         <NeCombobox v-model="ikeDiffieHellmanGroup" :label="t('standalone.ipsec_tunnel.diffie_hellman_group')"
           :invalidMessage="validationErrorBag.getFirstFor('ikeDiffieHellmanGroup')"
           :noOptionsLabel="t('ne_combobox.no_options_label')" :noResultsLabel="t('ne_combobox.no_results')"
-          :options="diffieHellmanOptions.filter((x) => x.id != '')"
+          :options="diffieHellmanOptions.filter((x : any) => x.id != '')"
           :limitedOptionsLabel="t('ne_combobox.limited_options_label')" :selected-label="t('ne_combobox.selected')"
           :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" />
         <NeTextInput v-model="ikeKeyLifetime" type="number" :label="t('standalone.ipsec_tunnel.key_life_time_seconds')"

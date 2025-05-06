@@ -9,13 +9,13 @@ import { NeModal } from '@nethesis/vue-components'
 import { ref, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ubusCall } from '@/lib/standalone/ubus'
-import type { IpsecTunnel } from '@/views/standalone/vpn/IPsecTunnelView.vue'
+import type { Tunnel } from '@/types/tunnel'
 
 const { t } = useI18n()
 
 const props = defineProps<{
   visible: boolean
-  itemToDelete: IpsecTunnel | null
+  itemToDelete: Tunnel | null;
 }>()
 
 const emit = defineEmits(['close', 'tunnel-deleted'])
@@ -57,31 +57,17 @@ function close() {
 </script>
 
 <template>
-  <NeModal
-    :visible="visible"
-    kind="warning"
-    :title="t('standalone.ipsec_tunnel.delete_tunnel')"
-    :primaryLabel="t('common.delete')"
-    :primaryButtonDisabled="isDeleting"
-    :primaryButtonLoading="isDeleting"
-    :close-aria-label="t('common.close')"
-    @primaryClick="deleteTunnel()"
-    @close="close()"
-  >
+  <NeModal :visible="visible" kind="warning" :title="t('standalone.ipsec_tunnel.delete_tunnel')"
+    :primaryLabel="t('common.delete')" :primaryButtonDisabled="isDeleting" :primaryButtonLoading="isDeleting"
+    :close-aria-label="t('common.close')" @primaryClick="deleteTunnel()" @close="close()">
     {{
       t('standalone.ipsec_tunnel.delete_tunnel_message', {
         name: itemToDelete?.name ?? ''
       })
     }}
-    <NeInlineNotification
-      v-if="error.notificationDescription"
-      kind="error"
-      :title="t('error.cannot_delete_tunnel')"
-      :description="error.notificationDescription"
-      class="my-2"
-      ><template #details v-if="error.notificationDetails">
+    <NeInlineNotification v-if="error.notificationDescription" kind="error" :title="t('error.cannot_delete_tunnel')"
+      :description="error.notificationDescription" class="my-2"><template #details v-if="error.notificationDetails">
         {{ error.notificationDetails }}
-      </template></NeInlineNotification
-    >
+      </template></NeInlineNotification>
   </NeModal>
 </template>

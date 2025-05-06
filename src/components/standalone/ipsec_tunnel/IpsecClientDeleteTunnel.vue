@@ -9,7 +9,7 @@ import { NeModal } from '@nethesis/vue-components'
 import { ref, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ubusCall } from '@/lib/standalone/ubus'
-import type { IpsecTunnel } from '@/views/standalone/vpn/IPsecTunnelView.vue'
+import type { IpsecTunnel } from '@/types/tunnel'
 
 const { t } = useI18n()
 

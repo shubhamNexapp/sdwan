@@ -8,12 +8,12 @@ import { useI18n } from 'vue-i18n'
 import NeTable from '../NeTable.vue'
 import { NeDropdown } from '@nethesis/vue-components'
 import { NeButton } from '@nethesis/vue-components'
-import type { IpsecTunnel } from '@/views/standalone/vpn/IPsecTunnelView.vue'
+import type { Tunnel } from '@/types/tunnel'
 
 const { t } = useI18n()
 
 defineProps<{
-  tunnels: IpsecTunnel[]
+  tunnels: Tunnel[]
 }>()
 
 const emit = defineEmits(['tunnel-delete', 'tunnel-edit', 'tunnel-toggle-enable'])
@@ -45,7 +45,7 @@ const tableHeaders = [
   }
 ]
 
-function getDropdownItems(item: IpsecTunnel) {
+function getDropdownItems(item: Tunnel) {
   return [
     {
       id: 'enable_disable',
@@ -72,17 +72,17 @@ function getDropdownItems(item: IpsecTunnel) {
   ]
 }
 
-function getCellClasses(item: IpsecTunnel) {
+function getCellClasses(item: Tunnel) {
   return item.enabled === '0' ? ['text-gray-400', 'dark:text-gray-700'] : []
 }
 </script>
 
 <template>
   <NeTable :data="tunnels" :headers="tableHeaders">
-    <template #name="{ item }: { item: IpsecTunnel }">
+    <template #name="{ item }: { item: Tunnel }">
       <p :class="[...getCellClasses(item)]">{{ item.name }}</p>
     </template>
-    <template #local_networks="{ item }: { item: IpsecTunnel }">
+    <template #local_networks="{ item }: { item: Tunnel }">
       <template v-if="item.local.length > 0">
         <p
           v-for="(local, idx) in item.local.slice(0, 2)"
@@ -94,7 +94,7 @@ function getCellClasses(item: IpsecTunnel) {
       </template>
       <p :class="[...getCellClasses(item)]" v-else>-</p>
     </template>
-    <template #remote_networks="{ item }: { item: IpsecTunnel }">
+    <template #remote_networks="{ item }: { item: Tunnel }">
       <template v-if="item.remote.length > 0">
         <p
           v-for="(remote, idx) in item.remote.slice(0, 2)"
@@ -106,7 +106,7 @@ function getCellClasses(item: IpsecTunnel) {
       </template>
       <p :class="[...getCellClasses(item)]" v-else>-</p>
     </template>
-    <template #status="{ item }: { item: IpsecTunnel }">
+    <template #status="{ item }: { item: Tunnel }">
       <div :class="['flex', 'flex-row', 'items-center', ...getCellClasses(item)]">
         <font-awesome-icon
           :icon="['fas', item.enabled === '1' ? 'circle-check' : 'circle-xmark']"
@@ -122,7 +122,7 @@ function getCellClasses(item: IpsecTunnel) {
         </p>
       </div>
     </template>
-    <template #connection="{ item }: { item: IpsecTunnel }">
+    <template #connection="{ item }: { item: Tunnel }">
       <div :class="['flex', 'flex-row', 'items-center', ...getCellClasses(item)]">
         <font-awesome-icon
           :icon="['fas', item.connected ? 'circle-check' : 'circle-xmark']"
@@ -147,7 +147,7 @@ function getCellClasses(item: IpsecTunnel) {
         </p>
       </div>
     </template>
-    <template #menu="{ item }: { item: IpsecTunnel }">
+    <template #menu="{ item }: { item: Tunnel }">
       <div class="align-center flex justify-end">
         <NeButton kind="tertiary" @click="emit('tunnel-edit', item)">
           <template #prefix>

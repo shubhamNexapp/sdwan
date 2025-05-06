@@ -11,9 +11,9 @@ import {
 import { useUciPendingChangesStore } from '@/stores/standalone/uciPendingChanges'
 import { onMounted, onUnmounted, ref } from 'vue'
 import { ubusCall } from '@/lib/standalone/ubus'
-import ClientTunnelTable from '@/components/standalone/ipsec_tunnel/ClientTunnelTable.vue'
-import DeleteTunnelModal from '@/components/standalone/ipsec_tunnel/DeleteClientTunnel.vue'
-import CreateOrEditTunnelDrawer from '@/components/standalone/ipsec_tunnel/CreateOrEditClientTunnelDrawer.vue'
+import ClientTunnelTable from '@/components/standalone/ipsec_tunnel/IpsecClientTableTunnel.vue'
+import DeleteTunnelModal from '@/components/standalone/ipsec_tunnel/IpsecClientDeleteTunnel.vue'
+import CreateOrEditTunnelDrawer from '@/components/standalone/ipsec_tunnel/IpsecClientCreateOrEditTunnelDrawer.vue'
 import axios from 'axios'
 import { getSDControllerApiEndpoint } from '@/lib/config'
 
@@ -42,6 +42,7 @@ const error = ref({
   notificationDescription: '',
   notificationDetails: ''
 })
+
 
 // async function fetchTunnels(setLoading: boolean = true) {
 //   try {
@@ -89,6 +90,7 @@ async function fetchConfiguration() {
 }
 
 function openCreateEditDrawer(itemToEdit: IpsecTunnel | null) {
+  console.log("itemToEdit=======",itemToEdit)
   selectedTunnel.value = itemToEdit
   showCreateEditDrawer.value = true
 }
