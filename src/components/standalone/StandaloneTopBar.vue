@@ -24,6 +24,10 @@ const loginStore = useLoginStore()
 const themeStore = useThemeStore()
 const uciChangesStore = useUciPendingChangesStore()
 const notificationsStore = useNotificationsStore()
+import TerminalModal from './TerminalModal.vue'
+
+
+const showTerminal = ref(false)
 
 let showUciChangesModal = ref(false)
 let isChangesButtonFlashing = ref(false)
@@ -117,13 +121,10 @@ function openNotificationsDrawer() {
 
 <template>
   <div
-    class="sticky top-0 z-40 flex items-center h-16 px-4 bg-white border-b border-gray-200 shadow-sm shrink-0 gap-x-4 dark:border-gray-700 dark:bg-gray-950 sm:gap-x-6 sm:px-6 lg:px-8"
-  >
-    <button
-      type="button"
+    class="sticky top-0 z-40 flex items-center h-16 px-4 bg-white border-b border-gray-200 shadow-sm shrink-0 gap-x-4 dark:border-gray-700 dark:bg-gray-950 sm:gap-x-6 sm:px-6 lg:px-8">
+    <button type="button"
       class="-m-2.5 p-2.5 text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-50 lg:hidden"
-      @click="emit('openSidebar')"
-    >
+      @click="emit('openSidebar')">
       <span class="sr-only">{{ t('common.shell.open_sidebar') }}</span>
       <font-awesome-icon :icon="['fas', 'bars']" class="w-6 h-6 shrink-0" aria-hidden="true" />
     </button>
@@ -135,26 +136,47 @@ function openNotificationsDrawer() {
       <div class="relative flex flex-1">
         <!-- global search -->
       </div>
-      
+
       <!-- unsaved changes button -->
       <div class="flex items-center gap-x-4 lg:gap-x-6">
+        <NeButton kind="secondary" size="md" @click="showTerminal = true">
+          <template #prefix>
+            <font-awesome-icon :icon="['fas', 'terminal']" />
+          </template>
+          Terminal
+        </NeButton>
+
+        <!-- Terminal Modal Overlay -->
+        <!-- Terminal Modal (teleported to body) -->
+        <Teleport to="body">
+          <div v-if="showTerminal"
+            class="fixed inset-0 z-[2147483647] bg-black bg-opacity-60 flex items-center justify-center">
+            <div
+              class="relative w-11/12 max-w-7xl h-[80vh] bg-yellow-100 border border-gray-300 rounded-lg shadow-xl overflow-hidden">
+              <!-- Close Button -->
+              <button @click="showTerminal = false"
+                class="absolute top-4 right-4 z-10 bg-red-600 text-white text-sm font-semibold px-3 py-1.5 rounded-md hover:bg-red-700">
+                Close Terminal
+              </button>
+
+              <!-- Terminal iframe -->
+              <iframe src="http://192.168.1.1:7681" class="w-full h-full border-0"></iframe>
+            </div>
+          </div>
+        </Teleport>
+
+
         <h3>IRX400-GE</h3>
         <div v-if="uciChangesStore.numChanges">
           <NeButton kind="primary" size="md" @click="showUciChangesModal = true" class="relative">
             <template #prefix>
-              <font-awesome-icon
-                :icon="['fas', 'pen-to-square']"
-                class="w-4 h-4"
-                aria-hidden="true"
-              />
+              <font-awesome-icon :icon="['fas', 'pen-to-square']" class="w-4 h-4" aria-hidden="true" />
             </template>
             <span>
               {{ t('standalone.uci_changes.unsaved_changes') }}
             </span>
-            <span
-              v-if="isChangesButtonFlashing"
-              class="absolute inline-flex w-3/4 h-full rounded-md opacity-75 animate-ping bg-primary-500 dark:bg-primary-300 dark:opacity-75"
-            ></span>
+            <span v-if="isChangesButtonFlashing"
+              class="absolute inline-flex w-3/4 h-full rounded-md opacity-75 animate-ping bg-primary-500 dark:bg-primary-300 dark:opacity-75"></span>
           </NeButton>
           <UciChangesModal :visible="showUciChangesModal" @close="showUciChangesModal = false" />
         </div>
@@ -175,10 +197,7 @@ function openNotificationsDrawer() {
         </div>
 
         <!-- separator -->
-        <div
-          class="hidden lg:block lg:h-6 lg:w-px lg:bg-gray-200 dark:lg:bg-gray-700"
-          aria-hidden="true"
-        />
+        <div class="hidden lg:block lg:h-6 lg:w-px lg:bg-gray-200 dark:lg:bg-gray-700" aria-hidden="true" />
 
         <!-- help -->
         <!-- <NeTooltip triggerEvent="mouseenter focus" placement="bottom">
@@ -204,18 +223,12 @@ function openNotificationsDrawer() {
         <!-- notifications -->
         <NeTooltip triggerEvent="mouseenter focus" placement="bottom">
           <template #trigger>
-            <button
-              type="button"
-              :class="['-m-2.5 flex p-2.5', topBarButtonsColorClasses]"
-              @click="openNotificationsDrawer"
-            >
+            <button type="button" :class="['-m-2.5 flex p-2.5', topBarButtonsColorClasses]"
+              @click="openNotificationsDrawer">
               <span class="sr-only">{{ t('common.shell.show_notifications') }}</span>
-              <font-awesome-icon
-                :icon="['fas', 'bell']"
+              <font-awesome-icon :icon="['fas', 'bell']"
                 :class="['h-6 w-6 shrink-0', { 'fa-shake': shakeNotificationsIcon }]"
-                style="--fa-animation-duration: 2s"
-                aria-hidden="true"
-              />
+                style="--fa-animation-duration: 2s" aria-hidden="true" />
             </button>
           </template>
           <template #content>
@@ -226,25 +239,13 @@ function openNotificationsDrawer() {
         <!-- profile dropdown -->
         <NeTooltip triggerEvent="mouseenter focus" placement="bottom">
           <template #trigger>
-            <NeDropdown
-              :items="accountMenuOptions"
-              :alignToRight="true"
-              :openMenuAriaLabel="t('common.shell.open_user_menu')"
-              menuClasses="!z-[150]"
-            >
+            <NeDropdown :items="accountMenuOptions" :alignToRight="true"
+              :openMenuAriaLabel="t('common.shell.open_user_menu')" menuClasses="!z-[150]">
               <template #button>
                 <button type="button" :class="['-m-2.5 flex p-2.5', topBarButtonsColorClasses]">
                   <div class="flex items-center gap-2">
-                    <font-awesome-icon
-                      :icon="['fas', 'circle-user']"
-                      class="w-6 h-6 shrink-0"
-                      aria-hidden="true"
-                    />
-                    <font-awesome-icon
-                      :icon="['fas', 'chevron-down']"
-                      class="w-3 h-3 shrink-0"
-                      aria-hidden="true"
-                    />
+                    <font-awesome-icon :icon="['fas', 'circle-user']" class="w-6 h-6 shrink-0" aria-hidden="true" />
+                    <font-awesome-icon :icon="['fas', 'chevron-down']" class="w-3 h-3 shrink-0" aria-hidden="true" />
                   </div>
                 </button>
               </template>
