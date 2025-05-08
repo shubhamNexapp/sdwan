@@ -338,7 +338,6 @@ onMounted(() => {
 })
 
 function isCurrentRoute(itemPath: string) {
-  console.log("itemPath=====",itemPath)
   return route.path.includes(itemPath)
 }
 

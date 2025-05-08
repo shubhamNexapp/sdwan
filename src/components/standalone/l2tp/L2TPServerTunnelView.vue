@@ -16,9 +16,9 @@ import {
 import { useUciPendingChangesStore } from '@/stores/standalone/uciPendingChanges'
 import { onMounted, onUnmounted, ref } from 'vue'
 import { ubusCall } from '@/lib/standalone/ubus'
-import DeleteTunnelModal from '@/components/standalone/l2tp/L2TPDelete.vue'
-import L2TPDrawer from '@/components/standalone/l2tp/L2TPDrawer.vue'
-import GreEdit from '@/components/standalone/l2tp/L2TPEdit.vue'
+import DeleteTunnelModal from '@/components/standalone/l2tp/L2TPServerDeleteTunnelModal.vue'
+import L2TPAddDrawer from '@/components/standalone/l2tp/L2tpServerAddDrawer.vue'
+import L2TPEditDrawer from '@/components/standalone/l2tp/L2TPServerEditDrawer.vue'
 import axios from 'axios'
 import { getSDControllerApiEndpoint } from '@/lib/config'
 
@@ -121,20 +121,56 @@ onUnmounted(() => {
   }
 })
 
-let apiResponse = ref()
+const apiResponse = ref<any[]>([]);
 const getLists = async () => {
 
   try {
 
     loading.value = true;
-    const response = await axios.post(`${getSDControllerApiEndpoint()}/l2tp`, {
+    const response = await axios.post(`${getSDControllerApiEndpoint()}/l2tp_server`, {
       method: 'get-config',
       payload: {}
     });
 
     if (response.data.code === 200) {
       loading.value = false;
-      apiResponse.value = response.data.data // Store API response
+      // apiResponse.value = response.data.data // Store API response
+      const result = response.data.data;
+      console.log('API result:====', result); // 👈 See structure here
+       apiResponse.value = Array.isArray(result) ? result : [result];
+     /* apiResponse.value = [{
+        "service": "enable",
+        "ip_start": "192.168.245.200",
+        "ip_end": "192.168.245.210",
+        "local_ip": "192.168.2.120",
+        "chap": "yes",
+        "pap": "yes",
+        "mru": "1440",
+        "mtu": "1440",
+        "username": "admin456",
+        "password": "admin456",
+        "auth": "no",
+        "require_mschap_v2": "yes",
+        "require_chap": "yes",
+        "require_pap": "yes",
+        "lcp_interval": "20",
+        "lcp_failure": "5",
+        "defailtroute": "no",
+        "ipdefault": "no",
+        "proxyarp": "yes",
+        "client": [
+          {
+            "ifname": "ppp0",
+            "ip": "192.168.245.200",
+            "status": "connected"
+          },
+          {
+            "ifname": "ppp1",
+            "ip": "192.168.245.201",
+            "status": "connected"
+          }
+        ]
+      }] */
     }
   } catch (err) {
     loading.value = false;
@@ -142,12 +178,92 @@ const getLists = async () => {
   loading.value = false;
 };
 
+
 </script>
 
 <template>
   <div class="flex flex-col">
-    <div class="flex flex-col justify-between md:flex-row md:items-center">
-      <NeHeading tag="h3" class="mb-7">{{ t('Server Tunnel') }}</NeHeading>
+    <!-- <div class="flex flex-col justify-between md:flex-row md:items-center">
+      <NeHeading tag="h3" class="mb-7">{{ t('standalone.l2tp.title') }}</NeHeading>
+    </div>
+    <p class="mb-6 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
+      {{ t('standalone.ping_latency_monitor.description') }}
+    </p> -->
+    <div class="space-y-6">
+      <NeInlineNotification kind="error" :title="error.notificationTitle" :description="error.notificationDescription"
+        v-if="error.notificationTitle">
+        <template #details v-if="error.notificationDetails">
+          {{ error.notificationDetails }}
+        </template>
+      </NeInlineNotification>
+
+      <NeSkeleton v-if="loading" :lines="8" size="lg" />
+
+      <template v-else>
+        <!-- Show "Add WireGuard Tunnel" button if dummyData is empty -->
+
+        <NeButton kind="primary" @click="openCreateEditDrawer(null)">
+          <template #prefix>
+            <font-awesome-icon :icon="['fas', 'circle-plus']" class="h-4 w-4" aria-hidden="true" />
+          </template>
+          {{ t('Add Server Tunnel') }}
+        </NeButton>
+        <!-- Show table if apiresponse has values -->
+        <NeTable cardBreakpoint="md" class="mt-2">
+          <NeTableHead>
+            <NeTableHeadCell>#</NeTableHeadCell>
+            <NeTableHeadCell>IP Start</NeTableHeadCell>
+            <NeTableHeadCell>IP End</NeTableHeadCell>
+            <NeTableHeadCell>User Name</NeTableHeadCell>
+            <NeTableHeadCell>Password</NeTableHeadCell>
+            <NeTableHeadCell>Service</NeTableHeadCell>
+          </NeTableHead>
+          <NeTableBody>
+            <NeTableRow v-for="(item, index) in apiResponse" :key="index">
+              <NeTableCell>{{ index + 1 }}</NeTableCell>
+              <NeTableCell>{{ item.ip_start }}</NeTableCell>
+              <NeTableCell>{{ item.ip_end }}</NeTableCell>
+              <NeTableCell>{{ item.username }}</NeTableCell>
+              <NeTableCell>{{ item.password }}</NeTableCell>
+              <NeTableCell :class="item.service === 'disconnect' ? 'text-red-800' : 'text-green-800'">
+                {{ item.service }}
+              </NeTableCell>
+
+              <NeTableCell :data-label="t('common.actions')">
+                <div class="-ml-2.5 flex gap-2 xl:ml-0 xl:justify-end">
+                  <NeButton kind="tertiary" size="lg" :disabled="item.readonly" @click="openEditModal(item)">
+                    <template #prefix>
+                      <font-awesome-icon :icon="['fas', 'pen-to-square']" class="h-4 w-4" aria-hidden="true" />
+                    </template>
+                    {{ t('common.edit') }}
+                  </NeButton>
+                  <NeButton kind="tertiary" size="lg" :disabled="item.readonly"
+                    @click="openDeleteModal(item.interface_name)">
+                    <template #prefix>
+                      <font-awesome-icon :icon="['fas', 'trash']" class="h-4 w-4" aria-hidden="true" />
+                    </template>
+                    {{ t('common.delete') }}
+                  </NeButton>
+                </div>
+              </NeTableCell>
+              <!-- <NeTableCell>
+                <NeButton kind="primary" @click="openEditModal(item)">
+                  edit</NeButton>
+                <NeButton kind="primary" @click="openDeleteModal(item.tunnel_name)">
+                  Delete
+                </NeButton>
+              </NeTableCell> -->
+            </NeTableRow>
+          </NeTableBody>
+        </NeTable>
+      </template>
     </div>
   </div>
+
+  <DeleteTunnelModal :visible="showDeleteModal" :itemToDelete="selectedTunnelName" @close="showDeleteModal = false"
+    @tunnel-deleted="fetchTunnels" />
+  <L2TPAddDrawer :item-to-edit="selectedTunnel" @close="closeModalsAndDrawers" :rule-type="'forward'" :known-tags="[]"
+    @add-edit-tunnel="reloadTunnels" :is-shown="showCreateEditDrawer" />
+  <L2TPEditDrawer :item-to-edit="selectedTunnels" @close="showEditModals = false" :rule-type="'forward'"
+    :known-tags="[]" @add-edit-tunnel="reloadTunnels" :is-shown="showEditModals" />
 </template>
