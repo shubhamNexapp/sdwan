@@ -76,8 +76,8 @@ const validate = () => {
             errorBag.value.taskName = "Task name is required and must be max 64 characters.";
         }
 
-        if (command.value.trim().toLowerCase() !== "reboot") {
-            errorBag.value.command = "Command must be 'reboot'.";
+        if (!command.value) {
+            errorBag.value.command = "Command is required";
         }
 
         if (!mode.value.trim()) {
@@ -221,7 +221,7 @@ const closeDrawer = () => {
                         :invalidMessage="errorBag.taskName" /> -->
 
                     <!-- Command -->
-                    <NeTextInput class="mt-4" v-model.trim="command" :invalidMessage="errorBag.command"
+                    <!-- <NeTextInput class="mt-4" v-model.trim="command" :invalidMessage="errorBag.command"
                         :label="t('Command')" :placeholder="t('Enter Command')">
                         <template #tooltip>
                             <NeTooltip>
@@ -230,7 +230,17 @@ const closeDrawer = () => {
                                 </template>
                             </NeTooltip>
                         </template>
-                    </NeTextInput>
+                    </NeTextInput> -->
+                    <NeCombobox v-model="command" :options="[
+                        { label: 'Shut Down', id: 'shutdown' },
+                        { label: 'Reboot', id: 'reboot' }
+                    ]" :label="t('Command')" class="grow" :noResultsLabel="t('ne_combobox.no_results')"
+                        :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
+                        :noOptionsLabel="t('ne_combobox.no_options_label')" :selected-label="t('ne_combobox.selected')"
+                        :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" />
+                    <p v-if="errorBag.command" class="text-sm mt-1" style="color: rgba(190, 18, 60, 0.9);">
+                        {{ errorBag.command }}
+                    </p>
                     <!-- <NeTextInput label="Command" v-model.trim="command" :invalidMessage="errorBag.command" /> -->
 
                     <NeCombobox v-model="mode" :options="[

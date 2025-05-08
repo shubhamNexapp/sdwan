@@ -48,6 +48,12 @@ const onlyLetters = (event: Event) => {
   input.value = input.value.replace(/[^a-zA-Z\s]/g, '') // Allow only letters and spaces
 }
 
+const allowPasswordChars = (event: Event) => {
+  const input = event.target as HTMLInputElement;
+  input.value = input.value.replace(/[^a-zA-Z0-9!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/g, '');
+};
+
+
 // Function to allow only numbers in number fields
 const onlyNumbers = (event: Event) => {
   const input = event.target as HTMLInputElement
@@ -186,7 +192,7 @@ const getLists = async () => {
           <!-- <NeTextInput label="ACS Username" v-model.trim="acsUsername" @input="onlyLetters"
             :invalidMessage="errorBag.acsUsername" /> -->
 
-          <NeTextInput @input="onlyLetters" v-model="acsPassword" :invalidMessage="errorBag.acsPassword"
+          <NeTextInput type="password" @input="allowPasswordChars" v-model="acsPassword" :invalidMessage="errorBag.acsPassword"
             :label="t('ACS Password')" :placeholder="t('Enter ACS Password')">
             <template #tooltip>
               <NeTooltip>
@@ -212,7 +218,7 @@ const getLists = async () => {
           <!-- <NeTextInput label="CPE Username" v-model.trim="cpeUsername" @input="onlyLetters"
             :invalidMessage="errorBag.cpeUsername" /> -->
 
-          <NeTextInput @input="onlyLetters" v-model="cpePassword" :invalidMessage="errorBag.cpePassword"
+          <NeTextInput type="password" @input="allowPasswordChars" v-model="cpePassword" :invalidMessage="errorBag.cpePassword"
             :label="t('CPE Password')" :placeholder="t('Enter CPE Password')">
             <template #tooltip>
               <NeTooltip>
