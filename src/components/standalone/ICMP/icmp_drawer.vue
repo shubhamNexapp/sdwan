@@ -5,7 +5,8 @@ import {
     NeTextInput,
     NeToggle,
     getAxiosErrorMessage,
-    NeTooltip
+    NeTooltip,
+    NeCombobox
 } from '@nethesis/vue-components'
 import { ref } from 'vue'
 import { useNotificationsStore } from '../../../stores/notifications'
@@ -40,6 +41,8 @@ const destination = ref("")
 const timeInterval = ref("")
 const retryTimes = ref("")
 const command = ref("")
+const timeOutAction = ref("")
+const custom_command = ref("")
 
 // Validation error messages
 const errorBag = ref<{ [key: string]: string }>({})
@@ -90,8 +93,12 @@ const validate = () => {
             errorBag.value.retryTimes = "Retry Times must be between 1 and 65535."
         }
 
-        if (command.value.trim().toLowerCase() !== "reboot") {
-            errorBag.value.command = "Command must be 'reboot'."
+        // if (command.value.trim().toLowerCase() !== "reboot") {
+        //     errorBag.value.command = "Command must be 'reboot'."
+        // }
+
+        if (!timeOutAction.value) {
+            errorBag.value.timeOutAction = "Time out action is required'."
         }
     }
 
@@ -109,8 +116,13 @@ const saveRule = async () => {
             destination: destination.value,
             time_interval: timeInterval.value,
             retry_times: retryTimes.value,
-            command: command.value,
+            // command: command.value,
+            time_out_action: timeOutAction.value,
+            ...(timeOutAction.value === 'custom' && {
+                custom_command: custom_command.value
+            })
         }]
+
         const response = await axios.post(`${getSDControllerApiEndpoint()}/icmpcheck`, {
             method: "set-config",
             payload,
@@ -198,7 +210,7 @@ const closeDrawer = () => {
                     <!-- <NeTextInput label="Retry Times" v-model.trim="retryTimes" @input="onlyNumbers"
                         :invalidMessage="errorBag.retryTimes" /> -->
 
-                    <NeTextInput @input="onlyLetters" v-model="command" :invalidMessage="errorBag.command"
+                    <!-- <NeTextInput @input="onlyLetters" v-model="command" :invalidMessage="errorBag.command"
                         :label="t('Command')" :placeholder="t('Enter Command')">
                         <template #tooltip>
                             <NeTooltip>
@@ -207,9 +219,25 @@ const closeDrawer = () => {
                                 </template>
                             </NeTooltip>
                         </template>
-                    </NeTextInput>
+                    </NeTextInput> -->
                     <!-- <NeTextInput label="Command" v-model.trim="command" @input="onlyLetters"
                         :invalidMessage="errorBag.command" /> -->
+
+                    <NeCombobox v-model="timeOutAction" :options="[
+                        { label: 'reboot', id: 'reboot' },
+                        { label: 'custom', id: 'custom' },
+                    ]" :label="t('Time Out Action')" class="grow" :noResultsLabel="t('ne_combobox.no_results')"
+                        :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
+                        :noOptionsLabel="t('ne_combobox.no_options_label')" :selected-label="t('ne_combobox.selected')"
+                        :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" />
+
+                    <span v-if="errorBag.timeOutAction" style="color: rgb(190 18 60 / var(--tw-text-opacity));">
+                        {{ errorBag.timeOutAction }}
+                    </span>
+                    <!-- Conditionally rendered input if timeOutAction is 'custom' -->
+                    <NeTextInput v-if="timeOutAction === 'custom'" v-model="custom_command"
+                        :invalidMessage="errorBag.custom_command" :label="t('Custom Command')"
+                        :placeholder="t('Enter Custom Command')" maxlength="128" />
                 </template>
             </div>
 
