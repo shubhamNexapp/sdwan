@@ -42,7 +42,7 @@ import { useObjects, type ObjectReference } from '@/composables/useObjects'
 import { getSDControllerApiEndpoint } from '@/lib/config';
 import axios from 'axios';
 import { useNotificationsStore } from '../../../stores/notifications'
-import type { IpsecTunnel } from '@/views/standalone/vpn/IPsecTunnelView.vue'
+// import type { IpsecTunnel } from '@/views/standalone/vpn/IPsecTunnelView.vue'
 
 const notificationsStore = useNotificationsStore()
 
