@@ -42,6 +42,7 @@ const timeInterval = ref("")
 const retryTimes = ref("")
 const command = ref("")
 const timeOutAction = ref("")
+const sourceInterface = ref("")
 const custom_command = ref("")
 
 // Validation error messages
@@ -100,6 +101,10 @@ const validate = () => {
         if (!timeOutAction.value) {
             errorBag.value.timeOutAction = "Time out action is required'."
         }
+
+        if (!sourceInterface.value) {
+            errorBag.value.sourceInterface = "Source interface is required'."
+        }
     }
 
     return Object.keys(errorBag.value).length === 0
@@ -115,6 +120,7 @@ const saveRule = async () => {
             name: name.value,
             destination: destination.value,
             time_interval: timeInterval.value,
+            source_interface: sourceInterface.value,
             retry_times: retryTimes.value,
             // command: command.value,
             time_out_action: timeOutAction.value,
@@ -170,6 +176,22 @@ const closeDrawer = () => {
                     </NeTextInput>
                     <!-- <NeTextInput label="Task Name" v-model.trim="name" @input="onlyLetters"
                         :invalidMessage="errorBag.name" /> -->
+
+                    <NeCombobox v-model="sourceInterface" :options="[
+                        { label: 'eth0', id: 'eth0' },
+                        { label: 'eth1', id: 'eth1' },
+                        { label: 'eth2', id: 'eth2' },
+                        { label: 'eth3', id: 'eth3' },
+                        { label: 'eth4', id: 'eth4' },
+                        { label: 'eth5', id: 'eth5' },
+                    ]" :label="t('Source Interface')" class="grow" :noResultsLabel="t('ne_combobox.no_results')"
+                        :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
+                        :noOptionsLabel="t('ne_combobox.no_options_label')" :selected-label="t('ne_combobox.selected')"
+                        :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" />
+
+                    <span v-if="errorBag.sourceInterface"  style="color: rgb(190 18 60 / var(--tw-text-opacity));">
+                        {{ errorBag.sourceInterface }}
+                    </span>
 
                     <NeTextInput @input="ipInputHandler" v-model="destination" :invalidMessage="errorBag.destination"
                         :label="t('Destination')" :placeholder="t('Enter Destination')">

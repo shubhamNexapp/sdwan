@@ -179,7 +179,7 @@ const getLists = async () => {
           <!-- <NeTextInput label="ACS Url" v-model.trim="acsUrl" @input="onlyValidUrlCharacters"
             :invalidMessage="errorBag.acsUrl" /> -->
 
-          <NeTextInput @input="onlyLetters" v-model="acsUsername" :invalidMessage="errorBag.acsUsername"
+          <NeTextInput @input="allowPasswordChars" v-model="acsUsername" :invalidMessage="errorBag.acsUsername"
             :label="t('ACS Username')" :placeholder="t('Enter ACS Username')">
             <template #tooltip>
               <NeTooltip>
@@ -205,7 +205,7 @@ const getLists = async () => {
           <!-- <NeTextInput label="ACS Password" v-model.trim="acsPassword" @input="onlyLetters"
             :invalidMessage="errorBag.acsPassword" /> -->
 
-          <NeTextInput @input="onlyLetters" v-model="cpeUsername" :invalidMessage="errorBag.cpeUsername"
+          <NeTextInput @input="allowPasswordChars" v-model="cpeUsername" :invalidMessage="errorBag.cpeUsername"
             :label="t('CPE Username')" :placeholder="t('Enter CPE Username')">
             <template #tooltip>
               <NeTooltip>

@@ -85,23 +85,24 @@ const validate = () => {
         }
 
         if (showRangeFields.value) {
-            const weekNumber = Number(week.value.trim());
+            // const weekNumber = Number(week.value.trim());
             const monthNumber = Number(month.value.trim());
             const dayNumber = Number(day.value.trim());
             const hourNumber = Number(hour.value.trim());
             const minuteNumber = Number(hourminute.value.trim());
 
-            if (!week.value.trim()) {
-                errorBag.value.week = "Week is required.";
-            } else if (isNaN(weekNumber) || weekNumber < 0 || weekNumber > 6) {
-                errorBag.value.week = "Week must be a number between 0 and 6.";
-            }
+            // if (!week.value.trim()) {
+            //     errorBag.value.week = "Week is required.";
+            // } else if (isNaN(weekNumber) || weekNumber < 0 || weekNumber > 6) {
+            //     errorBag.value.week = "Week must be a number between 0 and 6.";
+            // }
 
             if (!month.value.trim()) {
                 errorBag.value.month = "Month is required.";
-            } else if (isNaN(monthNumber) || monthNumber < 1 || monthNumber > 12) {
-                errorBag.value.month = "Month must be a number between 1 and 12.";
             }
+            //  else if (isNaN(monthNumber) || monthNumber < 1 || monthNumber > 12) {
+            //     errorBag.value.month = "Month must be a number between 1 and 12.";
+            // }
 
             if (!day.value.trim()) {
                 errorBag.value.day = "Day is required.";
@@ -157,7 +158,7 @@ const saveRule = async () => {
             command: command.value,
             time_mode: mode.value,
             ...(showRangeFields.value && {
-                week: week.value ?? "*",
+                // week: week.value ?? "*",
                 month: month.value ?? "*",
                 day: day.value ?? "*",
                 hour: hour.value ?? "*",
@@ -268,7 +269,7 @@ const closeDrawer = () => {
                     </span>
                     <!-- Fields for "Range" mode -->
                     <template v-if="showRangeFields">
-                        <NeTextInput v-model.trim="week" :invalidMessage="errorBag.week" :label="t('Week')"
+                        <!-- <NeTextInput v-model.trim="week" :invalidMessage="errorBag.week" :label="t('Week')"
                             :placeholder="t('Enter Week')">
                             <template #tooltip>
                                 <NeTooltip>
@@ -277,9 +278,10 @@ const closeDrawer = () => {
                                     </template>
                                 </NeTooltip>
                             </template>
-                        </NeTextInput>
+                        </NeTextInput> -->
                         <!-- <NeTextInput label="Week" v-model.trim="week" :invalidMessage="errorBag.week" /> -->
-                        <NeTextInput v-model.trim="month" :invalidMessage="errorBag.month" :label="t('Month')"
+
+                        <!-- <NeTextInput v-model.trim="month" :invalidMessage="errorBag.month" :label="t('Month')"
                             :placeholder="t('Enter Month')">
                             <template #tooltip>
                                 <NeTooltip>
@@ -288,8 +290,29 @@ const closeDrawer = () => {
                                     </template>
                                 </NeTooltip>
                             </template>
-                        </NeTextInput>
+                        </NeTextInput> -->
+                        <NeCombobox v-model="month" :options="[
+                            { label: 'Jan', id: 'Jan' },
+                            { label: 'Feb', id: 'Feb' },
+                            { label: 'Mar', id: 'Mar' },
+                            { label: 'Apr', id: 'Apr' },
+                            { label: 'May', id: 'May' },
+                            { label: 'Jun', id: 'Jun' },
+                            { label: 'Jul', id: 'Jul' },
+                            { label: 'Aug', id: 'Aug' },
+                            { label: 'Sep', id: 'Sep' },
+                            { label: 'Oct', id: 'Oct' },
+                            { label: 'Noc', id: 'Noc' },
+                            { label: 'Dec', id: 'Dec' },
+                        ]" :label="t('Month')" class="grow" :noResultsLabel="t('ne_combobox.no_results')"
+                            :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
+                            :noOptionsLabel="t('ne_combobox.no_options_label')"
+                            :selected-label="t('ne_combobox.selected')"
+                            :user-input-label="t('ne_combobox.user_input_label')"
+                            :optionalLabel="t('common.optional')" />
+
                         <!-- <NeTextInput label="Month" v-model.trim="month" :invalidMessage="errorBag.month" /> -->
+
                         <NeTextInput v-model.trim="day" :invalidMessage="errorBag.day" :label="t('Day')"
                             :placeholder="t('Enter Day')">
                             <template #tooltip>

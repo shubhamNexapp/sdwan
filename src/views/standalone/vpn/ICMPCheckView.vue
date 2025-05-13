@@ -184,17 +184,16 @@ console.log("apiResponse=====", apiResponse)
                         <NeTableHeadCell>Destination</NeTableHeadCell>
                         <NeTableHeadCell>Time Interval</NeTableHeadCell>
                         <NeTableHeadCell>Retry Times</NeTableHeadCell>
-                        <NeTableHeadCell>Command</NeTableHeadCell>
+                        <NeTableHeadCell>Source Interface</NeTableHeadCell>
                     </NeTableHead>
                     <NeTableBody>
                         <NeTableRow v-for="(item, index) in apiResponse" :key="index">
-                            {{ console.log("item======", item.tunnel_name) }}
                             <NeTableCell>{{ index + 1 }}</NeTableCell>
                             <NeTableCell>{{ item.name }}</NeTableCell>
                             <NeTableCell>{{ item.destination }}</NeTableCell>
                             <NeTableCell>{{ item.time_interval }}</NeTableCell>
                             <NeTableCell>{{ item.retry_times }}</NeTableCell>
-                            <NeTableCell>{{ item.command }}</NeTableCell>
+                            <NeTableCell>{{ item.source_interface }}</NeTableCell>
                             <!-- <NeTableCell :data-label="t('common.actions')">
                                 <div class="-ml-2.5 flex gap-2 xl:ml-0 xl:justify-end">
                                     <NeButton kind="tertiary" size="lg" :disabled="item.readonly"
