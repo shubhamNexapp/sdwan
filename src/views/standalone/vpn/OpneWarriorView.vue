@@ -16,7 +16,7 @@ import {
 import { useUciPendingChangesStore } from '@/stores/standalone/uciPendingChanges'
 import { onMounted, onUnmounted, ref } from 'vue'
 import { ubusCall } from '@/lib/standalone/ubus'
-import DeleteTunnelModal from '@/components/standalone/gre/GreDelete.vue'
+import DeleteTunnelModal from '@/components/standalone/vpn_road_warriors/DeleteTunnel.vue'
 import VPNDrawer from '@/components/standalone/vpn_road_warriors/vpn_road_warrior_drawer.vue'
 import axios from 'axios'
 
@@ -143,6 +143,11 @@ const getLists = async () => {
   loading.value = false;
 };
 
+function handleTunnelDeleted() {
+  fetchTunnels();
+  getLists();
+}
+
 
 </script>
 
@@ -152,7 +157,8 @@ const getLists = async () => {
       <NeHeading tag="h3" class="mb-4">{{ t('standalone.openvpn_warrior.short_name') }}</NeHeading>
     </div>
     <p class="mb-6 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
-      {{ t('Configure scheduled tasks with specified operation times and associated services for automated management.') }}
+      {{ t('Configure scheduled tasks with specified operation times and associated services for automated management.')
+      }}
     </p>
     <div class="space-y-6">
 
@@ -206,7 +212,16 @@ const getLists = async () => {
                   -
                 </template>
               </NeTableCell>
-
+              <NeTableCell :data-label="t('common.actions')">
+                <div class="-ml-2.5 flex gap-2 xl:ml-0 xl:justify-end">
+                  <NeButton kind="tertiary" size="lg" :disabled="item.readonly" @click="openDeleteModal(item.name)">
+                    <template #prefix>
+                      <font-awesome-icon :icon="['fas', 'trash']" class="h-4 w-4" aria-hidden="true" />
+                    </template>
+                    {{ t('common.delete') }}
+                  </NeButton>
+                </div>
+              </NeTableCell>
             </NeTableRow>
           </NeTableBody>
         </NeTable>
@@ -215,9 +230,9 @@ const getLists = async () => {
   </div>
 
   <DeleteTunnelModal :visible="showDeleteModal" :itemToDelete="selectedTunnelName" @close="showDeleteModal = false"
-    @tunnel-deleted="fetchTunnels" />
+    @tunnel-deleted="handleTunnelDeleted" />
   <VPNDrawer :item-to-edit="selectedTunnel" @close="closeModalsAndDrawers" :rule-type="'forward'" :known-tags="[]"
-    @add-edit-tunnel="reloadTunnels" :is-shown="showCreateEditDrawer" />
+  @tunnel-added="handleTunnelDeleted"  @add-edit-tunnel="reloadTunnels" :is-shown="showCreateEditDrawer" />
   <GreEdit :item-to-edit="selectedTunnels" @close="showEditModals = false" :rule-type="'forward'" :known-tags="[]"
     @add-edit-tunnel="reloadTunnels" :is-shown="showEditModals" />
 </template>
