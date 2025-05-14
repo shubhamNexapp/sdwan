@@ -197,11 +197,10 @@ function handleTunnelDeleted() {
 
               <NeTableCell>
                 <template v-if="item.time_mode === 'range'">
-                  Hour: <b>{{ item.hour }}</b> |
-                  Minute: <b>{{ item.minute }}</b> |
+                  Clock: <b>{{ item.clock }}</b> |
                   Day: <b>{{ item.day }}</b> |
                   Month: <b>{{ item.month }}</b> |
-                  Week: <b>{{ item.week }}</b>
+                  Year: <b>{{ item.year }}</b>
                 </template>
 
                 <template v-else-if="item.time_mode === 'interval'">

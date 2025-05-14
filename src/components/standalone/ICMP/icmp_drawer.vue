@@ -32,7 +32,7 @@ let loading = ref({
     fetchRule: false,
 });
 
-const emit = defineEmits(['close', 'save'])
+const emit = defineEmits(['close', 'save','tunnel-added'])
 
 // Form fields
 const service = ref(false)
@@ -143,6 +143,7 @@ const saveRule = async () => {
 
             emit('save', payload)
             emit('close') // Close drawer on success
+            emit('tunnel-added')
         }
     } catch (err) {
         console.error("Error saving rule:", getAxiosErrorMessage(err))

@@ -25,7 +25,7 @@ const props = defineProps({
     isShown: { type: Boolean, default: false }
 })
 
-const emit = defineEmits(['close', 'save','tunnel-added'])
+const emit = defineEmits(['close', 'save', 'tunnel-added'])
 
 // Form fields
 const service = ref(false)
@@ -35,8 +35,9 @@ const mode = ref("")
 const week = ref("")
 const month = ref("")
 const day = ref("")
-const hour = ref("")
-const hourminute = ref("")
+const startTime = ref("")
+const endTime = ref("")
+const year = ref("")
 const interval = ref("")
 
 let loading = ref({
@@ -86,23 +87,12 @@ const validate = () => {
 
         if (showRangeFields.value) {
             // const weekNumber = Number(week.value.trim());
-            const monthNumber = Number(month.value.trim());
             const dayNumber = Number(day.value.trim());
-            const hourNumber = Number(hour.value.trim());
-            const minuteNumber = Number(hourminute.value.trim());
+            const yearNumber = Number(year.value.trim());
 
-            // if (!week.value.trim()) {
-            //     errorBag.value.week = "Week is required.";
-            // } else if (isNaN(weekNumber) || weekNumber < 0 || weekNumber > 6) {
-            //     errorBag.value.week = "Week must be a number between 0 and 6.";
-            // }
-
-            if (!month.value.trim()) {
-                errorBag.value.month = "Month is required.";
+            if (startTime.value >= endTime.value) {
+                errorBag.value.startTime = "Start time must be earlier than end time."
             }
-            //  else if (isNaN(monthNumber) || monthNumber < 1 || monthNumber > 12) {
-            //     errorBag.value.month = "Month must be a number between 1 and 12.";
-            // }
 
             if (!day.value.trim()) {
                 errorBag.value.day = "Day is required.";
@@ -110,17 +100,18 @@ const validate = () => {
                 errorBag.value.day = "Day must be a number between 1 and 31.";
             }
 
-            if (!hour.value.trim()) {
-                errorBag.value.hour = "Hour is required.";
-            } else if (isNaN(hourNumber) || hourNumber < 0 || hourNumber > 23) {
-                errorBag.value.hour = "Hour must be a number between 0 and 23.";
+            if (!month.value.trim()) {
+                errorBag.value.month = "Month is required.";
             }
 
-            if (!hourminute.value.trim()) {
-                errorBag.value.hourminute = "Minute is required.";
-            } else if (isNaN(minuteNumber) || minuteNumber < 0 || minuteNumber > 59) {
-                errorBag.value.hourminute = "Minute must be a number between 0 and 59.";
+            if (!year.value.trim()) {
+                errorBag.value.year = "Year is required.";
+            } else if (isNaN(yearNumber) || yearNumber < 2000 || yearNumber > 2999) {
+                errorBag.value.year = "Year must be a number between 2000 and 2999.";
+            } else {
+                errorBag.value.year = ""; // clear error if valid
             }
+
         }
 
         if (showIntervalField.value) {
@@ -152,17 +143,18 @@ const saveRule = async () => {
 
     try {
 
+        const clockData = `${startTime.value}-${endTime.value}`
+
         const rule = {
             name: taskName.value,
             service: service.value ? "enable" : "disable",
             command: command.value,
             time_mode: mode.value,
             ...(showRangeFields.value && {
-                // week: week.value ?? "*",
+                clock: clockData,
                 month: month.value ?? "*",
                 day: day.value ?? "*",
-                hour: hour.value ?? "*",
-                minute: hourminute.value ?? "*"
+                year: year.value ?? "*",
             }),
             ...(showIntervalField.value && {
                 time_interval: interval.value
@@ -293,6 +285,37 @@ const closeDrawer = () => {
                                 </NeTooltip>
                             </template>
                         </NeTextInput> -->
+
+                        <div class="clock-container">
+                            <label class="clock-label">Clock:</label>
+
+                            <div class="clock-inputs">
+                                <input type="time" v-model="startTime" min="00:00" max="23:59" required
+                                    class="time-input" />
+
+                                <span class="dash">-</span>
+
+                                <input type="time" v-model="endTime" min="00:00" max="23:59" required
+                                    class="time-input" />
+                            </div>
+                        </div>
+
+                        <p v-if="errorBag.startTime" class="error-text">
+                            {{ errorBag.startTime }}
+                        </p>
+
+
+                        <NeTextInput v-model.trim="day" :invalidMessage="errorBag.day" :label="t('Day')"
+                            :placeholder="t('Enter Day')">
+                            <template #tooltip>
+                                <NeTooltip>
+                                    <template #content>
+                                        {{ t('standalone.logs.search_tooltip') }}
+                                    </template>
+                                </NeTooltip>
+                            </template>
+                        </NeTextInput>
+
                         <NeCombobox v-model="month" :options="[
                             { label: 'Jan', id: 'Jan' },
                             { label: 'Feb', id: 'Feb' },
@@ -312,11 +335,15 @@ const closeDrawer = () => {
                             :selected-label="t('ne_combobox.selected')"
                             :user-input-label="t('ne_combobox.user_input_label')"
                             :optionalLabel="t('common.optional')" />
-
+                        <p v-if="errorBag.month" class="text-sm " style="color: rgba(190, 18, 60, 0.9);">
+                            {{ errorBag.month }}
+                        </p>
                         <!-- <NeTextInput label="Month" v-model.trim="month" :invalidMessage="errorBag.month" /> -->
 
-                        <NeTextInput v-model.trim="day" :invalidMessage="errorBag.day" :label="t('Day')"
-                            :placeholder="t('Enter Day')">
+
+
+                        <NeTextInput v-model.trim="year" :invalidMessage="errorBag.year" :label="t('Year')"
+                            :placeholder="t('Enter Year')">
                             <template #tooltip>
                                 <NeTooltip>
                                     <template #content>
@@ -325,8 +352,9 @@ const closeDrawer = () => {
                                 </NeTooltip>
                             </template>
                         </NeTextInput>
+
                         <!-- <NeTextInput label="Day" v-model.trim="day" :invalidMessage="errorBag.day" /> -->
-                        <NeTextInput v-model.trim="hour" :invalidMessage="errorBag.hour" :label="t('Hour')"
+                        <!-- <NeTextInput v-model.trim="hour" :invalidMessage="errorBag.hour" :label="t('Hour')"
                             :placeholder="t('Enter Hour')">
                             <template #tooltip>
                                 <NeTooltip>
@@ -335,9 +363,9 @@ const closeDrawer = () => {
                                     </template>
                                 </NeTooltip>
                             </template>
-                        </NeTextInput>
+                        </NeTextInput> -->
                         <!-- <NeTextInput label="Hour" v-model.trim="hour" :invalidMessage="errorBag.hour" /> -->
-                        <NeTextInput v-model.trim="hourminute" :invalidMessage="errorBag.hourminute"
+                        <!-- <NeTextInput v-model.trim="hourminute" :invalidMessage="errorBag.hourminute"
                             :label="t('Minute')" :placeholder="t('Enter Minute')">
                             <template #tooltip>
                                 <NeTooltip>
@@ -346,7 +374,7 @@ const closeDrawer = () => {
                                     </template>
                                 </NeTooltip>
                             </template>
-                        </NeTextInput>
+                        </NeTextInput> -->
                         <!-- <NeTextInput label="Minute" v-model.trim="hourminute" :invalidMessage="errorBag.hourminute" /> -->
                     </template>
 
@@ -384,3 +412,47 @@ const closeDrawer = () => {
         </form>
     </NeSideDrawer>
 </template>
+
+<style>
+.clock-container {
+    display: flex;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+.clock-label {
+    margin-right: 1rem;
+    font-weight: 500;
+    min-width: 60px;
+}
+
+.clock-inputs {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.time-input {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    outline: none;
+    font-size: 14px;
+    width: 120px;
+}
+
+.time-input:focus {
+    border-color: #409eff;
+}
+
+.dash {
+    margin: 0 4px;
+    font-weight: bold;
+}
+
+.error-text {
+    color: rgba(190, 18, 60, 0.9);
+    font-size: 0.875rem;
+    margin-top: 4px;
+}
+</style>

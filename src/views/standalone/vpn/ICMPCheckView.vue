@@ -16,7 +16,7 @@ import {
 import { useUciPendingChangesStore } from '@/stores/standalone/uciPendingChanges'
 import { onMounted, onUnmounted, ref } from 'vue'
 import { ubusCall } from '@/lib/standalone/ubus'
-import DeleteTunnelModal from '@/components/standalone/gre/GreDelete.vue'
+import DeleteTunnelModal from '@/components/standalone/ICMP/icmp_delete.vue'
 import ICMPDrawer from '@/components/standalone/ICMP/icmp_drawer.vue'
 import axios from 'axios'
 import { getSDControllerApiEndpoint } from '@/lib/config'
@@ -144,7 +144,11 @@ const getLists = async () => {
     loading.value = false;
 };
 
-console.log("apiResponse=====", apiResponse)
+function handleFectLists() {
+  fetchTunnels();
+  getLists();
+}
+
 
 </script>
 
@@ -194,18 +198,18 @@ console.log("apiResponse=====", apiResponse)
                             <NeTableCell>{{ item.time_interval }}</NeTableCell>
                             <NeTableCell>{{ item.retry_times }}</NeTableCell>
                             <NeTableCell>{{ item.source_interface }}</NeTableCell>
-                            <!-- <NeTableCell :data-label="t('common.actions')">
+                            <NeTableCell :data-label="t('common.actions')">
                                 <div class="-ml-2.5 flex gap-2 xl:ml-0 xl:justify-end">
-                                    <NeButton kind="tertiary" size="lg" :disabled="item.readonly"
+                                    <!-- <NeButton kind="tertiary" size="lg" :disabled="item.readonly"
                                         @click="openEditModal(item)">
                                         <template #prefix>
                                             <font-awesome-icon :icon="['fas', 'pen-to-square']" class="h-4 w-4"
                                                 aria-hidden="true" />
                                         </template>
                                         {{ t('common.edit') }}
-                                    </NeButton>
+                                    </NeButton> -->
                                     <NeButton kind="tertiary" size="lg" :disabled="item.readonly"
-                                        @click="openDeleteModal(item.tunnel_name)">
+                                        @click="openDeleteModal(item.name)">
                                         <template #prefix>
                                             <font-awesome-icon :icon="['fas', 'trash']" class="h-4 w-4"
                                                 aria-hidden="true" />
@@ -213,17 +217,17 @@ console.log("apiResponse=====", apiResponse)
                                         {{ t('common.delete') }}
                                     </NeButton>
                                 </div>
-                            </NeTableCell> -->
+                            </NeTableCell>
                         </NeTableRow>
                     </NeTableBody>
                 </NeTable>
-            </template>
+            </template> 
         </div>
     </div>
 
     <DeleteTunnelModal :visible="showDeleteModal" :itemToDelete="selectedTunnelName" @close="showDeleteModal = false"
-        @tunnel-deleted="fetchTunnels" />
-    <ICMPDrawer :item-to-edit="selectedTunnel" @close="closeModalsAndDrawers" :rule-type="'forward'" :known-tags="[]"
+        @tunnel-deleted="handleFectLists" />
+    <ICMPDrawer @tunnel-added="handleFectLists" :item-to-edit="selectedTunnel" @close="closeModalsAndDrawers" :rule-type="'forward'" :known-tags="[]"
         @add-edit-tunnel="reloadTunnels" :is-shown="showCreateEditDrawer" />
     <GreEdit :item-to-edit="selectedTunnels" @close="showEditModals = false" :rule-type="'forward'" :known-tags="[]"
         @add-edit-tunnel="reloadTunnels" :is-shown="showEditModals" />
