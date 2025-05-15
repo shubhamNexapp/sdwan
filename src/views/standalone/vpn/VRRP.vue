@@ -15,7 +15,7 @@ const notificationsStore = useNotificationsStore();
 const status = ref(false);
 const service = ref(false);
 const state = ref("MASTER");
-const interfaceName = ref("eth0");
+const interfaceName = ref("");
 const virtualID = ref("");
 const virtualPriority = ref("");
 const virtualIP = ref("");
@@ -48,6 +48,7 @@ async function fetchConfiguration() {
             status.value = config.status === 'connected';
             service.value = config.service === 'enable';
             state.value = config.state;
+            interfaceName.value = config.interface_name;
             virtualID.value = config.virtual_router_id;
             virtualPriority.value = config.priority;
             virtualIP.value = config.virtual_ipaddress;

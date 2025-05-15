@@ -185,7 +185,8 @@ const onlyIP = (event: Event) => {
 <template>
   <NeHeading tag="h3" class="mb-4">BGP</NeHeading>
   <p class="mb-6 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
-    {{ t('Enable and configure BGP settings, including route IDs, AS numbers, neighbors, and network configurations.') }}
+    {{ t('Enable and configure BGP settings, including route IDs, AS numbers, neighbors, and network configurations.')
+    }}
   </p>
   <NeToggle class="mb-4" v-model="service" :label="service ? 'Enable' : 'Disable'" :topLabel="'BGP Service'" />
   <!-- Show form fields only if status is enabled -->
@@ -238,6 +239,7 @@ const onlyIP = (event: Event) => {
           <NeTableHead>
             <NeTableHeadCell>Neighbor IP</NeTableHeadCell>
             <NeTableHeadCell>Neighbor AS</NeTableHeadCell>
+            <NeTableHeadCell>Status</NeTableHeadCell>
             <NeTableHeadCell>Actions</NeTableHeadCell>
           </NeTableHead>
           <NeTableBody>
@@ -251,6 +253,16 @@ const onlyIP = (event: Event) => {
                 <!-- <NeTextInput v-model.trim="item.neighbor_as" placeholder="Route AS" /> -->
                 <NeTextInput v-model.trim="item.neighbor_as" placeholder="Neighbor As"
                   @input="(e: Event) => validateIp(e, index, 'neighbor_as')" />
+              </NeTableCell>
+              <NeTableCell>
+                <span class="text-sm" :class="{
+                  'text-green-600': apiResponse?.status?.find((statusItem : any) => statusItem.as === item.neighbor_as)?.state_pfxrcd === 'Active',
+                  'text-[rgb(239,68,68)]': apiResponse?.status?.find((statusItem : any) => statusItem.as === item.neighbor_as)?.state_pfxrcd !== 'Active'
+                }">
+                  {{
+                    apiResponse?.status?.find((statusItem : any) => statusItem.as === item.neighbor_as)?.state_pfxrcd || ''
+                  }}
+                </span>
               </NeTableCell>
               <NeTableCell>
                 <NeButton size="sm" class="mt-5" @click=deleteNeighbour(index)>
