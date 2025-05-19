@@ -4,11 +4,13 @@ import NeTable from '../NeTable.vue'
 import { NeDropdown } from '@nethesis/vue-components'
 import { NeButton } from '@nethesis/vue-components'
 import type { IpsecTunnel } from '@/types/tunnel'
+import type { ClientIPSecTunnel } from '@/types/tunnel'
 
 const { t } = useI18n()
 
 const props = defineProps<{
-  tunnels: IpsecTunnel[]
+  tunnels: IpsecTunnel[],
+  tunnel2: ClientIPSecTunnel[]
 }>()
 
 const emit = defineEmits(['tunnel-delete', 'tunnel-edit', 'tunnel-toggle-enable'])
@@ -34,6 +36,21 @@ const tableHeaders = [
     label: '',
     key: 'menu'
   }
+]
+
+const tableHeaders2 = [
+  {
+    label: t('IP'),
+    key: 'ip'
+  },
+  {
+    label: t('Status'),
+    key: 'status'
+  },
+  {
+    label: t('Subnet'),
+    key: 'subnet'
+  },
 ]
 
 function getDropdownItems(item: IpsecTunnel) {
@@ -80,7 +97,6 @@ function getCellClasses(item: IpsecTunnel) {
       <div :class="[...getCellClasses(item)]">
         <div v-if="Array.isArray(item.remote) && item.remote.length > 0">
           <div v-for="(remoteEntry, index) in item.remote" :key="index">
-            {{console.log("remoteEntry=======",remoteEntry)}}
             {{ remoteEntry }}
           </div>
         </div>
@@ -89,12 +105,11 @@ function getCellClasses(item: IpsecTunnel) {
         </div>
       </div>
     </template>
-    
+
     <template #service="{ item }: { item: IpsecTunnel }">
-      {{ console.log("item.service======",item.service) }}
       <div :class="['flex', 'flex-row', 'items-center', ...getCellClasses(item)]">
-        <font-awesome-icon :icon="['fas', item.service === 'enable' ? 'circle-check' : 'circle-xmark']" class="mr-2 h-5 w-5"
-          aria-hidden="true" />
+        <font-awesome-icon :icon="['fas', item.service === 'enable' ? 'circle-check' : 'circle-xmark']"
+          class="mr-2 h-5 w-5" aria-hidden="true" />
         <p>
           {{
             item.service === 'enable'
@@ -143,5 +158,41 @@ function getCellClasses(item: IpsecTunnel) {
         <NeDropdown :items="getDropdownItems(item)" :align-to-right="true" />
       </div>
     </template>
+  </NeTable>
+
+  <NeTable :data="tunnel2" :headers="tableHeaders2">
+
+    <template #ip="{ item }: { item: ClientIPSecTunnel }">
+      <div>
+        <div v-if="Array.isArray(item.ip) && item.ip.length > 0">
+          <div v-for="(remoteEntry, index) in item.ip" :key="index">
+            {{ remoteEntry }}
+          </div>
+        </div>
+        <div v-else>
+          <em>No remote IP</em>
+        </div>
+      </div>
+    </template>
+
+    <template #status="{ item }: { item: ClientIPSecTunnel }">
+      <p>{{ item.status }}</p>
+    </template>
+
+
+
+    <template #subnet="{ item }: { item: ClientIPSecTunnel }">
+      <div>
+        <div v-if="Array.isArray(item.subnet) && item.subnet.length > 0">
+          <div v-for="(remoteEntry, index) in item.subnet" :key="index">
+            {{ remoteEntry }}
+          </div>
+        </div>
+        <div v-else>
+          <em>No Subnet</em>
+        </div>
+      </div>
+    </template>
+
   </NeTable>
 </template>

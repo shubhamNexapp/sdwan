@@ -137,40 +137,40 @@ const getLists = async () => {
       // apiResponse.value = response.data.data // Store API response
       const result = response.data.data;
       console.log('API result:====', result); // 👈 See structure here
-       apiResponse.value = Array.isArray(result) ? result : [result];
-     /* apiResponse.value = [{
-        "service": "enable",
-        "ip_start": "192.168.245.200",
-        "ip_end": "192.168.245.210",
-        "local_ip": "192.168.2.120",
-        "chap": "yes",
-        "pap": "yes",
-        "mru": "1440",
-        "mtu": "1440",
-        "username": "admin456",
-        "password": "admin456",
-        "auth": "no",
-        "require_mschap_v2": "yes",
-        "require_chap": "yes",
-        "require_pap": "yes",
-        "lcp_interval": "20",
-        "lcp_failure": "5",
-        "defailtroute": "no",
-        "ipdefault": "no",
-        "proxyarp": "yes",
-        "client": [
-          {
-            "ifname": "ppp0",
-            "ip": "192.168.245.200",
-            "status": "connected"
-          },
-          {
-            "ifname": "ppp1",
-            "ip": "192.168.245.201",
-            "status": "connected"
-          }
-        ]
-      }] */
+      apiResponse.value = Array.isArray(result) ? result : [result];
+      /* apiResponse.value = [{
+         "service": "enable",
+         "ip_start": "192.168.245.200",
+         "ip_end": "192.168.245.210",
+         "local_ip": "192.168.2.120",
+         "chap": "yes",
+         "pap": "yes",
+         "mru": "1440",
+         "mtu": "1440",
+         "username": "admin456",
+         "password": "admin456",
+         "auth": "no",
+         "require_mschap_v2": "yes",
+         "require_chap": "yes",
+         "require_pap": "yes",
+         "lcp_interval": "20",
+         "lcp_failure": "5",
+         "defailtroute": "no",
+         "ipdefault": "no",
+         "proxyarp": "yes",
+         "client": [
+           {
+             "ifname": "ppp0",
+             "ip": "192.168.245.200",
+             "status": "connected"
+           },
+           {
+             "ifname": "ppp1",
+             "ip": "192.168.245.201",
+             "status": "connected"
+           }
+         ]
+       }] */
     }
   } catch (err) {
     loading.value = false;
@@ -228,6 +228,52 @@ const getLists = async () => {
               <NeTableCell :class="item.service === 'disconnect' ? 'text-red-800' : 'text-green-800'">
                 {{ item.service }}
               </NeTableCell>
+
+              <NeTableCell :data-label="t('common.actions')">
+                <div class="-ml-2.5 flex gap-2 xl:ml-0 xl:justify-end">
+                  <NeButton kind="tertiary" size="lg" :disabled="item.readonly" @click="openEditModal(item)">
+                    <template #prefix>
+                      <font-awesome-icon :icon="['fas', 'pen-to-square']" class="h-4 w-4" aria-hidden="true" />
+                    </template>
+                    {{ t('common.edit') }}
+                  </NeButton>
+                  <NeButton kind="tertiary" size="lg" :disabled="item.readonly"
+                    @click="openDeleteModal(item.interface_name)">
+                    <template #prefix>
+                      <font-awesome-icon :icon="['fas', 'trash']" class="h-4 w-4" aria-hidden="true" />
+                    </template>
+                    {{ t('common.delete') }}
+                  </NeButton>
+                </div>
+              </NeTableCell>
+              <!-- <NeTableCell>
+                <NeButton kind="primary" @click="openEditModal(item)">
+                  edit</NeButton>
+                <NeButton kind="primary" @click="openDeleteModal(item.tunnel_name)">
+                  Delete
+                </NeButton>
+              </NeTableCell> -->
+            </NeTableRow>
+          </NeTableBody>
+        </NeTable>
+
+        <!-- Show table if apiresponse has values -->
+        <h1><b>Client List</b></h1>
+        <NeTable cardBreakpoint="md" class="mt-2">
+          <NeTableHead>
+            <NeTableHeadCell>Interface Name</NeTableHeadCell>
+            <NeTableHeadCell>IP Address</NeTableHeadCell>
+            <NeTableHeadCell>Status</NeTableHeadCell>
+          </NeTableHead>
+          {{ console.log("apiResponse======", apiResponse[0].client) }}
+          <NeTableBody>
+            <NeTableRow v-for="(item, index) in apiResponse[0].client" :key="index">
+              <NeTableCell>{{ item.ifname }}</NeTableCell>
+              <NeTableCell>{{ item.ip }}</NeTableCell>
+              <NeTableCell>{{ item.status }}</NeTableCell>
+              <!-- <NeTableCell :class="item.status === 'disconnect' ? 'text-red-800' : 'text-green-800'">
+                {{ item.status }}
+              </NeTableCell> -->
 
               <NeTableCell :data-label="t('common.actions')">
                 <div class="-ml-2.5 flex gap-2 xl:ml-0 xl:justify-end">

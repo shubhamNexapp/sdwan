@@ -10,11 +10,11 @@ const { t } = useI18n()
 const { tabs, selectedTab } = useTabs([
   {
     name: 'server-tunnel',
-    label: t('standalone.openvpn_tunnel.tabs.server_tunnel')
+    label: t('standalone.openvpn_tunnel.tabs.client_tunnel')
   },
   {
     name: 'client-tunnel',
-    label: t('standalone.openvpn_tunnel.tabs.client_tunnel')
+    label: t('standalone.openvpn_tunnel.tabs.server_tunnel')
   }
 ])
 </script>

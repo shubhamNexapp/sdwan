@@ -178,7 +178,7 @@ onUnmounted(() => {
               <font-awesome-icon :icon="['fas', 'circle-plus']" class="h-4 w-4" aria-hidden="true" /> </template>{{
                 t('standalone.ipsec_tunnel.add_ipsec_tunnel') }}</NeButton>
         </NeEmptyState>
-        <ClientTunnelTable v-else :tunnels="apiResponse" @tunnel-delete="openDeleteModal"
+        <ClientTunnelTable v-else :tunnel2="apiResponse[0].remote" :tunnels="apiResponse" @tunnel-delete="openDeleteModal"
           @tunnel-edit="openCreateEditDrawer" @tunnel-toggle-enable="toggleTunnelEnable" />
       </template>
     </div>

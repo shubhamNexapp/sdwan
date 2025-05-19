@@ -50,3 +50,10 @@ export interface IpsecTunnel {
   }[];
 }
 
+
+export interface ClientIPSecTunnel {
+  ip: string;
+  status: string;
+  subnet: string;
+}
+

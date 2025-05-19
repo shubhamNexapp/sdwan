@@ -16,6 +16,7 @@ const status = ref(false);
 const service = ref(false);
 const state = ref("MASTER");
 const interfaceName = ref("");
+const interfaceOptions = ref([]);
 const virtualID = ref("");
 const virtualPriority = ref("");
 const virtualIP = ref("");
@@ -53,6 +54,12 @@ async function fetchConfiguration() {
             virtualPriority.value = config.priority;
             virtualIP.value = config.virtual_ipaddress;
             password.value = config.auth_pass;
+
+            // Set options for combobox from up_interface
+            interfaceOptions.value = config.up_interface.map((item: any) => ({
+                label: item.ifname,
+                id: item.ifname
+            }));
         }
     } catch (err) {
         error.value = { title: 'Error', description: 'Failed to fetch configuration.' };
@@ -132,6 +139,7 @@ async function saveSettings() {
                 priority: virtualPriority.value,
                 auth_pass: password.value,
                 virtual_ipaddress: virtualIP.value,
+                up_interface: interfaceName.value,
             }
         });
 
@@ -200,6 +208,13 @@ async function saveSettings() {
 
                 <div>
 
+                    <NeCombobox v-model="interfaceName" :options="interfaceOptions" :label="t('Interface Name')"
+                        class="grow" :noResultsLabel="t('ne_combobox.no_results')"
+                        :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
+                        :noOptionsLabel="t('ne_combobox.no_options_label')" :selected-label="t('ne_combobox.selected')"
+                        :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" />
+
+                    <!-- 
                     <NeCombobox v-model="interfaceName" :options="[
                         { label: 'eth0', id: 'eth0' },
                         { label: 'eth1', id: 'eth1' },
@@ -210,7 +225,7 @@ async function saveSettings() {
                     ]" :label="t('Interface Name')" class="grow" :noResultsLabel="t('ne_combobox.no_results')"
                         :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
                         :noOptionsLabel="t('ne_combobox.no_options_label')" :selected-label="t('ne_combobox.selected')"
-                        :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" />
+                        :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" /> -->
 
                     <!-- <label class="block text-sm font-medium mb-1">Interface Name:</label>
                     <select v-model="interfaceName"
