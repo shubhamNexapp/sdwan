@@ -77,9 +77,8 @@ async function saveSettings() {
 
 <template>
   <NeHeading tag="h3" class="mb-4">{{ t('TACACS+ Configuration') }}</NeHeading>
-  <div>
-    <div class="max-w-4xl">
-      <div class="space-y-8">
+
+
         <FormLayout :description="t('Enable or disable Tacacs ++ configuration and adjust its settings.')">
           <NeToggle class="mb-4" v-model="status" :topLabel="t('Status')" :label="status ? 'Enable' : 'Disable'" />
 
@@ -121,8 +120,5 @@ async function saveSettings() {
           </NeButton>
           <!-- <NeButton :loading="saving" kind="primary" @click="saveSettings" class="mt-5 ml-1">Save</NeButton> -->
         </FormLayout>
-      </div>
-    </div>
-  </div>
-
+     
 </template>

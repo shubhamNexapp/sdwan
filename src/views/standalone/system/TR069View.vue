@@ -7,6 +7,7 @@ import {
   getAxiosErrorMessage,
   NeTooltip
 } from '@nethesis/vue-components'
+import FormLayout from '@/components/standalone/FormLayout.vue';
 import { onMounted, ref } from 'vue'
 import { useNotificationsStore } from '../../../stores/notifications'
 import { getSDControllerApiEndpoint } from '@/lib/config'
@@ -153,14 +154,13 @@ const getLists = async () => {
 </script>
 
 <template>
-  <NeHeading tag="h3" class="mb-4">TR069</NeHeading>
-  <p class="mb-6 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
-    {{ t('Configure TR069 service settings, including ACS credentials and connection intervals for remote device management.') }}
-  </p>
-  <!-- <form @submit.prevent="saveRule"> -->
-  <form>
+  <NeHeading tag="h3" class="mb-4">{{ t('TR069') }}</NeHeading>
+
+  <FormLayout
+    :description="t('Configure TR069 service settings, including ACS credentials and connection intervals for remote device management.')">
+    <NeToggle class="mb-3" v-model="service" :label="service ? 'Enabled' : 'Disabled'" :topLabel="'Service'" />
+
     <div class="space-y-6">
-      <NeToggle v-model="service" :label="service ? 'Enabled' : 'Disabled'" :topLabel="'Service'" />
 
       <!-- Show form fields only if status is enabled -->
       <template v-if="service">
@@ -177,7 +177,7 @@ const getLists = async () => {
             </template>
           </NeTextInput>
           <!-- <NeTextInput label="ACS Url" v-model.trim="acsUrl" @input="onlyValidUrlCharacters"
-            :invalidMessage="errorBag.acsUrl" /> -->
+      :invalidMessage="errorBag.acsUrl" /> -->
 
           <NeTextInput @input="allowPasswordChars" v-model="acsUsername" :invalidMessage="errorBag.acsUsername"
             :label="t('ACS Username')" :placeholder="t('Enter ACS Username')">
@@ -190,10 +190,10 @@ const getLists = async () => {
             </template>
           </NeTextInput>
           <!-- <NeTextInput label="ACS Username" v-model.trim="acsUsername" @input="onlyLetters"
-            :invalidMessage="errorBag.acsUsername" /> -->
+      :invalidMessage="errorBag.acsUsername" /> -->
 
-          <NeTextInput type="password" @input="allowPasswordChars" v-model="acsPassword" :invalidMessage="errorBag.acsPassword"
-            :label="t('ACS Password')" :placeholder="t('Enter ACS Password')">
+          <NeTextInput type="password" @input="allowPasswordChars" v-model="acsPassword"
+            :invalidMessage="errorBag.acsPassword" :label="t('ACS Password')" :placeholder="t('Enter ACS Password')">
             <template #tooltip>
               <NeTooltip>
                 <template #content>
@@ -203,7 +203,7 @@ const getLists = async () => {
             </template>
           </NeTextInput>
           <!-- <NeTextInput label="ACS Password" v-model.trim="acsPassword" @input="onlyLetters"
-            :invalidMessage="errorBag.acsPassword" /> -->
+      :invalidMessage="errorBag.acsPassword" /> -->
 
           <NeTextInput @input="allowPasswordChars" v-model="cpeUsername" :invalidMessage="errorBag.cpeUsername"
             :label="t('CPE Username')" :placeholder="t('Enter CPE Username')">
@@ -216,10 +216,10 @@ const getLists = async () => {
             </template>
           </NeTextInput>
           <!-- <NeTextInput label="CPE Username" v-model.trim="cpeUsername" @input="onlyLetters"
-            :invalidMessage="errorBag.cpeUsername" /> -->
+      :invalidMessage="errorBag.cpeUsername" /> -->
 
-          <NeTextInput type="password" @input="allowPasswordChars" v-model="cpePassword" :invalidMessage="errorBag.cpePassword"
-            :label="t('CPE Password')" :placeholder="t('Enter CPE Password')">
+          <NeTextInput type="password" @input="allowPasswordChars" v-model="cpePassword"
+            :invalidMessage="errorBag.cpePassword" :label="t('CPE Password')" :placeholder="t('Enter CPE Password')">
             <template #tooltip>
               <NeTooltip>
                 <template #content>
@@ -229,13 +229,13 @@ const getLists = async () => {
             </template>
           </NeTextInput>
           <!-- <NeTextInput label="CPE Password" v-model.trim="cpePassword" @input="onlyLetters"
-            :invalidMessage="errorBag.cpePassword" /> -->
+      :invalidMessage="errorBag.cpePassword" /> -->
 
           <NeToggle v-model="enableInterval" :label="enableInterval ? 'Enabled' : 'Disabled'"
             :topLabel="'Enable Interval'" />
 
-          <NeTextInput :disabled="!enableInterval" @input="onlyNumbers" v-model="interval" :invalidMessage="errorBag.interval"
-            :label="t('Interval')" :placeholder="t('Enter Interval')">
+          <NeTextInput :disabled="!enableInterval" @input="onlyNumbers" v-model="interval"
+            :invalidMessage="errorBag.interval" :label="t('Interval')" :placeholder="t('Enter Interval')">
             <template #tooltip>
               <NeTooltip>
                 <template #content>
@@ -245,7 +245,7 @@ const getLists = async () => {
             </template>
           </NeTextInput>
           <!-- <NeTextInput label="Interval" :disabled="!enableInterval" v-model.trim="interval" @input="onlyNumbers"
-            :invalidMessage="errorBag.interval" /> -->
+      :invalidMessage="errorBag.interval" /> -->
         </div>
       </template>
     </div>
@@ -260,15 +260,11 @@ const getLists = async () => {
         {{ t('common.save') }}
       </NeButton>
     </div>
+  </FormLayout>
 
-    <!-- Footer -->
-    <!-- <div class="flex justify-end mt-6">
-      <NeButton kind="tertiary" @click.prevent="closeDrawer" class="mr-3">
-        Cancel
-      </NeButton>
-      <NeButton kind="primary" type="submit">
-        Save
-      </NeButton>
-    </div> -->
-  </form>
+  <!-- <p class="mb-6 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
+    {{ t('Configure TR069 service settings, including ACS credentials and connection intervals for remote device management.') }}
+  </p> -->
+  <!-- <form @submit.prevent="saveRule"> -->
+ 
 </template>

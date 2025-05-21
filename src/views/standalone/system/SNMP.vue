@@ -186,18 +186,16 @@ async function saveSettings() {
   }
 }
 </script>
-<template>
-  <div class="flex flex-col">
-    <div class="mb-4">
-      <NeHeading tag="h3">SNMP</NeHeading>
-    </div>
-    <p class="mb-6 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
-      {{ t('Configure SNMP settings, including version selection, user account details, and encryption for secure network management.') }}
-    </p>
-    <form class="flex flex-col space-y-6 w-[400px]">
-      <NeToggle v-model="service" :topLabel="t('Service')" :label="service ? 'Enable' : 'Disable'" />
 
-      <div class="my-4">
+<template>
+
+<NeHeading tag="h3" class="mb-4">{{ t('SNMP') }}</NeHeading>
+
+<FormLayout :description="t('Configure SNMP settings, including version selection, user account details, and encryption for secure network management.')">
+
+  <NeToggle v-model="service" :topLabel="t('Service')" :label="service ? 'Enable' : 'Disable'" />
+
+  <div class="my-4">
         <NeCombobox v-model="snmpVersion" :options="[
               { label: '2c', id: '2c' },
               { label: '3', id: '3' }
@@ -215,7 +213,9 @@ async function saveSettings() {
       </div>
 
       <!-- SNMPv2 Section -->
+       
       <template v-if="snmpVersion === '2c'">
+        <div class="mb-4">
         <NeTextInput v-model="port" :invalidMessage="errorBag.port" :label="t('Port')"
           :placeholder="t('Enter Port Number')">
           <template #tooltip>
@@ -226,8 +226,10 @@ async function saveSettings() {
             </NeTooltip>
           </template>
         </NeTextInput>
+        </div>
         <!-- <NeTextInput v-model="port" :label="t('Port')" :invalidMessage="errorBag.port" /> -->
 
+        <div class="mb-4">
         <NeTextInput v-model="community" :invalidMessage="errorBag.community" :label="t('Community')"
           :placeholder="t('Enter Community')">
           <template #tooltip>
@@ -238,8 +240,10 @@ async function saveSettings() {
             </NeTooltip>
           </template>
         </NeTextInput>
+      </div>
         <!-- <NeTextInput v-model="community" :label="t('Community')" :invalidMessage="errorBag.community" /> -->
 
+        <div class="mb-4">
         <NeTextInput v-model="trapIp" :invalidMessage="errorBag.trapIp" :label="t('Trap IP')"
           :placeholder="t('Enter Trap IP')">
           <template #tooltip>
@@ -250,8 +254,10 @@ async function saveSettings() {
             </NeTooltip>
           </template>
         </NeTextInput>
+      </div>
         <!-- <NeTextInput v-model="trapIp" :label="t('Trap IP')" :invalidMessage="errorBag.trapIp" /> -->
 
+        <div class="mb-4">
         <NeTextInput v-model="trapPort" :invalidMessage="errorBag.trapPort" :label="t('Trap Port')"
           :placeholder="t('Enter Trap Port')">
           <template #tooltip>
@@ -262,11 +268,13 @@ async function saveSettings() {
             </NeTooltip>
           </template>
         </NeTextInput>
+      </div>
         <!-- <NeTextInput v-model="trapPort" :label="t('Trap Port')" :invalidMessage="errorBag.trapPort" /> -->
       </template>
 
       <!-- SNMPv3 Section -->
       <template v-else>
+        <div class="mb-4"></div>
         <NeTextInput v-model="snmp3port" :invalidMessage="errorBag.snmp3port" :label="t('Port')"
           :placeholder="t('Enter Port')">
           <template #tooltip>
@@ -279,6 +287,7 @@ async function saveSettings() {
         </NeTextInput>
         <!-- <NeTextInput v-model="snmp3port" :label="t('Port')" :invalidMessage="errorBag.snmp3port" /> -->
 
+        <div class="mb-4"></div>
         <NeTextInput v-model="clientaddr" :invalidMessage="errorBag.clientaddr" :label="t('Trap IP')"
           :placeholder="t('Enter Trap IP')">
           <template #tooltip>
@@ -291,6 +300,7 @@ async function saveSettings() {
         </NeTextInput>
         <!-- <NeTextInput v-model="clientaddr" :label="t('Trap IP')" :invalidMessage="errorBag.clientaddr" /> -->
 
+        <div class="mb-4"></div>
         <NeTextInput v-model="username" :invalidMessage="errorBag.username" :label="t('Username')"
           :placeholder="t('Enter Username')">
           <template #tooltip>
@@ -303,6 +313,7 @@ async function saveSettings() {
         </NeTextInput>
         <!-- <NeTextInput v-model="username" :label="t('Username')" :invalidMessage="errorBag.username" /> -->
 
+        <div class="mb-4"></div>
         <NeTextInput v-model="password" :invalidMessage="errorBag.password" :label="t('Password')"
           :placeholder="t('Enter Password')">
           <template #tooltip>
@@ -380,6 +391,6 @@ async function saveSettings() {
           {{ t('common.save') }}
         </NeButton>
       </div>
-    </form>
-  </div>
+  </FormLayout>
+ 
 </template>

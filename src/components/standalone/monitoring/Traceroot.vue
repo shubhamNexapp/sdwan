@@ -1,7 +1,7 @@
 <template>
     <div class="space-y-6">
         <!-- Ping API Section -->
-        <div class="p-4 mt-4 bg-gray-100 border border-gray-300 rounded">
+        <div class="p-4 mt-4 bg-gray-100 dark:text-gray-700 border border-gray-300 rounded">
             <strong>Traceroute an IP Address:</strong>
             <div class="flex items-center gap-2 mt-2">
                 <NeTextInput v-model="pingIP" placeholder="Enter IP to Traceroute" />

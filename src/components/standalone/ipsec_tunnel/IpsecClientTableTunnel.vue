@@ -84,6 +84,33 @@ function getCellClasses(item: IpsecTunnel) {
   return item.enabled === '0' ? ['text-gray-400', 'dark:text-gray-700'] : []
 }
 
+function parsedIPs(ipString: string) {
+
+  if (!ipString || typeof ipString !== 'string') return [];
+
+  // Match all IPv4 addresses using regex
+  const ipRegex =
+    /\b(?:\d{1,3}\.){3}\d{1,3}\b/g;
+
+  const matchedIPs = ipString.match(ipRegex);
+
+  return matchedIPs || [];
+}
+
+function parsedSubnets(subnetString: string) {
+
+  if (!subnetString || typeof subnetString !== 'string') return [];
+
+  // Split by '===', '->', or similar separators
+  return subnetString
+    .split(/===|->|<==>|<=>|<->/)
+    .map(s => s.trim())
+    .filter(Boolean);
+}
+
+
+
+
 </script>
 
 <template>
@@ -159,13 +186,13 @@ function getCellClasses(item: IpsecTunnel) {
       </div>
     </template>
   </NeTable>
-
+  <h1><b>Remote Data</b></h1>
   <NeTable :data="tunnel2" :headers="tableHeaders2">
 
     <template #ip="{ item }: { item: ClientIPSecTunnel }">
       <div>
-        <div v-if="Array.isArray(item.ip) && item.ip.length > 0">
-          <div v-for="(remoteEntry, index) in item.ip" :key="index">
+        <div v-if="parsedIPs(item.ip).length">
+          <div v-for="(remoteEntry, index) in parsedIPs(item.ip)" :key="index">
             {{ remoteEntry }}
           </div>
         </div>
@@ -183,8 +210,8 @@ function getCellClasses(item: IpsecTunnel) {
 
     <template #subnet="{ item }: { item: ClientIPSecTunnel }">
       <div>
-        <div v-if="Array.isArray(item.subnet) && item.subnet.length > 0">
-          <div v-for="(remoteEntry, index) in item.subnet" :key="index">
+        <div v-if="parsedSubnets(item.subnet).length">
+          <div v-for="(remoteEntry, index) in parsedSubnets(item.subnet)" :key="index">
             {{ remoteEntry }}
           </div>
         </div>

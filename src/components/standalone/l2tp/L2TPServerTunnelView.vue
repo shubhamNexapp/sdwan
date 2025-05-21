@@ -265,17 +265,18 @@ const getLists = async () => {
             <NeTableHeadCell>IP Address</NeTableHeadCell>
             <NeTableHeadCell>Status</NeTableHeadCell>
           </NeTableHead>
-          {{ console.log("apiResponse======", apiResponse[0].client) }}
           <NeTableBody>
             <NeTableRow v-for="(item, index) in apiResponse[0].client" :key="index">
               <NeTableCell>{{ item.ifname }}</NeTableCell>
               <NeTableCell>{{ item.ip }}</NeTableCell>
-              <NeTableCell>{{ item.status }}</NeTableCell>
+              <NeTableCell :class="item.status === 'connected' ? 'text-green-800' : 'text-red-800'">
+                {{ item.status }}
+              </NeTableCell>
               <!-- <NeTableCell :class="item.status === 'disconnect' ? 'text-red-800' : 'text-green-800'">
                 {{ item.status }}
               </NeTableCell> -->
 
-              <NeTableCell :data-label="t('common.actions')">
+              <!-- <NeTableCell :data-label="t('common.actions')">
                 <div class="-ml-2.5 flex gap-2 xl:ml-0 xl:justify-end">
                   <NeButton kind="tertiary" size="lg" :disabled="item.readonly" @click="openEditModal(item)">
                     <template #prefix>
@@ -291,7 +292,7 @@ const getLists = async () => {
                     {{ t('common.delete') }}
                   </NeButton>
                 </div>
-              </NeTableCell>
+              </NeTableCell> -->
               <!-- <NeTableCell>
                 <NeButton kind="primary" @click="openEditModal(item)">
                   edit</NeButton>

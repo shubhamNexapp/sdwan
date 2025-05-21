@@ -7,6 +7,9 @@ import {
     NeTooltip,
     NeCombobox
 } from '@nethesis/vue-components'
+import { faSave } from '@fortawesome/free-solid-svg-icons'
+
+import FormLayout from '@/components/standalone/FormLayout.vue';
 import { onMounted, ref } from 'vue'
 import { useNotificationsStore } from '../../../../stores/notifications'
 import Textarea from './Textarea.vue'
@@ -173,20 +176,21 @@ const getLists = async () => {
 </script>
 
 <template>
-    <form @submit.prevent="saveRule">
+    <FormLayout
+        :description="t('Configure TR069 service settings, including ACS credentials and connection intervals for remote device management.')">
         <div class="space-y-6">
             <NeToggle v-model="service" :label="service ? 'Enabled' : 'Disabled'" :topLabel="'Service'" />
             <template v-if="service">
 
                 <div class="w-[300px]">
                     <NeCombobox v-model="scanPath" :options="[
-                    { label: 'system', id: 'system' },
-                    { label: 'overall', id: 'overall' },
-                    { label: 'cache', id: 'cache' },
-                ]" :label="t('Mode')" class="grow" :noResultsLabel="t('ne_combobox.no_results')"
-                    :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
-                    :noOptionsLabel="t('ne_combobox.no_options_label')" :selected-label="t('ne_combobox.selected')"
-                    :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" />
+                        { label: 'system', id: 'system' },
+                        { label: 'overall', id: 'overall' },
+                        { label: 'cache', id: 'cache' },
+                    ]" :label="t('Mode')" class="grow" :noResultsLabel="t('ne_combobox.no_results')"
+                        :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
+                        :noOptionsLabel="t('ne_combobox.no_options_label')" :selected-label="t('ne_combobox.selected')"
+                        :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" />
 
 
                     <!-- <label class="mr-4">Scan Path</label>
@@ -206,8 +210,9 @@ const getLists = async () => {
                     </select> -->
                 </div>
 
-                <NeTextInput class="w-[300px]" @input="onlyNumbers" v-model="scanInterval" :invalidMessage="errorBag.scanInterval"
-                    :label="t('Scan Interval')" :placeholder="t('Enter Scan Interval')">
+                <NeTextInput class="w-[300px]" @input="onlyNumbers" v-model="scanInterval"
+                    :invalidMessage="errorBag.scanInterval" :label="t('Scan Interval')"
+                    :placeholder="t('Enter Scan Interval')">
                     <template #tooltip>
                         <NeTooltip>
                             <template #content>
@@ -238,12 +243,24 @@ const getLists = async () => {
 
             </template>
             <!-- Footer -->
-            <div class="flex justify-end mt-6">
-                <NeButton kind="primary" type="submit">
+            <!-- <div class="flex justify-end mt-6">
+                <NeButton kind="primary" @click.prevent="saveRule()" type="submit">
                     Save
+                </NeButton>
+            </div> -->
+
+            <div class="flex mt-4 flex-col w-[90px]">
+                <NeButton class=" ml-1" kind="primary" size="lg" @click.prevent="saveRule()">
+                    <template #prefix>
+                        <FontAwesomeIcon :icon="faSave" />
+                    </template>
+                    {{ t('common.save') }}
                 </NeButton>
             </div>
 
         </div>
+    </FormLayout>
+    <form @submit.prevent="saveRule">
+
     </form>
 </template>
