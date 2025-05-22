@@ -55,5 +55,6 @@ export interface ClientIPSecTunnel {
   ip: string;
   status: string;
   subnet: string;
+  established_time: string;
 }
 

@@ -17,7 +17,7 @@ import {
   formatInTimeZoneLoc,
   getAxiosErrorMessage,
   NeTextInput,
-  NeTextArea
+  NeTextArea, NeTooltip
 } from '@nethesis/vue-components'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -236,66 +236,46 @@ async function syncWithNtpServer() {
 
 <template>
   <div class="max-w-xl">
-    <NeInlineNotification
-      v-if="error.notificationTitle"
-      kind="error"
-      :title="error.notificationTitle"
-      :description="error.notificationDescription"
-      class="mb-4"
-    />
+    <NeInlineNotification v-if="error.notificationTitle" kind="error" :title="error.notificationTitle"
+      :description="error.notificationDescription" class="mb-4" />
     <NeSkeleton v-if="isLoading" size="lg" :lines="12" />
     <div v-else>
       <!-- main section -->
       <div class="border-b border-gray-200 pb-6 dark:border-gray-700">
         <div class="space-y-6">
-          <NeInlineNotification
-            v-if="hostnameFromConfig === 'NethSec'"
-            kind="warning"
+          <NeInlineNotification v-if="hostnameFromConfig === 'NethSec'" kind="warning"
             :title="t('standalone.system_settings.default_hostname')"
             :description="t('standalone.system_settings.default_hostname_description')"
-            :closeAriaLabel="t('common.close')"
-          />
+            :closeAriaLabel="t('common.close')" />
           <!-- hostname -->
-          <NeTextInput
-            :label="t('standalone.system_settings.hostname')"
-            v-model.trim="hostname"
-            :invalidMessage="error.hostname"
-            :disabled="loading.save"
-            ref="hostnameRef"
-          />
+
+          <NeTextInput :label="t('standalone.system_settings.hostname')" v-model.trim="hostname"
+            :invalidMessage="error.hostname" :disabled="loading.save" ref="hostnameRef"
+            :placeholder="t('Max 64  chars only - is allowed')">
+            <template #tooltip>
+              <NeTooltip>
+                <template #content>
+                  {{ t('Max 64 chars. Use letters, numbers, and hyphens (not at start or end). No spaces or special characters.') }}
+                </template>
+              </NeTooltip>
+            </template>
+          </NeTextInput>
+
+
           <!-- description -->
-          <NeTextInput
-            :label="t('standalone.system_settings.short_description')"
-            v-model.trim="description"
-            :placeholder="t('standalone.system_settings.short_description_placeholder')"
-            optional
-            :optionalLabel="t('common.optional')"
-            :disabled="loading.save"
-          />
+          <NeTextInput :label="t('standalone.system_settings.short_description')" v-model.trim="description"
+            :placeholder="t('standalone.system_settings.short_description_placeholder')" optional
+            :optionalLabel="t('common.optional')" :disabled="loading.save" />
           <!-- notes -->
-          <NeTextArea
-            :label="t('standalone.system_settings.notes')"
-            v-model.trim="notes"
-            :placeholder="t('standalone.system_settings.notes_placeholder')"
-            optional
-            :optionalLabel="t('common.optional')"
-            :disabled="loading.save"
-          />
+          <NeTextArea :label="t('standalone.system_settings.notes')" v-model.trim="notes"
+            :placeholder="t('standalone.system_settings.notes_placeholder')" optional
+            :optionalLabel="t('common.optional')" :disabled="loading.save" />
           <!-- timezone -->
-          <NeCombobox
-            v-model="timezone"
-            :options="timezones"
-            :label="t('standalone.system_settings.timezone')"
-            :invalidMessage="error.timezone"
-            :noResultsLabel="t('ne_combobox.no_results')"
-            :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
-            :disabled="loading.save"
-            ref="timezoneRef"
-            :noOptionsLabel="t('ne_combobox.no_options_label')"
-            :selected-label="t('ne_combobox.selected')"
-            :user-input-label="t('ne_combobox.user_input_label')"
-            :optionalLabel="t('common.optional')"
-          />
+          <NeCombobox  v-model="timezone" :options="timezones" :label="t('standalone.system_settings.timezone')"
+            :invalidMessage="error.timezone" :noResultsLabel="t('ne_combobox.no_results')"
+            :limitedOptionsLabel="t('ne_combobox.limited_options_label')" :disabled="true" ref="timezoneRef"
+            :noOptionsLabel="t('ne_combobox.no_options_label')" :selected-label="t('ne_combobox.selected')"
+            :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" />
           <!-- local time -->
           <div>
             <NeFormItemLabel>{{ t('standalone.system_settings.local_time') }}</NeFormItemLabel>
@@ -306,26 +286,16 @@ async function syncWithNtpServer() {
           </div>
           <!-- sync buttons -->
           <div class="-ml-2.5">
-            <NeButton
-              @click="syncWithNtpServer"
-              kind="tertiary"
-              size="lg"
-              :loading="loading.syncWithNtpServer"
-              :disabled="loading.syncWithNtpServer || loading.save"
-              >{{ t('standalone.system_settings.sync_with_ntp_server') }}</NeButton
-            >
+            <NeButton @click="syncWithNtpServer" kind="tertiary" size="lg" :loading="loading.syncWithNtpServer"
+              :disabled="loading.syncWithNtpServer || loading.save">{{
+                t('standalone.system_settings.sync_with_ntp_server') }}
+            </NeButton>
           </div>
         </div>
       </div>
       <!-- save button -->
       <div class="flex justify-end py-6">
-        <NeButton
-          kind="primary"
-          size="lg"
-          @click="save"
-          :loading="loading.save"
-          :disabled="loading.save"
-        >
+        <NeButton kind="primary" size="lg" @click="save" :loading="loading.save" :disabled="loading.save">
           <template #prefix>
             <font-awesome-icon :icon="['fas', 'floppy-disk']" class="h-4 w-4" aria-hidden="true" />
           </template>

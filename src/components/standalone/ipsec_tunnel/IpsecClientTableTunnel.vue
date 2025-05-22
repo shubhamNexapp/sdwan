@@ -51,6 +51,10 @@ const tableHeaders2 = [
     label: t('Subnet'),
     key: 'subnet'
   },
+  {
+    label: t('Established Time'),
+    key: 'time'
+  },
 ]
 
 function getDropdownItems(item: IpsecTunnel) {
@@ -186,7 +190,9 @@ function parsedSubnets(subnetString: string) {
       </div>
     </template>
   </NeTable>
+
   <h1><b>Remote Data</b></h1>
+
   <NeTable :data="tunnel2" :headers="tableHeaders2">
 
     <template #ip="{ item }: { item: ClientIPSecTunnel }">
@@ -206,8 +212,6 @@ function parsedSubnets(subnetString: string) {
       <p>{{ item.status }}</p>
     </template>
 
-
-
     <template #subnet="{ item }: { item: ClientIPSecTunnel }">
       <div>
         <div v-if="parsedSubnets(item.subnet).length">
@@ -219,6 +223,10 @@ function parsedSubnets(subnetString: string) {
           <em>No Subnet</em>
         </div>
       </div>
+    </template>
+
+    <template #time="{ item }: { item: ClientIPSecTunnel }">
+      <p>{{ item.established_time }}</p>
     </template>
 
   </NeTable>

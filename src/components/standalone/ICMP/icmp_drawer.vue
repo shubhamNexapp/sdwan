@@ -32,7 +32,7 @@ let loading = ref({
     fetchRule: false,
 });
 
-const emit = defineEmits(['close', 'save','tunnel-added'])
+const emit = defineEmits(['close', 'save', 'tunnel-added'])
 
 // Form fields
 const service = ref(false)
@@ -43,6 +43,7 @@ const retryTimes = ref("")
 const command = ref("")
 const timeOutAction = ref("")
 const sourceInterface = ref("")
+const checkType = ref("")
 const custom_command = ref("")
 
 // Validation error messages
@@ -105,6 +106,10 @@ const validate = () => {
         if (!sourceInterface.value) {
             errorBag.value.sourceInterface = "Source interface is required'."
         }
+
+        if (!checkType.value) {
+            errorBag.value.checkType = "Check type is required'."
+        }
     }
 
     return Object.keys(errorBag.value).length === 0
@@ -121,6 +126,7 @@ const saveRule = async () => {
             destination: destination.value,
             time_interval: timeInterval.value,
             source_interface: sourceInterface.value,
+            check_type: checkType.value,
             retry_times: retryTimes.value,
             // command: command.value,
             time_out_action: timeOutAction.value,
@@ -178,6 +184,14 @@ const closeDrawer = () => {
                     <!-- <NeTextInput label="Task Name" v-model.trim="name" @input="onlyLetters"
                         :invalidMessage="errorBag.name" /> -->
 
+                    <NeCombobox v-model="checkType" :options="[
+                        { label: 'icmp', id: 'icmp' },
+                        { label: 'domain', id: 'domain' },
+                    ]" :label="t('Check Type')" class="grow" :noResultsLabel="t('ne_combobox.no_results')"
+                        :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
+                        :noOptionsLabel="t('ne_combobox.no_options_label')" :selected-label="t('ne_combobox.selected')"
+                        :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" />
+
                     <NeCombobox v-model="sourceInterface" :options="[
                         { label: 'eth0', id: 'eth0' },
                         { label: 'eth1', id: 'eth1' },
@@ -190,7 +204,7 @@ const closeDrawer = () => {
                         :noOptionsLabel="t('ne_combobox.no_options_label')" :selected-label="t('ne_combobox.selected')"
                         :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" />
 
-                    <span v-if="errorBag.sourceInterface"  style="color: rgb(190 18 60 / var(--tw-text-opacity));">
+                    <span v-if="errorBag.sourceInterface" style="color: rgb(190 18 60 / var(--tw-text-opacity));">
                         {{ errorBag.sourceInterface }}
                     </span>
 

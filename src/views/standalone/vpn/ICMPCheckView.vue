@@ -18,9 +18,9 @@ import { onMounted, onUnmounted, ref } from 'vue'
 import { ubusCall } from '@/lib/standalone/ubus'
 import DeleteTunnelModal from '@/components/standalone/ICMP/icmp_delete.vue'
 import ICMPDrawer from '@/components/standalone/ICMP/icmp_drawer.vue'
+import ICMPEdit from '@/components/standalone/ICMP/icmp_edit.vue'
 import axios from 'axios'
 import { getSDControllerApiEndpoint } from '@/lib/config'
-import GreEdit from '@/components/standalone/gre/GreEdit.vue'
 
 export type IpsecTunnel = {
     id: string
@@ -132,8 +132,6 @@ const getLists = async () => {
             payload: {}
         });
 
-        console.log("response====", response)
-
         if (response.data.code === 200) {
             loading.value = false;
             apiResponse.value = response.data.data // Store API response
@@ -185,6 +183,7 @@ function handleFectLists() {
                     <NeTableHead>
                         <NeTableHeadCell>#</NeTableHeadCell>
                         <NeTableHeadCell>Name</NeTableHeadCell>
+                        <NeTableHeadCell>Check Type</NeTableHeadCell>
                         <NeTableHeadCell>Destination</NeTableHeadCell>
                         <NeTableHeadCell>Time Interval</NeTableHeadCell>
                         <NeTableHeadCell>Retry Times</NeTableHeadCell>
@@ -194,20 +193,21 @@ function handleFectLists() {
                         <NeTableRow v-for="(item, index) in apiResponse" :key="index">
                             <NeTableCell>{{ index + 1 }}</NeTableCell>
                             <NeTableCell>{{ item.name }}</NeTableCell>
+                            <NeTableCell>{{ item.check_type }}</NeTableCell>
                             <NeTableCell>{{ item.destination }}</NeTableCell>
                             <NeTableCell>{{ item.time_interval }}</NeTableCell>
                             <NeTableCell>{{ item.retry_times }}</NeTableCell>
                             <NeTableCell>{{ item.source_interface }}</NeTableCell>
                             <NeTableCell :data-label="t('common.actions')">
                                 <div class="-ml-2.5 flex gap-2 xl:ml-0 xl:justify-end">
-                                    <!-- <NeButton kind="tertiary" size="lg" :disabled="item.readonly"
+                                    <NeButton kind="tertiary" size="lg" :disabled="item.readonly"
                                         @click="openEditModal(item)">
                                         <template #prefix>
                                             <font-awesome-icon :icon="['fas', 'pen-to-square']" class="h-4 w-4"
                                                 aria-hidden="true" />
                                         </template>
                                         {{ t('common.edit') }}
-                                    </NeButton> -->
+                                    </NeButton>
                                     <NeButton kind="tertiary" size="lg" :disabled="item.readonly"
                                         @click="openDeleteModal(item.name)">
                                         <template #prefix>
@@ -229,6 +229,8 @@ function handleFectLists() {
         @tunnel-deleted="handleFectLists" />
     <ICMPDrawer @tunnel-added="handleFectLists" :item-to-edit="selectedTunnel" @close="closeModalsAndDrawers" :rule-type="'forward'" :known-tags="[]"
         @add-edit-tunnel="reloadTunnels" :is-shown="showCreateEditDrawer" />
-    <GreEdit :item-to-edit="selectedTunnels" @close="showEditModals = false" :rule-type="'forward'" :known-tags="[]"
-        @add-edit-tunnel="reloadTunnels" :is-shown="showEditModals" />
+    <!-- <ICMPEdit :item-to-edit="selectedTunnels" @close="showEditModals = false" :rule-type="'forward'" :known-tags="[]"
+        @add-edit-tunnel="reloadTunnels" :is-shown="showEditModals" /> -->
+        <ICMPEdit :isShown="showEditModals" :icmpData="selectedTunnels" @close="showEditModals = false" />
+
 </template>
