@@ -186,7 +186,7 @@ function parsedSubnets(subnetString: string) {
           </template>
           {{ t('common.edit') }}
         </NeButton>
-        <NeDropdown :items="getDropdownItems(item)" :align-to-right="true" />
+        <!-- <NeDropdown :items="getDropdownItems(item)" :align-to-right="true" /> -->
       </div>
     </template>
   </NeTable>

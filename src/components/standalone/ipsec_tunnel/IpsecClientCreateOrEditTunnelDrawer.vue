@@ -110,6 +110,7 @@ const remoteIpAddress = ref('')
 const localNetworks = ref<NeComboboxOption[]>([])
 const remoteNetworks = ref<string[]>([''])
 const localIdentifier = ref('')
+const remoteNetworksNew = ref<string[]>([])
 const remoteIdentifier = ref('')
 const forceencaps = ref('')
 
@@ -223,7 +224,7 @@ async function resetForm() {
       localIdentifier.value = tunnelData.local_identifier
       remoteIdentifier.value = tunnelData.remote_identifier
       forceencaps.value = tunnelData.forceencaps
-      presharedKey.value = tunnelData.shared_key
+      presharedKey.value = tunnelData.pre_shared_key
 
       // ✅ Set local and remote networks from the subnet array
       const localSet = new Set<string>()
@@ -240,11 +241,13 @@ async function resetForm() {
         label: subnet
       }))
 
-      remoteNetworks.value = tunnelData.subnet
-        .map((item: any) => item.remote_subnet)
-        .filter((val: string, idx: number, self: string[]) => val && self.indexOf(val) === idx) // remove empty and duplicates
+      const remoteSubnets = tunnelData?.subnet
+        ?.map((e: any) => e.remote_subnet)
+        .filter((v: string, i: number, self: string[]) => v && self.indexOf(v) === i)
 
-      } catch (err: any) {
+      remoteNetworksNew.value = remoteSubnets || []
+
+    } catch (err: any) {
       error.value.notificationTitle = t('error.cannot_retrieve_tunnel_data')
       error.value.notificationDescription = t(getAxiosErrorMessage(err))
       error.value.notificationDetails = err.toString()
@@ -279,7 +282,8 @@ async function resetForm() {
   enabled.value = tunnelData ? tunnelData.enabled === '1' : true
   wanIpAddress.value = tunnelData?.local_ip ?? ''
   remoteIpAddress.value = tunnelData?.gateway ?? ''
-  remoteNetworks.value = tunnelData?.remote_subnet ?? ['']
+  // remoteNetworks.value = tunnelData?.remote_subnet ?? ['']
+  // remoteNetworksNew.value = tunnelData?.remote_subnet ?? ['']
   dpd.value = tunnelData ? tunnelData.dpdaction == 'restart' : false
   enableCompression.value = tunnelData ? tunnelData.ipcomp === 'true' : false
   ikeVersion.value = tunnelData?.keyexchange ?? ikeVersionOptions[0].id
@@ -327,7 +331,7 @@ function validateNetworkFields(
         validationResult = false
       } else {
         // check if remote network is already in local networks
-        if (localNetworks.value.find((x : any) => x.id === networkEntry)) {
+        if (localNetworks.value.find((x: any) => x.id === networkEntry)) {
           validationErrors[index] = t(
             'standalone.ipsec_tunnel.ipsec_network_already_used_in_local_networks'
           )
@@ -346,12 +350,12 @@ function validateNetworkFields(
 function validateFormByStep(step: number): boolean {
   if (step == 1) {
     const [remoteValidationResult, remoteValidationError] = validateNetworkFields(
-      remoteNetworks.value,
+      remoteNetworksNew.value,
       'remoteNetworks'
     )
     remoteNetworksValidationErrors.value = remoteValidationError
 
-    const localNetworksCidrValidation = localNetworks.value.map((x : any) => validateIp4Cidr(x.id))
+    const localNetworksCidrValidation = localNetworks.value.map((x: any) => validateIp4Cidr(x.id))
 
     const step1Validators: [validationOutput[], string][] = [
       // [[validateRequired(name.value)], 'name'],
@@ -437,8 +441,8 @@ async function createOrEditTunnel() {
   const requestType = isEditing ? 'edit-tunnel' : 'add-tunnel'
   const subnet = [];
 
-  const localSubnets = localNetworks.value.filter((x : any) => x.id !== '').map((x : any) => x.id);
-  const remoteSubnets = remoteNetworks.value.filter((x) => x !== '');
+  const localSubnets = localNetworks.value.filter((x: any) => x.id !== '').map((x: any) => x.id);
+  const remoteSubnets = remoteNetworksNew.value.filter((x) => x !== '');
 
   // Match each pair by index
   const maxLength = Math.max(localSubnets.length, remoteSubnets.length);
@@ -472,7 +476,7 @@ async function createOrEditTunnel() {
     keyexchange: ikeVersion.value,
     subnet: subnet,
     remote_subnet: remoteNetworks.value.filter((x) => x != ''),
-    local_subnet: localNetworks.value.filter((x : any) => x.id != '').map((x : any) => x.id),
+    local_subnet: localNetworks.value.filter((x: any) => x.id != '').map((x: any) => x.id),
     gateway: remoteIpAddress.value,
     local_identifier: localIdentifier.value,
     remote_identifier: remoteIdentifier.value,
@@ -489,13 +493,11 @@ async function createOrEditTunnel() {
 
   try {
     isSavingChanges.value = true
-    console.log("payload======", payload)
-    // await ubusCall('ns.ipsectunnel', requestType, payload)
+    await ubusCall('ns.ipsectunnel', requestType, payload)
     const response = await axios.post(`${getSDControllerApiEndpoint()}/ipsec_server`, {
       method: 'set-config',
       payload
     });
-    console.log("response======", response)
     emit('add-edit-tunnel')
     close()
   } catch (err: any) {
@@ -585,15 +587,24 @@ watch(
           :show-selected-label="true" :selected-label="t('ne_combobox.selected')"
           :user-input-label="t('ne_combobox.user_input_label')" :accept-user-input="true"
           :limitedOptionsLabel="t('ne_combobox.limited_options_label')" :optionalLabel="t('common.optional')" />
-        <NeMultiTextInput v-model="remoteNetworks" :add-item-label="t('standalone.ipsec_tunnel.add_network')"
+
+        <NeMultiTextInput v-model="remoteNetworksNew" :add-item-label="t('standalone.ipsec_tunnel.add_network')"
           :title="t('standalone.ipsec_tunnel.remote_networks')" :invalid-messages="remoteNetworksValidationErrors"
           :general-invalid-message="validationErrorBag.getFirstFor('remoteNetworks')"
           @add-item="validationErrorBag.delete('remoteNetworks')" />
+
+        <!-- <div v-for="(ip, index) in remoteNetworksNew" :key="index" class="mb-2 flex items-center gap-2">
+          <NeTextInput v-model="remoteNetworksNew[index]" :label="t('Remote Network') + ' ' + (index + 1)"
+            :invalidMessage="validationErrorBag.getFirstFor('localIdentifier')" />
+          <button @click="removeField(index)" type="button" class="text-red-500">🗑️</button>
+        </div>
+        <button @click="addField" type="button" class="text-blue-500">➕ Add Another Network</button> -->
+
         <NeTextInput v-model="localIdentifier" :label="t('standalone.ipsec_tunnel.local_identifier')"
           :invalidMessage="validationErrorBag.getFirstFor('localIdentifier')"><template #tooltip>
             <NeTooltip><template #content>{{
               t('standalone.ipsec_tunnel.local_identifier_tooltip')
-                }}</template></NeTooltip>
+            }}</template></NeTooltip>
           </template>
         </NeTextInput>
         <NeTextInput v-model="remoteIdentifier" :label="t('standalone.ipsec_tunnel.remote_identifier')"
@@ -647,7 +658,7 @@ watch(
         <NeCombobox v-model="ikeDiffieHellmanGroup" :label="t('standalone.ipsec_tunnel.diffie_hellman_group')"
           :invalidMessage="validationErrorBag.getFirstFor('ikeDiffieHellmanGroup')"
           :noOptionsLabel="t('ne_combobox.no_options_label')" :noResultsLabel="t('ne_combobox.no_results')"
-          :options="diffieHellmanOptions.filter((x : any) => x.id != '')"
+          :options="diffieHellmanOptions.filter((x: any) => x.id != '')"
           :limitedOptionsLabel="t('ne_combobox.limited_options_label')" :selected-label="t('ne_combobox.selected')"
           :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" />
         <NeTextInput v-model="ikeKeyLifetime" type="number" :label="t('standalone.ipsec_tunnel.key_life_time_seconds')"
