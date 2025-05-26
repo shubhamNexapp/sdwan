@@ -154,6 +154,10 @@ const navigation: Ref<MenuItem[]> = ref([
         to: 'network/multi-wan'
       },
       {
+        name: 'Load Balance',
+        to: 'network/laodbalance'
+      },
+      {
         name: 'standalone.hotspot.title',
         to: 'network/hotspot'
       },
