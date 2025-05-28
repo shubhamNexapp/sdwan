@@ -38,6 +38,9 @@ const notificationsStore = useNotificationsStore()
 const service = ref(false);
 const status = ref("");
 
+const mainStatus = ref("");
+const backupStatus = ref("");
+
 const interfaceName = ref("");
 const checkIP = ref("");
 const gateway = ref("");
@@ -55,6 +58,7 @@ const backup_delay = ref("");
 const backup_packetLoss = ref("");
 
 const interfaceOptions = ref([]);
+const mainStatusOptions = ref([]);
 
 let apiResponse = ref()
 const moreDetails = ref<{ name: string, priority: string, port: string, protocol: string, }[]>([])
@@ -65,7 +69,10 @@ watch(
     () => apiResponse.value,
     (newValue) => {
         if (newValue) {
+            console.log("newValue======",newValue.backup_status)
             service.value = newValue.service === 'enable';
+            mainStatus.value = newValue.main_status 
+            backupStatus.value = newValue.backup_status 
 
             // Main Values 
             interfaceName.value = newValue.main.ifname
@@ -249,6 +256,8 @@ const saveNetworkConfig = async () => {
             method: "set-config",
             "payload": {
                 service: service.value ? "enable" : "disable",
+                "main_status": mainStatus.value,
+                "backup_status": backupStatus.value,
                 "main": {
                     "ifname": interfaceName.value,
                     "check_ip": checkIP.value,
@@ -367,7 +376,7 @@ const deleteDetails = async (item: any) => {
 <template>
     <NeHeading tag="h3" class="mb-4">Load Balance</NeHeading>
     <p class="mb-6 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
-        {{ t('Configure RIP service settings, including redistribution of connected, static, and kernel routes, as ') }}
+        {{ t('Configure loadbalance service settings, including redistribution of connected, static, and kernel routes, as well as managing neighbors and networks.') }}
     </p>
     <!-- <NeToggle v-model="service" label="RIP Service" /> -->
     <NeToggle v-model="service" :label="service ? 'Enable' : 'Disable'" :topLabel="'Service Status'" />
@@ -392,6 +401,18 @@ const deleteDetails = async (item: any) => {
 
                     <div>
                         <NeCombobox v-model="interfaceName" :options="interfaceOptions" :label="t('Interface Name')"
+                            class="grow" :noResultsLabel="t('ne_combobox.no_results')"
+                            :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
+                            :noOptionsLabel="t('ne_combobox.no_options_label')"
+                            :selected-label="t('ne_combobox.selected')"
+                            :user-input-label="t('ne_combobox.user_input_label')"
+                            :optionalLabel="t('common.optional')" />
+
+                            <NeCombobox v-model="mainStatus" :options="[
+                                { label: 'up', id: 'up' },
+                                { label: 'down', id: 'down' },
+                                { label: 'none', id: 'none' }
+                                ]" :label="t('Main Status')"
                             class="grow" :noResultsLabel="t('ne_combobox.no_results')"
                             :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
                             :noOptionsLabel="t('ne_combobox.no_options_label')"
@@ -482,6 +503,18 @@ const deleteDetails = async (item: any) => {
                             :user-input-label="t('ne_combobox.user_input_label')"
                             :optionalLabel="t('common.optional')" />
                     </div>
+
+                    <NeCombobox v-model="backupStatus" :options="[
+                                { label: 'up', id: 'up' },
+                                { label: 'down', id: 'down' },
+                                { label: 'none', id: 'none' }
+                                ]" :label="t('Backup Status')"
+                            class="grow" :noResultsLabel="t('ne_combobox.no_results')"
+                            :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
+                            :noOptionsLabel="t('ne_combobox.no_options_label')"
+                            :selected-label="t('ne_combobox.selected')"
+                            :user-input-label="t('ne_combobox.user_input_label')"
+                            :optionalLabel="t('common.optional')" />
 
                     <NeTextInput @input="ipInputHandler" v-model="backup_checkIP" :label="t('Check IP')"
                         :placeholder="t('Enter Check IP')" :invalidMessage="errorBag.backup_checkIP">

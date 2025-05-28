@@ -209,7 +209,7 @@ const saveNetworkConfig = async () => {
 </script>
 
 <template>
-    <NeHeading tag="h3" class="mb-7">Nexapp QoS</NeHeading>
+    <NeHeading tag="h3" class="mb-7">Advance QoS</NeHeading>
 
     <div class="flex flex-col gap-y-6">
         <div class="flex flex-col items-start mb-">

@@ -142,7 +142,7 @@ const standaloneRoutes = [
   },
   {
     path: 'network/nexapp-qos',
-    name: 'Nexapp QoS',
+    name: 'Advance QoS',
     component: () => import('../views/standalone/network/NexappQos.vue')
   },
   {
@@ -159,6 +159,11 @@ const standaloneRoutes = [
     path: 'network/bgp',
     name: 'BGP',
     component: () => import('../views/standalone/network/BGPView.vue')
+  },
+  {
+    path: 'network/vrf',
+    name: 'VRF',
+    component: () => import('../views/standalone/network/vrf.vue')
   },
   // {
   //   path: 'network/speed-test',

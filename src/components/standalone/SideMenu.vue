@@ -170,7 +170,7 @@ const navigation: Ref<MenuItem[]> = ref([
         to: 'network/qos'
       },
       {
-        name: 'Nexapp QoS',
+        name: 'Advance QoS',
         to: 'network/nexapp-qos'
       },
       {
@@ -184,6 +184,10 @@ const navigation: Ref<MenuItem[]> = ref([
       {
         name: 'BGP',
         to: 'network/bgp'
+      },
+      {
+        name: 'VRF',
+        to: 'network/vrf'
       },
       // {
       //   name: 'Speed Test',
