@@ -10,6 +10,7 @@ import {
     NeTableCell,
     NeToggle,
     NeTextInput,
+    NeComboboxOption,
     NeCombobox
 } from '@nethesis/vue-components'
 import { useNotificationsStore } from '../../../stores/notifications'
@@ -24,10 +25,31 @@ const { t } = useI18n()
 
 const loading = ref({ saveRule: false })
 const service = ref(false)
-const mode = ref('game') // default mode to 'game'
+
+const interfaceOptions = ref([]);
+
+interface NetworkOption {
+    id: string
+    label: string
+}
+
+const localNetworksOptions = ref<NetworkOption[]>([])
+
+const mode = ref([]) // This will contain selected ids like ['br1', 'eth5']
+
+
+const ceil_high = ref('')
+const ceil_low = ref('')
+const ceil_middle = ref('')
+const rate_high = ref('')
+const rate_low = ref('')
+const rate_middle = ref('')
+const total_bandwidth = ref('')
+
 const modeDetails = ref<
     {
         rule_name: string
+        rule_service: string
         protocol: string
         dport: string
         base_interface: string[]
@@ -55,16 +77,33 @@ const getLists = async () => {
             const newValues = response.data.data
 
             service.value = newValues.service === 'enable'
-            mode.value = newValues.mode || 'game' // If mode is empty, default to 'game'
+            mode.value = (newValues.interface || []).map((item: any) => item.ifname)
 
-            if (newValues.mode === 'custom' && Array.isArray(newValues.rule)) {
+            // Load new fields if they exist
+            ceil_high.value = newValues.ceil_high || ''
+            ceil_low.value = newValues.ceil_low || ''
+            ceil_middle.value = newValues.ceil_middle || ''
+            rate_high.value = newValues.rate_high || ''
+            rate_low.value = newValues.rate_low || ''
+            rate_middle.value = newValues.rate_middle || ''
+            total_bandwidth.value = newValues.total_bandwidth || ''
+
+            const demo = interfaceOptions.value = (newValues.interface || []).map((item: any) => ({
+                label: item.ifname,
+                id: item.ifname,
+            }));
+
+            localNetworksOptions.value = [...demo]
+
+
+            if (Array.isArray(newValues.rule)) {
                 modeDetails.value = newValues.rule.map((item: any) => ({
-                    rule_name: item.rule_name || '',
+                    rule_name: item.name || '',
                     protocol: item.protocol || 'tcp',
-                    dport: item.dport || '',
+                    dport: item.dport.map((e: any) => e.port) || '',
                     base_interface: item.base_interface ? item.base_interface.split(',') : [],
                     priority: item.priority || '',
-                    service: item.rule_service === 'enable'
+                    service: item.service === 'enable'
                 }))
             } else {
                 modeDetails.value = []
@@ -78,6 +117,7 @@ const getLists = async () => {
 const addModeDetails = () => {
     modeDetails.value.push({
         rule_name: '',
+        rule_service: '',
         protocol: 'tcp',
         dport: '',
         base_interface: [],
@@ -90,106 +130,88 @@ const deleteModeDetails = (index: number) => {
     modeDetails.value.splice(index, 1)
 }
 
-// const saveNetworkConfig = async () => {
-//     loading.value.saveRule = true
-//     try {
-//         let payload
-
-//         if (mode.value === 'custom') {
-//             payload = {
-//                 method: 'set-config',
-//                 payload: {
-//                     service: service.value ? 'enable' : 'disable',
-//                     mode: 'custom',
-//                     rule: modeDetails.value.map((item) => ({
-//                         rule_service: item.service ? 'enable' : 'disable',
-//                         rule_name: item.rule_name,
-//                         protocol: item.protocol,
-//                         dport: item.dport,
-//                         priority: item.priority,
-//                         base_interface: item.base_interface.join(',')
-//                     }))
-//                 }
-//             }
-//         } else {
-//             payload = {
-//                 method: 'set-config',
-//                 payload: {
-//                     service: service.value ? 'enable' : 'disable',
-//                     mode: mode.value
-//                 }
-//             }
-//         }
-
-//         await axios.post(`${getSDControllerApiEndpoint()}/qos`, payload)
-//         await getLists() // Refresh data after save
-//     } catch (err) {
-//         console.error('Error saving data:', err)
-//     } finally {
-//         loading.value.saveRule = false
-//     }
-// }
-
 const saveNetworkConfig = async () => {
     loading.value.saveRule = true
     try {
         // Validation: Check for each rule if base_interface is empty
-        const invalidRules = modeDetails.value.filter((item) => item.base_interface.length === 0)
+        // const invalidRules = modeDetails.value.filter((item) => item.base_interface.length === 0)
 
-        if (mode.value === 'custom' && invalidRules.length > 0) {
-            notificationsStore.createNotification({
-                title: 'Validation Error',
-                description: 'Please select at least one interface for each rule.',
-                kind: 'danger'
-            })
-            loading.value.saveRule = false
-            return
-        }
+        // if (invalidRules.length > 0) {
+        //     notificationsStore.createNotification({
+        //         title: 'Validation Error',
+        //         description: 'Please select at least one interface for each rule.',
+        //         kind: 'danger'
+        //     })
+        //     loading.value.saveRule = false
+        //     return
+        // }
 
-        let payload
-
-        if (!service.value) {
-            // Service is disabled but you want to send empty values for each modeDetails
-            payload = {
-                method: 'set-config',
-                payload: {
-                    service: 'disable',
-                    mode: '',
-                    rule: modeDetails.value.map(() => ({
-                        rule_service: 'disable',
-                        rule_name: '',
-                        protocol: '',
-                        dport: '',
-                        priority: '',
-                        base_interface: ''
-                    }))
-                }
-            }
-        } else if (mode.value === 'custom') {
-            payload = {
-                method: 'set-config',
-                payload: {
-                    service: 'enable',
-                    mode: 'custom',
-                    rule: modeDetails.value.map((item) => ({
-                        rule_service: item.service ? 'enable' : 'disable',
-                        rule_name: item.rule_name,
-                        protocol: item.protocol,
-                        dport: item.dport,
-                        priority: item.priority,
-                        base_interface: item.base_interface.join(',')
-                    }))
-                }
-            }
-        } else {
-            payload = {
-                method: 'set-config',
-                payload: {
-                    service: 'enable',
-                    mode: mode.value
-                }
+        let payload = {
+            "method": "set-config",
+            payload: {
+                "service": "enable",
+                "total_bandwidth": total_bandwidth.value,
+                "rate_high": rate_high.value,
+                "ceil_high": ceil_high.value,
+                "rate_middle": rate_middle.value,
+                "ceil_middle": ceil_middle.value,
+                "rate_low": rate_low.value,
+                "ceil_low": ceil_low.value,
+                interface: mode.value.map((item: any) => ({ ifname: item.id }))
             }
         }
+
+        // if (!service.value) {
+        //     // Service is disabled but you want to send empty values for each modeDetails
+        //     payload = {
+        //         method: 'set-config',
+        //         payload: {
+        //             service: 'disable',
+        //             mode: '',
+
+        //             ceil_high: ceil_high.value,
+        //             ceil_low: ceil_low.value,
+        //             ceil_middle: ceil_middle.value,
+        //             rate_high: rate_high.value,
+        //             rate_low: rate_low.value,
+        //             rate_middle: rate_middle.value,
+        //             total_bandwidth: total_bandwidth.value,
+
+        //             rule: modeDetails.value.map(() => ({
+        //                 rule_service: 'disable',
+        //                 rule_name: '',
+        //                 protocol: '',
+        //                 dport: '',
+        //                 priority: '',
+        //                 base_interface: ''
+        //             }))
+        //         }
+        //     }
+        // } else if (mode.value === 'custom') {
+        //     payload = {
+        //         method: 'set-config',
+        //         payload: {
+        //             service: 'enable',
+        //             mode: 'custom',
+        //             rule: modeDetails.value.map((item) => ({
+        //                 rule_service: item.service ? 'enable' : 'disable',
+        //                 rule_name: item.rule_name,
+        //                 protocol: item.protocol,
+        //                 dport: item.dport,
+        //                 priority: item.priority,
+        //                 base_interface: item.base_interface.join(',')
+        //             }))
+        //         }
+        //     }
+        // } else {
+        //     payload = {
+        //         method: 'set-config',
+        //         payload: {
+        //             service: 'enable',
+        //             mode: mode.value
+        //         }
+        //     }
+        // }
 
         await axios.post(`${getSDControllerApiEndpoint()}/qos`, payload)
         notificationsStore.createNotification({
@@ -206,6 +228,69 @@ const saveNetworkConfig = async () => {
     }
 }
 
+const addRule = async () => {
+
+    console.log("modeDetails=======", modeDetails.value[0].rule_name)
+
+    try {
+        const payload = {
+            "rule_service": modeDetails.value[0].rule_service ? 'enable' : 'disable',
+            "name": modeDetails.value[0].rule_name,
+            "protocol": modeDetails.value[0].protocol,
+            "dport": [
+                {
+                    "port": modeDetails.value[0].dport
+                },
+
+            ],
+            "priority": modeDetails.value[0].priority
+        }
+
+        const response = await axios.post(`${getSDControllerApiEndpoint()}/qos`, {
+            method: "add-config",
+            payload: payload,
+        });
+
+        if (response.data.code === 200) {
+            notificationsStore.createNotification({
+                title: 'Success',
+                description: 'Configuration saved successfully.',
+                kind: 'success'
+            })
+        }
+    } catch (err) {
+    }
+}
+
+const deleteRule =  async (itemToDelete : string) => {
+    try {
+        console.log("payload======",itemToDelete)
+
+            const payload = {
+                "name": itemToDelete
+            }
+
+
+            const response = await axios.post(`${getSDControllerApiEndpoint()}/qos`, {
+                method: "delete-config",
+                payload
+            });
+
+            if (response.data.code === 200) {
+                notificationsStore.createNotification({
+                    title: 'Success',
+                    description: 'Configuration updated successfully.',
+                    kind: 'success'
+                });
+                close()
+            } else {
+                throw new Error('Failed to delete configuration.');
+            }
+
+        } catch (err) {
+        }
+}
+
 </script>
 
 <template>
@@ -216,113 +301,148 @@ const saveNetworkConfig = async () => {
             <NeToggle v-model="service" label="Service Status" />
         </div>
         <p class="mb-4 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
-            {{ t('Configure Quality of Service (QoS) settings, including service modes and custom traffic rules to prioritize network traffic.') }}
+            {{ t('Configure Quality of Service (QoS) settings, including service modes and custom traffic rules') }}
         </p>
         <template v-if="service">
             <div>
-                <div class="w-[300px]">
 
+                <!-- Total Bandwidth input at the top -->
+                <div class="mb-4">
+                    <NeTextInput v-model="total_bandwidth" label="Total Bandwidth"
+                        placeholder="Enter Total Bandwidth" />
+                </div>
+
+                <!-- Two-column layout for rate and ceil values -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Rate column -->
+                    <div class="flex flex-col gap-4">
+                        <NeTextInput v-model="rate_high" label="Rate High" placeholder="Enter Rate High" />
+                        <NeTextInput v-model="rate_middle" label="Rate Middle" placeholder="Enter Rate Middle" />
+                        <NeTextInput v-model="rate_low" label="Rate Low" placeholder="Enter Rate Low" />
+                    </div>
+
+                    <!-- Ceil column -->
+                    <div class="flex flex-col gap-4">
+                        <NeTextInput v-model="ceil_high" label="Ceil High" placeholder="Enter Ceil High" />
+                        <NeTextInput v-model="ceil_middle" label="Ceil Middle" placeholder="Enter Ceil Middle" />
+                        <NeTextInput v-model="ceil_low" label="Ceil Low" placeholder="Enter Ceil Low" />
+                    </div>
+                </div>
+
+
+                <!-- <div class="w-[300px]">
                     <NeCombobox v-model="mode" :options="[
-                    { label: 'game', id: 'game' },
-                    { label: 'custom', id: 'custom' },
-                    { label: 'meeting', id: 'meeting' },
-                    { label: 'balance', id: 'balance' },
-                ]" :label="t('Mode')" class="grow" :noResultsLabel="t('ne_combobox.no_results')"
-                    :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
-                    :noOptionsLabel="t('ne_combobox.no_options_label')" :selected-label="t('ne_combobox.selected')"
-                    :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" />
+                        { label: 'game', id: 'game' },
+                        { label: 'custom', id: 'custom' },
+                        { label: 'meeting', id: 'meeting' },
+                        { label: 'balance', id: 'balance' },
+                    ]" :label="t('Mode')" class="grow" :noResultsLabel="t('ne_combobox.no_results')"
+                        :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
+                        :noOptionsLabel="t('ne_combobox.no_options_label')" :selected-label="t('ne_combobox.selected')"
+                        :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" />
+                </div> -->
 
 
-                    <!-- <label class="block text-sm font-medium mb-1">Mode:</label>
-                    <select v-model="mode"
-                        class="border rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-400 w-[300px]">
-                        <option value="game">game</option>
-                        <option value="custom">custom</option>
-                        <option value="meeting">meeting</option>
-                        <option value="balance">balance</option>
-                    </select> -->
+
+                <div class="w-[300px] mt-8">
+                    <NeCombobox multiple v-model="mode" :options="localNetworksOptions" value-key="id" label-key="label"
+                        :label="$t('Interface')" class="grow" :noResultsLabel="$t('ne_combobox.no_results')"
+                        :limitedOptionsLabel="$t('ne_combobox.limited_options_label')"
+                        :noOptionsLabel="$t('ne_combobox.no_options_label')"
+                        :selected-label="$t('ne_combobox.selected')"
+                        :user-input-label="$t('ne_combobox.user_input_label')" :optionalLabel="$t('common.optional')" />
+
+                    <!-- Display the selected values in a clean array -->
+                    <p class="mt-2 text-gray-700 flex flex-wrap gap-2">
+                        <span v-for="(item, index) in mode" :key="index"
+                            class="bg-blue-100 text-blue-800 text-sm font-medium me-2 px-3 py-1 rounded-full border border-blue-300">
+                            {{ item }}
+                        </span>
+                    </p>
+
+                </div>
+
+                <div class="mt-4 flex justify-end">
+                    <!-- Submit button (left aligned) -->
+                    <div class="flex  flex-col w-[90px]">
+                        <NeButton class="ml-1" :disabled="loading.saveRule" :loading="loading.saveRule" kind="primary"
+                            size="lg" @click.prevent="saveNetworkConfig()">
+                            <template #prefix>
+                                <FontAwesomeIcon :icon="faSave" />
+                            </template>
+                            {{ t('common.save') }}
+                        </NeButton>
+                    </div>
                 </div>
 
                 <!-- Show Table Only if mode is custom -->
-                <div v-if="mode === 'custom'">
-                    <div class="flex flex-row items-center justify-between mt-6">
-                        <p class="max-w-2xl font-bold text-black dark:text-gray-400">Mode Details</p>
-                        <NeButton kind="primary" size="lg" @click="addModeDetails">
-                            <template #prefix>
-                                <font-awesome-icon :icon="['fas', 'plus']" class="h-4 w-4" aria-hidden="true" />
-                            </template>
-                            Add
-                        </NeButton>
-                    </div>
-
-                    <NeTable cardBreakpoint="md" class="mt-2" ariaLabel="Interface Table">
-                        <NeTableHead>
-                            <NeTableHeadCell>Rule Name</NeTableHeadCell>
-                            <NeTableHeadCell>Protocol</NeTableHeadCell>
-                            <NeTableHeadCell>Dport</NeTableHeadCell>
-                            <NeTableHeadCell>Interface</NeTableHeadCell>
-                            <NeTableHeadCell>Priority</NeTableHeadCell>
-                            <NeTableHeadCell>Service</NeTableHeadCell>
-                            <NeTableHeadCell>Actions</NeTableHeadCell>
-                        </NeTableHead>
-                        <NeTableBody>
-                            <NeTableRow v-for="(item, index) in modeDetails" :key="`new-${index}`">
-                                <NeTableCell>
-                                    <NeTextInput v-model.trim="item.rule_name" placeholder="Rule name" />
-                                </NeTableCell>
-                                <NeTableCell>
-                                    <select v-model="item.protocol" class="border rounded p-1 w-[70px]">
-                                        <option value="tcp">tcp</option>
-                                        <option value="udp">udp</option>
-                                        <option value="both">both</option>
-                                    </select>
-                                </NeTableCell>
-                                <NeTableCell>
-                                    <NeTextInput v-model.trim="item.dport" placeholder="Dport" />
-                                </NeTableCell>
-                                <NeTableCell>
-                                    <div class="flex flex-col gap-1">
-                                        <label v-for="intf in interfacesAvailable" :key="intf"
-                                            class="flex items-center gap-2">
-                                            <input type="checkbox" :value="intf" v-model="item.base_interface"
-                                                class="form-checkbox" />
-                                            {{ intf }}
-                                        </label>
-                                    </div>
-                                </NeTableCell>
-                                <NeTableCell>
-                                    <NeTextInput v-model.trim="item.priority" placeholder="Priority" />
-                                </NeTableCell>
-                                <NeTableCell>
-                                    <NeToggle v-model="item.service" label="Enable" />
-                                </NeTableCell>
-                                <NeTableCell>
-                                    <NeButton size="sm" @click="deleteModeDetails(index)">
-                                        <font-awesome-icon :icon="['fas', 'trash']" class="h-4 w-4"
-                                            aria-hidden="true" />
-                                    </NeButton>
-                                </NeTableCell>
-                            </NeTableRow>
-                        </NeTableBody>
-                    </NeTable>
+                <!-- <div v-if="mode === 'custom'"> -->
+                <div class="flex flex-row items-center justify-between mt-6">
+                    <p class="max-w-2xl font-bold text-black dark:text-gray-400">Mode Details</p>
+                    <NeButton kind="primary" size="lg" @click="addModeDetails">
+                        <template #prefix>
+                            <font-awesome-icon :icon="['fas', 'plus']" class="h-4 w-4" aria-hidden="true" />
+                        </template>
+                        Add
+                    </NeButton>
                 </div>
+
+                <NeTable cardBreakpoint="md" class="mt-2" ariaLabel="Interface Table">
+                    <NeTableHead>
+                        <NeTableHeadCell>Rule Name</NeTableHeadCell>
+                        <NeTableHeadCell>Protocol</NeTableHeadCell>
+                        <NeTableHeadCell>Dport</NeTableHeadCell>
+                        <!-- <NeTableHeadCell>Interface</NeTableHeadCell> -->
+                        <NeTableHeadCell>Priority</NeTableHeadCell>
+                        <NeTableHeadCell>Service</NeTableHeadCell>
+                        <NeTableHeadCell>Actions</NeTableHeadCell>
+                    </NeTableHead>
+                    <NeTableBody>
+                        {{ console.log("modeDetails======", modeDetails) }}
+                        <NeTableRow v-for="(item, index) in modeDetails" :key="`new-${index}`">
+                            <NeTableCell>
+                                <NeTextInput v-model.trim="item.rule_name" placeholder="Rule name" />
+                            </NeTableCell>
+                            <NeTableCell>
+                                <select v-model="item.protocol" class="border rounded p-1 w-[70px]">
+                                    <option value="tcp">tcp</option>
+                                    <option value="udp">udp</option>
+                                    <option value="both">both</option>
+                                </select>
+                            </NeTableCell>
+                            <NeTableCell>
+                                <NeTextInput v-model.trim="item.dport" placeholder="Dport" />
+                            </NeTableCell>
+                            <NeTableCell>
+                                <NeTextInput v-model.trim="item.priority" placeholder="Priority" />
+                            </NeTableCell>
+                            <NeTableCell>
+                                <NeToggle v-model="item.rule_service" label="Enable" />
+                            </NeTableCell>
+                            <NeTableCell>
+                                <NeButton size="sm" @click="deleteRule(item.rule_name)">
+                                    <font-awesome-icon :icon="['fas', 'trash']" class="h-4 w-4" aria-hidden="true" />
+                                </NeButton>
+                            </NeTableCell>
+                        </NeTableRow>
+                    </NeTableBody>
+                </NeTable>
+                <!-- </div> -->
 
             </div>
         </template>
+
         <div class="mt-4 flex justify-end">
             <!-- Submit button (left aligned) -->
-            <div class="flex  flex-col w-[90px]">
+            <div class="flex  flex-col w-[110px]">
                 <NeButton class="ml-1" :disabled="loading.saveRule" :loading="loading.saveRule" kind="primary" size="lg"
-                    @click.prevent="saveNetworkConfig()">
+                    @click.prevent="addRule()">
                     <template #prefix>
                         <FontAwesomeIcon :icon="faSave" />
                     </template>
-                    {{ t('common.save') }}
+                    {{ t('Add Rule') }}
                 </NeButton>
             </div>
-            <!-- <NeButton kind="primary" size="lg" @click="saveNetworkConfig" :disabled="loading.saveRule">
-                Save
-            </NeButton> -->
         </div>
     </div>
 </template>
