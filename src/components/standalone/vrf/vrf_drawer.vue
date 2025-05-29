@@ -45,7 +45,6 @@ const service = ref(false);
 const name = ref("");
 const id = ref("");
 const bindInterfaceName = ref("");
-const status = ref("");
 
 let apiResponse = ref()
 const interfaceOptions = ref([]);
@@ -218,19 +217,6 @@ const closeDrawer = () => {
                             :user-input-label="t('ne_combobox.user_input_label')"
                             :optionalLabel="t('common.optional')" />
                     </div>
-
-                    <div>
-                        <NeCombobox v-model="status" :options="[
-                            { label: 'conncet', id: 'conncet' },
-                            { label: 'down', id: 'down' },
-                        ]" :label="t('Status')" class="grow" :noResultsLabel="t('ne_combobox.no_results')"
-                            :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
-                            :noOptionsLabel="t('ne_combobox.no_options_label')"
-                            :selected-label="t('ne_combobox.selected')"
-                            :user-input-label="t('ne_combobox.user_input_label')"
-                            :optionalLabel="t('common.optional')" />
-                    </div>
-
                 </template>
             </div>
 
