@@ -20,6 +20,7 @@ import { getSDControllerApiEndpoint } from '@/lib/config'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faSave } from '@fortawesome/free-solid-svg-icons'
 import { useI18n } from 'vue-i18n'
+import { ubusCall } from '@/lib/standalone/ubus'
 
 const { t } = useI18n()
 
@@ -35,8 +36,11 @@ interface NetworkOption {
 
 const localNetworksOptions = ref<NetworkOption[]>([])
 
-const mode = ref([]) // This will contain selected ids like ['br1', 'eth5']
+const supportedProtocols = ref<NeComboboxOption[]>([])
 
+const protocols = ref<NeComboboxOption[]>([])
+
+const mode = ref([]) // This will contain selected ids like ['br1', 'eth5']
 
 const ceil_high = ref('')
 const ceil_low = ref('')
@@ -46,10 +50,12 @@ const rate_low = ref('')
 const rate_middle = ref('')
 const total_bandwidth = ref('')
 
+const newMoreDetailsValue = ref<{ name: string, priority: string, protocol: string, rule_service: boolean, dport: [] }[]>([])
+
 const modeDetails = ref<
     {
         rule_name: string
-        rule_service: string
+        rule_service: boolean
         protocol: string
         dport: string
         base_interface: string[]
@@ -88,12 +94,20 @@ const getLists = async () => {
             rate_middle.value = newValues.rate_middle || ''
             total_bandwidth.value = newValues.total_bandwidth || ''
 
-            const demo = interfaceOptions.value = (newValues.interface || []).map((item: any) => ({
+            const demo = (newValues.up_interface || []).map((item: any) => ({
                 label: item.ifname,
                 id: item.ifname,
             }));
 
             localNetworksOptions.value = [...demo]
+
+
+            const result = newValues.up_interface.map((item: any) => ({
+                id: item.ifname,
+                label: item.ifname
+            }));
+
+            supportedProtocols.value = result
 
 
             if (Array.isArray(newValues.rule)) {
@@ -103,7 +117,7 @@ const getLists = async () => {
                     dport: item.dport.map((e: any) => e.port) || '',
                     base_interface: item.base_interface ? item.base_interface.split(',') : [],
                     priority: item.priority || '',
-                    service: item.service === 'enable'
+                    rule_service: item.rule_service === 'enable'
                 }))
             } else {
                 modeDetails.value = []
@@ -117,7 +131,7 @@ const getLists = async () => {
 const addModeDetails = () => {
     modeDetails.value.push({
         rule_name: '',
-        rule_service: '',
+        rule_service: false,
         protocol: 'tcp',
         dport: '',
         base_interface: [],
@@ -126,25 +140,12 @@ const addModeDetails = () => {
     })
 }
 
-const deleteModeDetails = (index: number) => {
-    modeDetails.value.splice(index, 1)
-}
-
 const saveNetworkConfig = async () => {
+
+    console.log("protocols====", protocols.value)
+
     loading.value.saveRule = true
     try {
-        // Validation: Check for each rule if base_interface is empty
-        // const invalidRules = modeDetails.value.filter((item) => item.base_interface.length === 0)
-
-        // if (invalidRules.length > 0) {
-        //     notificationsStore.createNotification({
-        //         title: 'Validation Error',
-        //         description: 'Please select at least one interface for each rule.',
-        //         kind: 'danger'
-        //     })
-        //     loading.value.saveRule = false
-        //     return
-        // }
 
         let payload = {
             "method": "set-config",
@@ -160,58 +161,6 @@ const saveNetworkConfig = async () => {
                 interface: mode.value.map((item: any) => ({ ifname: item.id }))
             }
         }
-
-        // if (!service.value) {
-        //     // Service is disabled but you want to send empty values for each modeDetails
-        //     payload = {
-        //         method: 'set-config',
-        //         payload: {
-        //             service: 'disable',
-        //             mode: '',
-
-        //             ceil_high: ceil_high.value,
-        //             ceil_low: ceil_low.value,
-        //             ceil_middle: ceil_middle.value,
-        //             rate_high: rate_high.value,
-        //             rate_low: rate_low.value,
-        //             rate_middle: rate_middle.value,
-        //             total_bandwidth: total_bandwidth.value,
-
-        //             rule: modeDetails.value.map(() => ({
-        //                 rule_service: 'disable',
-        //                 rule_name: '',
-        //                 protocol: '',
-        //                 dport: '',
-        //                 priority: '',
-        //                 base_interface: ''
-        //             }))
-        //         }
-        //     }
-        // } else if (mode.value === 'custom') {
-        //     payload = {
-        //         method: 'set-config',
-        //         payload: {
-        //             service: 'enable',
-        //             mode: 'custom',
-        //             rule: modeDetails.value.map((item) => ({
-        //                 rule_service: item.service ? 'enable' : 'disable',
-        //                 rule_name: item.rule_name,
-        //                 protocol: item.protocol,
-        //                 dport: item.dport,
-        //                 priority: item.priority,
-        //                 base_interface: item.base_interface.join(',')
-        //             }))
-        //         }
-        //     }
-        // } else {
-        //     payload = {
-        //         method: 'set-config',
-        //         payload: {
-        //             service: 'enable',
-        //             mode: mode.value
-        //         }
-        //     }
-        // }
 
         await axios.post(`${getSDControllerApiEndpoint()}/qos`, payload)
         notificationsStore.createNotification({
@@ -229,26 +178,51 @@ const saveNetworkConfig = async () => {
 }
 
 const addRule = async () => {
-
-    console.log("modeDetails=======", modeDetails.value[0].rule_name)
-
     try {
-        const payload = {
-            "rule_service": modeDetails.value[0].rule_service ? 'enable' : 'disable',
-            "name": modeDetails.value[0].rule_name,
-            "protocol": modeDetails.value[0].protocol,
-            "dport": [
-                {
-                    "port": modeDetails.value[0].dport
-                },
 
+        const latestRule = modeDetails.value[modeDetails.value.length - 1];
+
+        const payloadNew = {
+            name: latestRule.rule_name,
+            rule_service: latestRule.rule_service ? "enable" : "disable",
+            protocol: latestRule.protocol,
+            dport: [
+                {
+                    port: latestRule.dport
+                }
             ],
-            "priority": modeDetails.value[0].priority
-        }
+            priority: latestRule.priority
+        };
+
+        const currentRule = modeDetails.value[0]; // update this to loop through all rules if needed
+
+        const rulesPayload = modeDetails.value.map(item => ({
+            rule_service: item.rule_service ? "enable" : "disable",
+            name: item.rule_name,
+            protocol: item.protocol,
+            dport: [
+                {
+                    port: item.dport
+                }
+            ],
+            priority: item.priority
+        }));
+
+        const payload = {
+            rule_service: currentRule.rule_service ? "enable" : "disable",
+            name: currentRule.rule_name,
+            protocol: currentRule.protocol,
+            dport: [
+                {
+                    "port": "5000"
+                }
+            ],
+            priority: currentRule.priority
+        };
 
         const response = await axios.post(`${getSDControllerApiEndpoint()}/qos`, {
             method: "add-config",
-            payload: payload,
+            payload: payloadNew,
         });
 
         if (response.data.code === 200) {
@@ -262,33 +236,74 @@ const addRule = async () => {
     }
 }
 
-const deleteRule =  async (itemToDelete : string) => {
+const addRuleNewApi = async () => {
     try {
-        console.log("payload======",itemToDelete)
-
+        for (const rule of modeDetails.value) {
             const payload = {
-                "name": itemToDelete
-            }
-
+                name: rule.rule_name,
+                rule_service: rule.rule_service ? "enable" : "disable",
+                protocol: rule.protocol,
+                dport: [
+                    {
+                        port: rule.dport
+                    }
+                ],
+                priority: rule.priority
+            };
 
             const response = await axios.post(`${getSDControllerApiEndpoint()}/qos`, {
-                method: "delete-config",
-                payload
+                method: "add-config",
+                payload: payload,
             });
 
-            if (response.data.code === 200) {
-                notificationsStore.createNotification({
-                    title: 'Success',
-                    description: 'Configuration updated successfully.',
-                    kind: 'success'
-                });
-                close()
-            } else {
-                throw new Error('Failed to delete configuration.');
+            if (response.data.code !== 200) {
+                throw new Error(`Failed to add rule: ${rule.rule_name}`);
             }
-
-        } catch (err) {
         }
+
+        // Show success notification after all rules are sent
+        notificationsStore.createNotification({
+            title: 'Success',
+            description: 'All rules saved successfully.',
+            kind: 'success'
+        });
+
+    } catch (err) {
+        console.error("Error adding rules:", err);
+        notificationsStore.createNotification({
+            title: 'Error',
+            description: 'Failed to save one or more rules.',
+            kind: 'error'
+        });
+    }
+};
+
+
+const deleteRule = async (itemToDelete: string) => {
+    try {
+        const payload = {
+            "name": itemToDelete
+        }
+
+        const response = await axios.post(`${getSDControllerApiEndpoint()}/qos`, {
+            method: "delete-config",
+            payload
+        });
+
+        if (response.data.code === 200) {
+            notificationsStore.createNotification({
+                title: 'Success',
+                description: 'Configuration updated successfully.',
+                kind: 'success'
+            });
+            getLists()
+            close()
+        } else {
+            throw new Error('Failed to delete configuration.');
+        }
+
+    } catch (err) {
+    }
 }
 
 </script>
@@ -329,21 +344,6 @@ const deleteRule =  async (itemToDelete : string) => {
                     </div>
                 </div>
 
-
-                <!-- <div class="w-[300px]">
-                    <NeCombobox v-model="mode" :options="[
-                        { label: 'game', id: 'game' },
-                        { label: 'custom', id: 'custom' },
-                        { label: 'meeting', id: 'meeting' },
-                        { label: 'balance', id: 'balance' },
-                    ]" :label="t('Mode')" class="grow" :noResultsLabel="t('ne_combobox.no_results')"
-                        :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
-                        :noOptionsLabel="t('ne_combobox.no_options_label')" :selected-label="t('ne_combobox.selected')"
-                        :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" />
-                </div> -->
-
-
-
                 <div class="w-[300px] mt-8">
                     <NeCombobox multiple v-model="mode" :options="localNetworksOptions" value-key="id" label-key="label"
                         :label="$t('Interface')" class="grow" :noResultsLabel="$t('ne_combobox.no_results')"
@@ -361,6 +361,15 @@ const deleteRule =  async (itemToDelete : string) => {
                     </p>
 
                 </div>
+                <!-- <NeCombobox :label="t('standalone.port_forward.protocols')"
+                    :helper-text="t('standalone.port_forward.protocol_helper')" :multiple="true"
+                    :options="supportedProtocols" v-model="protocols"
+                    :placeholder="t('standalone.port_forward.choose_protocol')"
+                    :noResultsLabel="t('ne_combobox.no_results')"
+                    :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
+                    :noOptionsLabel="t('ne_combobox.no_options_label')" :selected-label="t('ne_combobox.selected')"
+                    :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')"
+                    ref="protocolsRef" /> -->
 
                 <div class="mt-4 flex justify-end">
                     <!-- Submit button (left aligned) -->
@@ -375,8 +384,6 @@ const deleteRule =  async (itemToDelete : string) => {
                     </div>
                 </div>
 
-                <!-- Show Table Only if mode is custom -->
-                <!-- <div v-if="mode === 'custom'"> -->
                 <div class="flex flex-row items-center justify-between mt-6">
                     <p class="max-w-2xl font-bold text-black dark:text-gray-400">Mode Details</p>
                     <NeButton kind="primary" size="lg" @click="addModeDetails">
@@ -392,13 +399,11 @@ const deleteRule =  async (itemToDelete : string) => {
                         <NeTableHeadCell>Rule Name</NeTableHeadCell>
                         <NeTableHeadCell>Protocol</NeTableHeadCell>
                         <NeTableHeadCell>Dport</NeTableHeadCell>
-                        <!-- <NeTableHeadCell>Interface</NeTableHeadCell> -->
                         <NeTableHeadCell>Priority</NeTableHeadCell>
                         <NeTableHeadCell>Service</NeTableHeadCell>
                         <NeTableHeadCell>Actions</NeTableHeadCell>
                     </NeTableHead>
                     <NeTableBody>
-                        {{ console.log("modeDetails======", modeDetails) }}
                         <NeTableRow v-for="(item, index) in modeDetails" :key="`new-${index}`">
                             <NeTableCell>
                                 <NeTextInput v-model.trim="item.rule_name" placeholder="Rule name" />
@@ -427,8 +432,6 @@ const deleteRule =  async (itemToDelete : string) => {
                         </NeTableRow>
                     </NeTableBody>
                 </NeTable>
-                <!-- </div> -->
-
             </div>
         </template>
 
