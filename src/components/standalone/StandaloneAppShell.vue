@@ -80,7 +80,7 @@ const logoFilename = computed(() => {
               </TransitionChild>
               <!-- Sidebar component -->
               <div
-                class="flex flex-col px-2 pb-4 overflow-y-auto bg-white grow gap-y-5 dark:bg-gray-950"
+                class="flex flex-col px-2 pb-4 overflow-y-auto side-bar grow gap-y-5 dark:bg-gray-950"
               >
                 <div class="flex items-center h-16 shrink-0">
                   <img
