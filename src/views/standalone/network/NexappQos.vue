@@ -40,7 +40,7 @@ const supportedProtocols = ref<NeComboboxOption[]>([])
 
 const protocols = ref<NeComboboxOption[]>([])
 
-const mode = ref([]) // This will contain selected ids like ['br1', 'eth5']
+const mode = ref<NetworkOption[]>([])
 
 const ceil_high = ref('')
 const ceil_low = ref('')
@@ -353,10 +353,10 @@ const deleteRule = async (itemToDelete: string) => {
                         :user-input-label="$t('ne_combobox.user_input_label')" :optionalLabel="$t('common.optional')" />
 
                     <!-- Display the selected values in a clean array -->
-                    <p class="mt-2 text-gray-700 flex flex-wrap gap-2">
+                    <p class="flex flex-wrap gap-2 mt-2 text-gray-700">
                         <span v-for="(item, index) in mode" :key="index"
-                            class="bg-blue-100 text-blue-800 text-sm font-medium me-2 px-3 py-1 rounded-full border border-blue-300">
-                            {{ item }}
+                            class="px-3 py-1 text-sm font-medium text-blue-800 bg-blue-100 border border-blue-300 rounded-full me-2">
+                            {{ typeof item === 'object' ? item.label : item }}
                         </span>
                     </p>
 
@@ -409,11 +409,21 @@ const deleteRule = async (itemToDelete: string) => {
                                 <NeTextInput v-model.trim="item.rule_name" placeholder="Rule name" />
                             </NeTableCell>
                             <NeTableCell>
-                                <select v-model="item.protocol" class="border rounded p-1 w-[70px]">
+                                <NeCombobox v-model="item.protocol" :options="[
+                                    { label: 'udp', id: 'udp' },
+                                    { label: 'tcp', id: 'tcp' },
+                                    { label: 'both', id: 'both' }
+                                ]" class="grow" :noResultsLabel="t('ne_combobox.no_results')"
+                                    :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
+                                    :noOptionsLabel="t('ne_combobox.no_options_label')"
+                                    :selected-label="t('ne_combobox.selected')"
+                                    :user-input-label="t('ne_combobox.user_input_label')"
+                                    :optionalLabel="t('common.optional')" />
+                                <!-- <select v-model="item.protocol" class="border rounded p-1 w-[70px]">
                                     <option value="tcp">tcp</option>
                                     <option value="udp">udp</option>
                                     <option value="both">both</option>
-                                </select>
+                                </select> -->
                             </NeTableCell>
                             <NeTableCell>
                                 <NeTextInput v-model.trim="item.dport" placeholder="Dport" />

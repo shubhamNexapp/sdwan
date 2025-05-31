@@ -351,13 +351,15 @@ const saveMoreDetails = async () => {
                 )
         );
 
+        const latestRule = moreDetails.value[moreDetails.value.length - 1];
+
         const payload = {
             method: "add-config",
             payload: {
-                name: cleanDetails.map(e => e.name).join(','),
-                priority: cleanDetails.map(e => e.priority).join(','),
-                port: cleanDetails.map(e => e.port).join(','),
-                protocol: cleanDetails.map(e => e.protocol).join(','),
+                name: latestRule.name,
+                priority: latestRule.priority,
+                port: latestRule.port,
+                protocol: latestRule.protocol,
             }
         };
 
@@ -425,19 +427,19 @@ function handleNextStep() {
 
 <template>
     <NeHeading tag="h3" class="mb-4">Load Balance</NeHeading>
-    <p class="mb-6 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
+    <p class="mb-2 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
         {{ t('Configure loadbalance service settings, including redistribution of connected, static, and kernel') }}
     </p>
     <!-- <NeToggle v-model="service" label="RIP Service" /> -->
     <NeToggle v-model="service" :label="service ? 'Enable' : 'Disable'" :topLabel="'Service Status'" />
 
     <template v-if="service">
-        <div class="flex flex-col gap-y-6 mt-8">
+        <div class="flex flex-col gap-y-4 mt-4">
 
             <NeStepper :currentStep="step" :totalSteps="2" :stepLabel="t('common.step')" />
 
             <template v-if="step == 1">
-                <div class="flex flex-col gap-y-3">
+                <div class="flex flex-col gap-y-2">
                     <p class="max-w-2xl font-bold text-black dark:text-gray-400">Main</p>
 
                     <div>
@@ -626,7 +628,7 @@ function handleNextStep() {
             <div class="flex justify-end">
                 <NeButton kind="tertiary" class="mr-4" @click="handlePreviousStep">{{
                     step == 1 ? t('common.cancel') : t('common.previous')
-                    }}</NeButton>
+                }}</NeButton>
                 <NeButton kind="primary" @click="handleNextStep">{{
                     step === 2
                         ? id
@@ -652,19 +654,6 @@ function handleNextStep() {
 
         <div class="flex flex-col gap-y-6">
             <div>
-                <div class="flex flex-col items-start mb-4">
-                    <div class="w-full flex flex-col gap-1 mt-4">
-                        <div class="flex items-center gap-2">
-                            <label class="mr-2">Status:</label>
-                            <span :class="status">
-                                <b>{{ apiResponse.status }}</b>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-
-
                 <!-- More Details Table -->
                 <div class="flex flex-row items-center justify-between mt-8">
                     <p class="max-w-2xl font-bold text-black dark:text-gray-400">More Details</p>
@@ -690,19 +679,37 @@ function handleNextStep() {
                                 <NeTextInput v-model.trim="item.name" placeholder="Rule Name" />
                             </NeTableCell>
                             <NeTableCell>
-                                <select v-model="item.priority">
+                                <NeCombobox v-model="item.priority" :options="[
+                                    { label: 'main', id: 'main' },
+                                    { label: 'backup', id: 'backup' }
+                                ]" class="grow" :noResultsLabel="t('ne_combobox.no_results')"
+                                    :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
+                                    :noOptionsLabel="t('ne_combobox.no_options_label')"
+                                    :selected-label="t('ne_combobox.selected')"
+                                    :user-input-label="t('ne_combobox.user_input_label')"
+                                    :optionalLabel="t('common.optional')" />
+                                <!-- <select class="rounded-md" v-model="item.priority">
                                     <option value="main">main</option>
                                     <option value="backup">backup</option>
-                                </select>
+                                </select> -->
                             </NeTableCell>
                             <NeTableCell>
                                 <NeTextInput v-model.trim="item.port" placeholder="Port" @input="onlyNumbers" />
                             </NeTableCell>
                             <NeTableCell>
-                                <select v-model="item.protocol">
+                                <NeCombobox v-model="item.protocol" :options="[
+                                    { label: 'udp', id: 'udp' },
+                                    { label: 'tcp', id: 'tcp' }
+                                ]" class="grow" :noResultsLabel="t('ne_combobox.no_results')"
+                                    :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
+                                    :noOptionsLabel="t('ne_combobox.no_options_label')"
+                                    :selected-label="t('ne_combobox.selected')"
+                                    :user-input-label="t('ne_combobox.user_input_label')"
+                                    :optionalLabel="t('common.optional')" />
+                                <!-- <select class="rounded-md" v-model="item.protocol">
                                     <option value="udp">udp</option>
                                     <option value="tcp">tcp</option>
-                                </select>
+                                </select> -->
                             </NeTableCell>
                             <NeTableCell>
                                 <NeButton size="sm" class="mt-5" @click=deleteDetails(item.name)>
