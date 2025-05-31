@@ -434,7 +434,7 @@ function handleNextStep() {
     <NeToggle v-model="service" :label="service ? 'Enable' : 'Disable'" :topLabel="'Service Status'" />
 
     <template v-if="service">
-        <div class="flex flex-col gap-y-4 mt-4">
+        <div class="flex flex-col  mt-4">
 
             <NeStepper :currentStep="step" :totalSteps="2" :stepLabel="t('common.step')" />
 
@@ -626,10 +626,10 @@ function handleNextStep() {
             </template>
             <hr />
             <div class="flex justify-end">
-                <NeButton kind="tertiary" class="mr-4" @click="handlePreviousStep">{{
-                    step == 1 ? t('common.cancel') : t('common.previous')
+                <NeButton kind="tertiary" class="mr-4 mt-4" @click="handlePreviousStep">{{
+                    step == 1 ? '' : t('common.previous')
                 }}</NeButton>
-                <NeButton kind="primary" @click="handleNextStep">{{
+                <NeButton class="mt-4" kind="primary" @click="handleNextStep">{{
                     step === 2
                         ? id
                             ? t('common.save')
@@ -720,7 +720,7 @@ function handleNextStep() {
                     </NeTableBody>
                 </NeTable>
             </div>
-            <div class="mt-4 flex justify-start">
+            <div class="mt-4 flex justify-end">
                 <div class="flex  flex-col w-[130px]">
                     <NeButton class="ml-1" :disabled="loading.moreDetails" :loading="loading.moreDetails" kind="primary"
                         size="lg" @click.prevent="saveMoreDetails()">

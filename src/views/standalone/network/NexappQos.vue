@@ -20,7 +20,6 @@ import { getSDControllerApiEndpoint } from '@/lib/config'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faSave } from '@fortawesome/free-solid-svg-icons'
 import { useI18n } from 'vue-i18n'
-import { ubusCall } from '@/lib/standalone/ubus'
 
 const { t } = useI18n()
 
@@ -57,7 +56,7 @@ const modeDetails = ref<
         rule_name: string
         rule_service: boolean
         protocol: string
-        dport: string
+        dport: any
         base_interface: string[]
         priority: string
         service: boolean
@@ -177,9 +176,62 @@ const saveNetworkConfig = async () => {
     }
 }
 
+const validateRules = () => {
+    for (const [index, rule] of modeDetails.value.entries()) {
+        if (!rule.rule_name) {
+            notificationsStore.createNotification({
+                title: 'Validation Error',
+                description: `Rule ${index + 1}: Rule name is required.`,
+                kind: 'error'
+            });
+            return false;
+        }
+
+        if (!rule.protocol) {
+            notificationsStore.createNotification({
+                title: 'Validation Error',
+                description: `Rule ${index + 1}: Protocol is required.`,
+                kind: 'error'
+            });
+            return false;
+        }
+
+        if (!rule.dport || isNaN(rule.dport)) {
+            notificationsStore.createNotification({
+                title: 'Validation Error',
+                description: `Rule ${index + 1}: Dport must be a number.`,
+                kind: 'error'
+            });
+            return false;
+        }
+
+        if (!rule.priority) {
+            notificationsStore.createNotification({
+                title: 'Validation Error',
+                description: `Rule ${index + 1}: Priority is required.`,
+                kind: 'error'
+            });
+            return false;
+        }
+
+        if (typeof rule.rule_service !== 'boolean') {
+            notificationsStore.createNotification({
+                title: 'Validation Error',
+                description: `Rule ${index + 1}: Rule service must be enabled or disabled.`,
+                kind: 'error'
+            });
+            return false;
+        }
+    }
+    return true;
+};
+
+
 const addRule = async () => {
     try {
 
+        const isValid = validateRules();
+        if (!isValid) return;
         const latestRule = modeDetails.value[modeDetails.value.length - 1];
 
         const payloadNew = {
@@ -412,7 +464,7 @@ const deleteRule = async (itemToDelete: string) => {
                                 <NeCombobox v-model="item.protocol" :options="[
                                     { label: 'udp', id: 'udp' },
                                     { label: 'tcp', id: 'tcp' },
-                                    { label: 'both', id: 'both' }
+                                    { label: 'any', id: 'any' }
                                 ]" class="grow" :noResultsLabel="t('ne_combobox.no_results')"
                                     :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
                                     :noOptionsLabel="t('ne_combobox.no_options_label')"
@@ -429,7 +481,17 @@ const deleteRule = async (itemToDelete: string) => {
                                 <NeTextInput v-model.trim="item.dport" placeholder="Dport" />
                             </NeTableCell>
                             <NeTableCell>
-                                <NeTextInput v-model.trim="item.priority" placeholder="Priority" />
+                                <!-- <NeTextInput v-model.trim="item.priority" placeholder="Priority" /> -->
+                                <NeCombobox v-model="item.priority" :options="[
+                                    { label: 'low', id: 'low' },
+                                    { label: 'middle', id: 'middle' },
+                                    { label: 'high', id: 'high' }
+                                ]" class="grow" :noResultsLabel="t('ne_combobox.no_results')"
+                                    :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
+                                    :noOptionsLabel="t('ne_combobox.no_options_label')"
+                                    :selected-label="t('ne_combobox.selected')"
+                                    :user-input-label="t('ne_combobox.user_input_label')"
+                                    :optionalLabel="t('common.optional')" />
                             </NeTableCell>
                             <NeTableCell>
                                 <NeToggle v-model="item.rule_service" label="Enable" />
