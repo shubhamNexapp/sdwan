@@ -13,13 +13,29 @@ import { faSave } from '@fortawesome/free-solid-svg-icons'
 const { t } = useI18n();
 const notificationsStore = useNotificationsStore();
 
-const status = ref(false);
 const serverAddress = ref('');
 const managementInterface = ref('wg0');
 const sharedSecret = ref('');
 const verifySSL = ref(false);
 const loading = ref(false);
 const saving = ref(false);
+
+const status = ref(false);
+const service = ref(false);
+const model = ref("");
+
+
+const mainManagementInterface = ref('');
+const mainSharedSecret = ref('');
+const mainUrl = ref('');
+const mainVerifySSL = ref('');
+
+const backupManagementInterface = ref('');
+const backupSharedSecret = ref('');
+const backupUrl = ref('');
+const backupVerifySSL = ref('');
+
+
 const error = ref({ title: '', description: '' });
 
 onMounted(() => {
@@ -35,12 +51,22 @@ async function fetchConfiguration() {
     });
 
     if (response.data.code === 200) {
+
       const config = response.data.data;
-      status.value = config.service === 'enable';
-      serverAddress.value = config.url;
-      managementInterface.value = config.management_interface;
-      sharedSecret.value = config.shared_secret;
-      verifySSL.value = config.verify_ssl === '1';
+
+      service.value = config.service === 'enable';
+      status.value = config.status === 'connected';
+      model.value = config.model
+
+      mainManagementInterface.value = config.main.management_interface
+      mainSharedSecret.value = config.main.shared_secret
+      mainUrl.value = config.main.url
+      mainVerifySSL.value = config.main.verify_ssl
+
+      backupManagementInterface.value = config.backup.management_interface
+      backupSharedSecret.value = config.backup.shared_secret
+      backupUrl.value = config.backup.url
+      backupVerifySSL.value = config.backup.verify_ssl
     }
   } catch (err) {
     error.value = { title: 'Error', description: 'Failed to fetch sd-controller configuration.' };
@@ -48,10 +74,7 @@ async function fetchConfiguration() {
     loading.value = false;
   }
 }
-const interfaces = ref([
-  { label: 'wg0', value: 'wg0' },
-  { label: 'zt0', value: 'zt0' },
-]);
+
 async function saveSettings() {
   try {
     saving.value = true;
@@ -60,11 +83,19 @@ async function saveSettings() {
     const response = await axios.post(`${getSDControllerApiEndpoint()}/sd_controller`, {
       method: 'set-config',
       payload: {
-        service: status.value ? 'enable' : 'disable',
-        url: serverAddress.value,
-        management_interface: managementInterface.value,
-        shared_secret: sharedSecret.value,
-        verify_ssl: verifySSL.value ? '1' : '0'
+        service: service.value ? 'enable' : 'disable',
+        "main": {
+          "management_interface": mainManagementInterface.value,
+          "shared_secret": mainSharedSecret.value,
+          "url": mainUrl.value,
+          "verify_ssl": mainVerifySSL.value
+        },
+        "backup": {
+          "management_interface": backupManagementInterface.value,
+          "shared_secret": backupSharedSecret.value,
+          "url": backupUrl.value,
+          "verify_ssl": backupVerifySSL.value
+        }
       }
     });
 
@@ -74,6 +105,7 @@ async function saveSettings() {
         description: 'Configuration saved successfully.',
         kind: 'success'
       });
+      fetchConfiguration()
     } else {
       throw new Error('Failed to save configuration.');
     }
@@ -95,45 +127,26 @@ async function saveSettings() {
       :description="error.description" />
 
     <!-- Toggle also controls form visibility -->
-    <NeToggle v-model="status" :topLabel="t('Status')" :label="status ? 'Enabled' : 'Disabled'" />
+    <NeToggle v-model="service" :topLabel="t('Service')" :label="service ? 'Enable' : 'Disable'" />
 
-    <div v-if="status" class="mt-4 flex flex-col gap-y-3">
-      <NeTextInput v-model="serverAddress" :label="t('Server Address')" :placeholder="t('Enter Server Address')">
-        <template #tooltip>
-          <NeTooltip>
-            <template #content>
-              {{ t('standalone.logs.search_tooltip') }}
-            </template>
-          </NeTooltip>
-        </template>
-      </NeTextInput>
-      <!-- <NeTextInput v-model="serverAddress" label="Server Address" /> -->
 
-      <NeCombobox v-model="managementInterface" :options="[
+    <div v-if="service" class="mt-4 flex flex-col gap-y-3">
+
+      <p><strong>Status :</strong> {{ status ? 'Connected' : 'Disconnected' }}</p>
+      <p><strong>Model :</strong> {{ model }}</p>
+
+
+      <p class="max-w-2xl font-bold text-black dark:text-gray-400 mt-2">Main</p>
+
+      <NeCombobox v-model="mainManagementInterface" :options="[
         { label: 'wg0', id: 'wg0' },
         { label: 'zt0', id: 'zt0' }
-      ]" :label="t('Interface')" class="grow" :noResultsLabel="t('ne_combobox.no_results')"
+      ]" :label="t('Managemnet Interface')" class="grow" :noResultsLabel="t('ne_combobox.no_results')"
         :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
         :noOptionsLabel="t('ne_combobox.no_options_label')" :selected-label="t('ne_combobox.selected')"
         :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" />
 
-      <!-- <label for="">Interface</label>
-      <select v-model="managementInterface" style="width: 100%;
-    height: 36px;
-    
-    padding: 6px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 14px;
-    outline: none;
-    transition: border-color 0.3s ease-in-out;">
-        <option disabled value="">Select Interface</option>
-        <option v-for="iface in interfaces" :key="iface.value" :value="iface.value">
-          {{ iface.label }}
-        </option>
-      </select> -->
-
-      <NeTextInput v-model="sharedSecret" :label="t('Secret')" type="password" :placeholder="t('Enter Secret')">
+      <NeTextInput v-model="mainSharedSecret" :label="t('Shared Secret')" :placeholder="t('Enter Shared Secret')">
         <template #tooltip>
           <NeTooltip>
             <template #content>
@@ -142,17 +155,71 @@ async function saveSettings() {
           </NeTooltip>
         </template>
       </NeTextInput>
-      <!-- <NeTextInput v-model="sharedSecret" label="Secret" type="password" /> -->
 
-      <!-- TLS Verify Row -->
-      <div class="flex items-center  mt-4">
-        <NeCheckbox v-model="verifySSL" :label="t('TLS Verify')" id="tls-verify" />
+      <NeTextInput v-model="mainUrl" :label="t('URL')" :placeholder="t('Enter URL')">
+        <template #tooltip>
+          <NeTooltip>
+            <template #content>
+              {{ t('standalone.logs.search_tooltip') }}
+            </template>
+          </NeTooltip>
+        </template>
+      </NeTextInput>
+
+      <NeCombobox v-model="mainVerifySSL" :options="[
+        { label: '0', id: '0' },
+        { label: '1', id: '1' }
+      ]" :label="t('Verify SSL')" class="grow" :noResultsLabel="t('ne_combobox.no_results')"
+        :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
+        :noOptionsLabel="t('ne_combobox.no_options_label')" :selected-label="t('ne_combobox.selected')"
+        :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" />
+
+
+      <p class="max-w-2xl font-bold text-black dark:text-gray-400 mt-4">Backup</p>
+
+      <div class="mt-4 flex flex-col gap-y-3">
+
+        <NeCombobox v-model="backupManagementInterface" :options="[
+          { label: 'wg0', id: 'wg0' },
+          { label: 'zt0', id: 'zt0' }
+        ]" :label="t('Managemnet Interface')" class="grow" :noResultsLabel="t('ne_combobox.no_results')"
+          :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
+          :noOptionsLabel="t('ne_combobox.no_options_label')" :selected-label="t('ne_combobox.selected')"
+          :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" />
+
+        <NeTextInput v-model="backupSharedSecret" :label="t('Shared Secret')" :placeholder="t('Enter Shared Secret')">
+          <template #tooltip>
+            <NeTooltip>
+              <template #content>
+                {{ t('standalone.logs.search_tooltip') }}
+              </template>
+            </NeTooltip>
+          </template>
+        </NeTextInput>
+
+        <NeTextInput v-model="backupUrl" :label="t('URL')" :placeholder="t('Enter URL')">
+          <template #tooltip>
+            <NeTooltip>
+              <template #content>
+                {{ t('standalone.logs.search_tooltip') }}
+              </template>
+            </NeTooltip>
+          </template>
+        </NeTextInput>
+
+        <NeCombobox v-model="backupVerifySSL" :options="[
+          { label: '0', id: '0' },
+          { label: '1', id: '1' }
+        ]" :label="t('Verify SSL')" class="grow" :noResultsLabel="t('ne_combobox.no_results')"
+          :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
+          :noOptionsLabel="t('ne_combobox.no_options_label')" :selected-label="t('ne_combobox.selected')"
+          :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" />
+
       </div>
 
-      <!-- <label for="TLS Verify">TLS Verify</label>
-      <NeTextInput v-model="verifySSL" type="checkbox"
-        class="w-4 h-4 border-gray-300 rounded text-primary-600 focus:ring-primary-600 dark:border-gray-700 dark:text-primary-600 dark:focus:ring-primary-400" /> -->
     </div>
+
+
 
     <NeButton class="mt-5 ml-1" :disabled="saving" :loading="saving" kind="primary" size="lg"
       @click.prevent="saveSettings()">
@@ -161,8 +228,6 @@ async function saveSettings() {
       </template>
       {{ t('common.save') }}
     </NeButton>
-
-    <!-- <NeButton :loading="saving" kind="primary" @click="saveSettings" class="mt-5 ml-1">Save</NeButton> -->
 
   </FormLayout>
 </template>
