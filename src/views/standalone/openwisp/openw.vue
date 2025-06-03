@@ -132,7 +132,13 @@ async function saveSettings() {
 
     <div v-if="service" class="mt-4 flex flex-col gap-y-3">
 
-      <p><strong>Status :</strong> {{ status ? 'Connected' : 'Disconnected' }}</p>
+
+      <p>
+        <strong>Status :</strong>
+        <span :class="status ? 'text-green-500' : 'text-red-500'"> {{ }}
+          {{ status ? 'Connected' : 'Disconnected' }}
+        </span>
+      </p>
       <p><strong>Model :</strong> {{ model }}</p>
 
 
