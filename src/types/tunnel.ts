@@ -5,6 +5,8 @@ export interface Tunnel {
   remote: string[];
   enabled: "0" | "1";
   connected: boolean;
+  join: string;
+
 }
 
 // export interface IpsecTunnel {
