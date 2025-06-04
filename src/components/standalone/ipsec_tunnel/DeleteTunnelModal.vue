@@ -9,12 +9,27 @@ import { ref, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ubusCall } from '@/lib/standalone/ubus'
 import type { Tunnel } from '@/types/tunnel'
+import axios from 'axios'
+import { getSDControllerApiEndpoint } from '@/lib/config'
+import { useNotificationsStore } from '../../../stores/notifications'
+
+const notificationsStore = useNotificationsStore()
+
+interface DeleteTunnel {
+  id: string;
+  name: string;
+  local: string[];
+  remote: string[];
+  enabled: "0" | "1";
+  connected: boolean;
+  join: string;
+}
 
 const { t } = useI18n()
 
 const props = defineProps<{
   visible: boolean
-  itemToDelete: Tunnel | null;
+  itemToDelete: DeleteTunnel | null;
 }>()
 
 const emit = defineEmits(['close', 'tunnel-deleted'])
@@ -26,25 +41,58 @@ const error = ref({
 })
 const isDeleting = ref(false)
 
+
+// async function deleteTunnel() {
+//   console.log("itemToDelete.value======",itemToDelete.value)
+//   if (itemToDelete.value) {
+//     try {
+//       error.value = {
+//         notificationDescription: '',
+//         notificationDetails: ''
+//       }
+//       isDeleting.value = true
+//       await ubusCall('ns.ipsectunnel', 'delete-tunnel', { id: itemToDelete.value.id })
+//       emit('tunnel-deleted')
+//       emit('close')
+//     } catch (err: any) {
+//       error.value.notificationDescription = t(getAxiosErrorMessage(err))
+//       error.value.notificationDetails = err.toString()
+//     } finally {
+//       isDeleting.value = false
+//     }
+//   }
+// }
+
 async function deleteTunnel() {
   if (itemToDelete.value) {
     try {
-      error.value = {
-        notificationDescription: '',
-        notificationDetails: ''
+
+      const payload = {
+        "join": itemToDelete.value.join,
       }
-      isDeleting.value = true
-      await ubusCall('ns.ipsectunnel', 'delete-tunnel', { id: itemToDelete.value.id })
-      emit('tunnel-deleted')
-      emit('close')
-    } catch (err: any) {
-      error.value.notificationDescription = t(getAxiosErrorMessage(err))
-      error.value.notificationDetails = err.toString()
-    } finally {
-      isDeleting.value = false
+
+      const response = await axios.post(`${getSDControllerApiEndpoint()}/zerotier`, {
+        method: "delete-config",
+        payload
+      });
+
+      if (response.data.code === 200) {
+        notificationsStore.createNotification({
+          title: 'Success',
+          description: 'Configuration deleted successfully.',
+          kind: 'success'
+        });
+        close()
+        emit('tunnel-deleted')
+      } else {
+        throw new Error('Failed to delete configuration.');
+      }
+
+    } catch (err) {
     }
   }
 }
+
 
 function close() {
   error.value = {

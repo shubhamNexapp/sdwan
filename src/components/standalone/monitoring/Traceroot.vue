@@ -56,6 +56,8 @@ watch(apiResponses, () => {
     scrollToTop()
 })
 
+let responseCount = 0
+
 // Fetch new data from API
 const getLists = async () => {
     try {
@@ -64,9 +66,20 @@ const getLists = async () => {
             payload: {}
         })
         const result = response.data.data.result
-         // Only add the response if it's not an empty string
-         if (response.data.code === 200 && result.trim() !== '') {
+        // Only add the response if it's not an empty string
+        if (response.data.code === 200 && result.trim() !== '') {
             apiResponses.value.push(result); // Add only valid response
+
+            responseCount++  // Increment response count
+
+            // ✅ Skip the first response
+            if (responseCount > 1) {
+                const ipMatch = result.match(/\(([^)]+)\)/)
+                if (ipMatch && ipMatch[1] === pingIP.value.trim()) {
+                    stopFetching()
+                }
+            }
+
         }
     } catch (err) {
         console.error('Error fetching data:', err)

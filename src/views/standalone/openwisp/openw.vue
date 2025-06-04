@@ -28,12 +28,12 @@ const model = ref("");
 const mainManagementInterface = ref('');
 const mainSharedSecret = ref('');
 const mainUrl = ref('');
-const mainVerifySSL = ref('');
+const mainVerifySSL = ref(false);
 
 const backupManagementInterface = ref('');
 const backupSharedSecret = ref('');
 const backupUrl = ref('');
-const backupVerifySSL = ref('');
+const backupVerifySSL = ref(false);
 
 
 const error = ref({ title: '', description: '' });
@@ -61,12 +61,12 @@ async function fetchConfiguration() {
       mainManagementInterface.value = config.main.management_interface
       mainSharedSecret.value = config.main.shared_secret
       mainUrl.value = config.main.url
-      mainVerifySSL.value = config.main.verify_ssl
+      mainVerifySSL.value = config.main.verify_ssl === "1" 
 
       backupManagementInterface.value = config.backup.management_interface
       backupSharedSecret.value = config.backup.shared_secret
       backupUrl.value = config.backup.url
-      backupVerifySSL.value = config.backup.verify_ssl
+      backupVerifySSL.value = config.backup.verify_ssl === "1"
     }
   } catch (err) {
     error.value = { title: 'Error', description: 'Failed to fetch sd-controller configuration.' };
@@ -88,13 +88,13 @@ async function saveSettings() {
           "management_interface": mainManagementInterface.value,
           "shared_secret": mainSharedSecret.value,
           "url": mainUrl.value,
-          "verify_ssl": mainVerifySSL.value
+          "verify_ssl": mainVerifySSL.value ? "1" : "0"
         },
         "backup": {
           "management_interface": backupManagementInterface.value,
           "shared_secret": backupSharedSecret.value,
           "url": backupUrl.value,
-          "verify_ssl": backupVerifySSL.value
+          "verify_ssl": backupVerifySSL.value ? "1" : "0"
         }
       }
     });
@@ -172,14 +172,15 @@ async function saveSettings() {
         </template>
       </NeTextInput>
 
-      <NeCombobox v-model="mainVerifySSL" :options="[
+      <!-- <NeCombobox v-model="mainVerifySSL" :options="[
         { label: '0', id: '0' },
         { label: '1', id: '1' }
       ]" :label="t('Verify SSL')" class="grow" :noResultsLabel="t('ne_combobox.no_results')"
         :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
         :noOptionsLabel="t('ne_combobox.no_options_label')" :selected-label="t('ne_combobox.selected')"
-        :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" />
+        :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" /> -->
 
+      <NeCheckbox v-model="mainVerifySSL" :label="t('Verify SSL')" />
 
       <p class="max-w-2xl font-bold text-black dark:text-gray-400 mt-4">Backup</p>
 
@@ -213,13 +214,15 @@ async function saveSettings() {
           </template>
         </NeTextInput>
 
-        <NeCombobox v-model="backupVerifySSL" :options="[
+        <!-- <NeCombobox v-model="backupVerifySSL" :options="[
           { label: '0', id: '0' },
           { label: '1', id: '1' }
         ]" :label="t('Verify SSL')" class="grow" :noResultsLabel="t('ne_combobox.no_results')"
           :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
           :noOptionsLabel="t('ne_combobox.no_options_label')" :selected-label="t('ne_combobox.selected')"
-          :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" />
+          :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" /> -->
+
+        <NeCheckbox v-model="backupVerifySSL" :label="t('Verify SSL')" />
 
       </div>
 

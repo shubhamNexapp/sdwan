@@ -8,7 +8,7 @@ import FormLayout from '@/components/standalone/FormLayout.vue';
 import {
   NeToggle,
   NeTextInput,
-  NeButton, NeHeading, NeTooltip,NeCombobox
+  NeButton, NeHeading, NeTooltip, NeCombobox
 } from '@nethesis/vue-components';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faSave } from '@fortawesome/free-solid-svg-icons'
@@ -159,7 +159,6 @@ async function saveSettings() {
         }]
       };
     }
-    console.log("payload=====",payload)
 
     const res = await axios.post(`${getSDControllerApiEndpoint()}/snmp`, {
       method: 'set-config',
@@ -189,21 +188,25 @@ async function saveSettings() {
 
 <template>
 
-<NeHeading tag="h3" class="mb-4">{{ t('SNMP') }}</NeHeading>
+  <NeHeading tag="h3" class="mb-4">{{ t('SNMP') }}</NeHeading>
 
-<FormLayout :description="t('Configure SNMP settings, including version selection, user account details, and encryption for secure network management.')">
+  <FormLayout
+    :description="t('Configure SNMP settings, including version selection, user account details, and encryption for secure network management.')">
 
-  <NeToggle v-model="service" :topLabel="t('Service')" :label="service ? 'Enable' : 'Disable'" />
+    <NeToggle v-model="service" :topLabel="t('Service')" :label="service ? 'Enable' : 'Disable'" />
 
-  <div class="my-4">
+    <div v-if="service" class="mt-4 flex flex-col gap-y-3">
+
+
+
+      <div class="my-4">
         <NeCombobox v-model="snmpVersion" :options="[
-              { label: '2c', id: '2c' },
-              { label: '3', id: '3' }
-            ]" :label="t('SNMP Version')" 
-              class="grow" :noResultsLabel="t('ne_combobox.no_results')"
-              :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
-              :noOptionsLabel="t('ne_combobox.no_options_label')" :selected-label="t('ne_combobox.selected')"
-              :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" />
+          { label: '2c', id: '2c' },
+          { label: '3', id: '3' }
+        ]" :label="t('SNMP Version')" class="grow" :noResultsLabel="t('ne_combobox.no_results')"
+          :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
+          :noOptionsLabel="t('ne_combobox.no_options_label')" :selected-label="t('ne_combobox.selected')"
+          :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" />
 
         <!-- <label class="block font-medium mb-1">SNMP Version</label>
         <select v-model="snmpVersion" class="border rounded px-3 py-2 w-full">
@@ -213,62 +216,62 @@ async function saveSettings() {
       </div>
 
       <!-- SNMPv2 Section -->
-       
+
       <template v-if="snmpVersion === '2c'">
         <div class="mb-4">
-        <NeTextInput v-model="port" :invalidMessage="errorBag.port" :label="t('Port')"
-          :placeholder="t('Enter Port Number')">
-          <template #tooltip>
-            <NeTooltip>
-              <template #content>
-                {{ t('standalone.logs.search_tooltip') }}
-              </template>
-            </NeTooltip>
-          </template>
-        </NeTextInput>
+          <NeTextInput v-model="port" :invalidMessage="errorBag.port" :label="t('Port')"
+            :placeholder="t('Enter Port Number')">
+            <template #tooltip>
+              <NeTooltip>
+                <template #content>
+                  {{ t('standalone.logs.search_tooltip') }}
+                </template>
+              </NeTooltip>
+            </template>
+          </NeTextInput>
         </div>
         <!-- <NeTextInput v-model="port" :label="t('Port')" :invalidMessage="errorBag.port" /> -->
 
         <div class="mb-4">
-        <NeTextInput v-model="community" :invalidMessage="errorBag.community" :label="t('Community')"
-          :placeholder="t('Enter Community')">
-          <template #tooltip>
-            <NeTooltip>
-              <template #content>
-                {{ t('standalone.logs.search_tooltip') }}
-              </template>
-            </NeTooltip>
-          </template>
-        </NeTextInput>
-      </div>
+          <NeTextInput v-model="community" :invalidMessage="errorBag.community" :label="t('Community')"
+            :placeholder="t('Enter Community')">
+            <template #tooltip>
+              <NeTooltip>
+                <template #content>
+                  {{ t('standalone.logs.search_tooltip') }}
+                </template>
+              </NeTooltip>
+            </template>
+          </NeTextInput>
+        </div>
         <!-- <NeTextInput v-model="community" :label="t('Community')" :invalidMessage="errorBag.community" /> -->
 
         <div class="mb-4">
-        <NeTextInput v-model="trapIp" :invalidMessage="errorBag.trapIp" :label="t('Trap IP')"
-          :placeholder="t('Enter Trap IP')">
-          <template #tooltip>
-            <NeTooltip>
-              <template #content>
-                {{ t('standalone.logs.search_tooltip') }}
-              </template>
-            </NeTooltip>
-          </template>
-        </NeTextInput>
-      </div>
+          <NeTextInput v-model="trapIp" :invalidMessage="errorBag.trapIp" :label="t('Trap IP')"
+            :placeholder="t('Enter Trap IP')">
+            <template #tooltip>
+              <NeTooltip>
+                <template #content>
+                  {{ t('standalone.logs.search_tooltip') }}
+                </template>
+              </NeTooltip>
+            </template>
+          </NeTextInput>
+        </div>
         <!-- <NeTextInput v-model="trapIp" :label="t('Trap IP')" :invalidMessage="errorBag.trapIp" /> -->
 
         <div class="mb-4">
-        <NeTextInput v-model="trapPort" :invalidMessage="errorBag.trapPort" :label="t('Trap Port')"
-          :placeholder="t('Enter Trap Port')">
-          <template #tooltip>
-            <NeTooltip>
-              <template #content>
-                {{ t('standalone.logs.search_tooltip') }}
-              </template>
-            </NeTooltip>
-          </template>
-        </NeTextInput>
-      </div>
+          <NeTextInput v-model="trapPort" :invalidMessage="errorBag.trapPort" :label="t('Trap Port')"
+            :placeholder="t('Enter Trap Port')">
+            <template #tooltip>
+              <NeTooltip>
+                <template #content>
+                  {{ t('standalone.logs.search_tooltip') }}
+                </template>
+              </NeTooltip>
+            </template>
+          </NeTextInput>
+        </div>
         <!-- <NeTextInput v-model="trapPort" :label="t('Trap Port')" :invalidMessage="errorBag.trapPort" /> -->
       </template>
 
@@ -328,14 +331,13 @@ async function saveSettings() {
 
         <div class="my-4">
           <NeCombobox v-model="hash" :options="[
-              { label: 'MD5', id: 'MD5' },
-              { label: 'SHA', id: 'SHA' }
-            ]" :label="t('Hash')" 
-              class="grow" :noResultsLabel="t('ne_combobox.no_results')"
-              :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
-              :noOptionsLabel="t('ne_combobox.no_options_label')" :selected-label="t('ne_combobox.selected')"
-              :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" />
-              <p v-if="errorBag.hash" class="text-sm mt-1" style="color: rgba(190, 18, 60, 0.9);">
+            { label: 'MD5', id: 'MD5' },
+            { label: 'SHA', id: 'SHA' }
+          ]" :label="t('Hash')" class="grow" :noResultsLabel="t('ne_combobox.no_results')"
+            :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
+            :noOptionsLabel="t('ne_combobox.no_options_label')" :selected-label="t('ne_combobox.selected')"
+            :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" />
+          <p v-if="errorBag.hash" class="text-sm mt-1" style="color: rgba(190, 18, 60, 0.9);">
             {{ errorBag.hash }}
           </p>
           <!-- <label class="block font-medium mb-1">Hash</label>
@@ -347,17 +349,16 @@ async function saveSettings() {
 
         <div class="my-4">
           <NeCombobox v-model="encryption" :options="[
-              { label: 'AES', id: 'AES' },
-              { label: 'DES', id: 'DES' }
-            ]" :label="t('Encrypt')" 
-              class="grow" :noResultsLabel="t('ne_combobox.no_results')"
-              :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
-              :noOptionsLabel="t('ne_combobox.no_options_label')" :selected-label="t('ne_combobox.selected')"
-              :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" />
-              <p v-if="errorBag.encryption" class="text-sm mt-1" style="color: rgba(190, 18, 60, 0.9);">
+            { label: 'AES', id: 'AES' },
+            { label: 'DES', id: 'DES' }
+          ]" :label="t('Encrypt')" class="grow" :noResultsLabel="t('ne_combobox.no_results')"
+            :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
+            :noOptionsLabel="t('ne_combobox.no_options_label')" :selected-label="t('ne_combobox.selected')"
+            :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" />
+          <p v-if="errorBag.encryption" class="text-sm mt-1" style="color: rgba(190, 18, 60, 0.9);">
             {{ errorBag.encryption }}
           </p>
-              <!-- <label class="block font-medium mb-1">Encrypt</label>
+          <!-- <label class="block font-medium mb-1">Encrypt</label>
           <select v-model="encryption" class="border rounded px-3 py-2 w-full">
             <option value="AES">AES</option>
             <option value="DES">DES</option>
@@ -383,14 +384,16 @@ async function saveSettings() {
           {{ t('Save') }}
         </NeButton>
       </div> -->
-      <div class="flex mt-4 flex-col w-[90px]">
-        <NeButton class=" ml-1" kind="primary" size="lg" @click.prevent="saveSettings()">
-          <template #prefix>
-            <FontAwesomeIcon :icon="faSave" />
-          </template>
-          {{ t('common.save') }}
-        </NeButton>
-      </div>
+
+    </div>
+    <div class="flex mt-4 flex-col w-[90px]">
+      <NeButton class=" ml-1" kind="primary" size="lg" @click.prevent="saveSettings()">
+        <template #prefix>
+          <FontAwesomeIcon :icon="faSave" />
+        </template>
+        {{ t('common.save') }}
+      </NeButton>
+    </div>
   </FormLayout>
- 
+
 </template>

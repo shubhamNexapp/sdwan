@@ -64,7 +64,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['close', 'reloadData', 'save'])
+const emit = defineEmits(['close', 'reloadData', 'save','tunnel-added'])
 
 const { t } = useI18n()
 const { getObjectIcon } = useObjects()
@@ -436,6 +436,8 @@ Object.keys(fieldsToWatch).forEach((fieldKey) => {
 
 const saveRule = async () => {
 
+  loading.value.saveRule = true
+
   try {
     if (!validate()) return;
 
@@ -464,6 +466,7 @@ const saveRule = async () => {
 
       errorBag.value.clear();
       emit('save', payload);
+      emit('tunnel-added')
 
       // ✅ Close the drawer after saving
       closeDrawer();

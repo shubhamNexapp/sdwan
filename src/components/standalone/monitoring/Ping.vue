@@ -56,6 +56,12 @@ watch(apiResponses, () => {
     scrollToTop()
 })
 
+const isPingComplete = (responseText: string): boolean => {
+    // Matches strings like "4 packets transmitted, 4 received, 0% packet loss, time 3005ms"
+    const regex = /\d+\s+packets\s+transmitted,\s+\d+\s+received,\s+\d+% packet loss,\s+time\s+\d+ms/
+    return regex.test(responseText)
+}
+
 // Fetch new data from API
 const getLists = async () => {
     try {
@@ -69,6 +75,12 @@ const getLists = async () => {
             return
         }
         apiResponses.value.push(result) // Add newest at the top
+
+        // ✅ Check if response indicates completion
+        if (isPingComplete(result)) {
+            stopFetching()
+        }
+
     } catch (err) {
         console.error('Error fetching data:', err)
     }

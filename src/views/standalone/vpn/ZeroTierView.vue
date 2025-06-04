@@ -32,6 +32,7 @@ export type IpsecTunnel = {
   remote: string[]
   enabled: '0' | '1'
   connected: boolean
+  join: string
 }
 
 const { t } = useI18n()
@@ -159,7 +160,8 @@ const getLists = async () => {
       <NeHeading tag="h3" class="mb-7">{{ t('standalone.zero-tier.title') }}</NeHeading>
     </div>
     <p class="mb-6 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
-      {{ t('Configure ZeroTier tunnel settings, manage network connections, and track client status and MAC addresses.') }}
+      {{ t('Configure ZeroTier tunnel settings, manage network connections, and track client status and MAC addresses.')
+      }}
     </p>
     <div class="space-y-6">
       <NeInlineNotification kind="error" :title="error.notificationTitle" :description="error.notificationDescription"
@@ -211,11 +213,17 @@ const getLists = async () => {
               <!-- <NeTableCell :data-label="t('standalone.real_time_monitor.interface')">
       {{ item.allowed_ips }}
     </NeTableCell> -->
-              <!-- <NeTableCell>
-                <NeButton kind="primary" size="lg" @click.prevent="openCreateEditDrawer(item)">
+              <NeTableCell>
+                <!-- <NeButton kind="primary" size="lg" @click.prevent="openCreateEditDrawer(item)">
                   Edit
+                </NeButton> -->
+                <NeButton kind="tertiary" size="lg" :disabled="item.readonly" @click="openDeleteModal(item)">
+                  <template #prefix>
+                    <font-awesome-icon :icon="['fas', 'trash']" class="h-4 w-4" aria-hidden="true" />
+                  </template>
+                  {{ t('common.delete') }}
                 </NeButton>
-              </NeTableCell> -->
+              </NeTableCell>
             </NeTableRow>
           </NeTableBody>
         </NeTable>
@@ -225,7 +233,7 @@ const getLists = async () => {
   </div>
 
   <DeleteTunnelModal :visible="showDeleteModal" :item-to-delete="selectedTunnel" @close="closeModalsAndDrawers"
-    @tunnel-deleted="reloadTunnels" />
+    @tunnel-deleted="getLists" />
   <ZeroTierDrawer :item-to-edit="selectedTunnel" :rule-type="'forward'" :known-tags="[]" @close="closeModalsAndDrawers"
-    @add-edit-tunnel="reloadTunnels" :is-shown="showCreateEditDrawer" />
+  @tunnel-added="getLists"  @add-edit-tunnel="getLists" :is-shown="showCreateEditDrawer" />
 </template>

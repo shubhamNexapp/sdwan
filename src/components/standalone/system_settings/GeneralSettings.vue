@@ -3,6 +3,7 @@
 -->
 
 <script setup lang="ts">
+import { getSDControllerApiEndpoint } from '@/lib/config'
 import { getUciConfig, ubusCall } from '@/lib/standalone/ubus'
 import { validateHostname, validateRequired } from '@/lib/validation'
 import { useUciPendingChangesStore } from '@/stores/standalone/uciPendingChanges'
@@ -18,6 +19,7 @@ import {
   NeTextInput,
   NeTextArea, NeTooltip
 } from '@nethesis/vue-components'
+import axios from 'axios'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -231,6 +233,32 @@ async function syncWithNtpServer() {
   }
   loading.value.syncWithNtpServer = false
 }
+
+onMounted(() => {
+  fetchConfiguration();
+});
+
+let timeApiResponse = ref('')
+
+async function fetchConfiguration() {
+  try {
+    const response = await axios.post(`${getSDControllerApiEndpoint()}/ntp`, {
+      method: 'get-config',
+      payload: {}
+    });
+
+    if (response.data.code === 200) {
+
+      timeApiResponse.value = response.data.data.cur_time
+    
+    }
+  } catch (err) {
+    console.log("Failed to fetch sd-controller configuration.")
+  } finally {
+    
+  }
+}
+
 </script>
 
 <template>
@@ -272,7 +300,7 @@ async function syncWithNtpServer() {
           <!-- timezone -->
           <NeCombobox  v-model="timezone" :options="timezones" :label="t('standalone.system_settings.timezone')"
             :invalidMessage="error.timezone" :noResultsLabel="t('ne_combobox.no_results')"
-            :limitedOptionsLabel="t('ne_combobox.limited_options_label')" :disabled="true" ref="timezoneRef"
+            :limitedOptionsLabel="t('ne_combobox.limited_options_label')" :disabled="false" ref="timezoneRef"
             :noOptionsLabel="t('ne_combobox.no_options_label')" :selected-label="t('ne_combobox.selected')"
             :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" />
           <!-- local time -->
@@ -280,7 +308,8 @@ async function syncWithNtpServer() {
             <NeFormItemLabel>{{ t('standalone.system_settings.local_time') }}</NeFormItemLabel>
             <div class="text-sm">
               <!-- (?) luci converts local time to UTC in order to display it -->
-              <div>{{ formatInTimeZoneLoc(localTime, 'Pp', 'UTC') }}</div>
+                <b>{{  timeApiResponse }}</b>  
+              <!-- <div>{{ formatInTimeZoneLoc(localTime, 'Pp', 'UTC') }}</div> -->
             </div>
           </div>
           <!-- sync buttons -->
