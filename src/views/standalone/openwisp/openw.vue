@@ -139,7 +139,7 @@ async function saveSettings() {
           {{ status ? 'Connected' : 'Disconnected' }}
         </span>
       </p>
-      <p><strong>Model :</strong> {{ model }}</p>
+      <p><strong>Mode :</strong> {{ model }}</p>
 
 
       <p class="max-w-2xl font-bold text-black dark:text-gray-400 mt-2">Main</p>
