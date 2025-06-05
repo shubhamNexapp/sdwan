@@ -231,11 +231,11 @@ function validate() {
 }
 
 async function save() {
-  const isValidationOk = validate()
+  // const isValidationOk = validate()
 
-  if (!isValidationOk) {
-    return
-  }
+  // if (!isValidationOk) {
+  //   return
+  // }
   loading.value.save = true
 
   try {
