@@ -104,7 +104,7 @@ async function fetchSubscriptionInfo() {
         <font-awesome-icon :icon="['fas', 'circle-plus']" class="h-4 w-4" aria-hidden="true" /> </template>{{
           t('standalone.users_database.add_remote_database') }}</NeButton>
     <!-- disabled add remote database button for community -->
-    <NeTooltip v-else triggerEvent="mouseenter focus" placement="bottom">
+    <!-- <NeTooltip v-else triggerEvent="mouseenter focus" placement="bottom">
       <template #trigger>
         <NeButton kind="secondary" disabled>
           <template #prefix>
@@ -116,7 +116,7 @@ async function fetchSubscriptionInfo() {
       <template #content>
         {{ t('standalone.users_database.add_remote_database_tooltip') }}
       </template>
-    </NeTooltip>
+    </NeTooltip> -->
   </div>
   <p class="mb-4 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
     {{ t('Manage local and remote user databases, configure authentication methods for VPN access, and add or edit user credentials for OpenVPN services.') }}
