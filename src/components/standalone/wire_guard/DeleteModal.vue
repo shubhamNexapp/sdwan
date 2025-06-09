@@ -36,7 +36,7 @@ async function deleteTunnel() {
             };
 
             const response = await axios.post(`${getSDControllerApiEndpoint()}/wireguard_server`, {
-                method: "delete-config",
+                method: "delete-peer",
                 payload
             });
 
