@@ -201,7 +201,7 @@ const onlyIP = (event: Event) => {
               <template #tooltip>
                 <NeTooltip>
                   <template #content>
-                    {{ t('standalone.logs.search_tooltip') }}
+                    {{ t('Set a unique router IPv4 format.') }}
                   </template>
                 </NeTooltip>
               </template>
@@ -214,7 +214,7 @@ const onlyIP = (event: Event) => {
               <template #tooltip>
                 <NeTooltip>
                   <template #content>
-                    {{ t('standalone.logs.search_tooltip') }}
+                    {{ t('Enter your local autonomus system number.') }}
                   </template>
                 </NeTooltip>
               </template>

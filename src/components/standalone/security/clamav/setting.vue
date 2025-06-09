@@ -216,7 +216,7 @@ const getLists = async () => {
                     <template #tooltip>
                         <NeTooltip>
                             <template #content>
-                                {{ t('standalone.logs.search_tooltip') }}
+                                {{ t('Set the scan interval to once every 24 hour.') }}
                             </template>
                         </NeTooltip>
                     </template>

@@ -171,7 +171,7 @@ const getLists = async () => {
             <template #tooltip>
               <NeTooltip>
                 <template #content>
-                  {{ t('standalone.logs.search_tooltip') }}
+                  {{ t('Enter the URL of auto configuration server.') }}
                 </template>
               </NeTooltip>
             </template>
@@ -184,7 +184,7 @@ const getLists = async () => {
             <template #tooltip>
               <NeTooltip>
                 <template #content>
-                  {{ t('standalone.logs.search_tooltip') }}
+                  {{ t('Enter the username provided by your ACS server or ISP for authentication.') }}
                 </template>
               </NeTooltip>
             </template>
@@ -197,7 +197,7 @@ const getLists = async () => {
             <template #tooltip>
               <NeTooltip>
                 <template #content>
-                  {{ t('standalone.logs.search_tooltip') }}
+                  {{ t('Enter the password for ACS username.') }}
                 </template>
               </NeTooltip>
             </template>
@@ -210,7 +210,7 @@ const getLists = async () => {
             <template #tooltip>
               <NeTooltip>
                 <template #content>
-                  {{ t('standalone.logs.search_tooltip') }}
+                  {{ t('This is the username the ACS will used to authenticate.') }}
                 </template>
               </NeTooltip>
             </template>
@@ -223,7 +223,7 @@ const getLists = async () => {
             <template #tooltip>
               <NeTooltip>
                 <template #content>
-                  {{ t('standalone.logs.search_tooltip') }}
+                  {{ t('Enter the password for CPE username.') }}
                 </template>
               </NeTooltip>
             </template>
@@ -239,7 +239,7 @@ const getLists = async () => {
             <template #tooltip>
               <NeTooltip>
                 <template #content>
-                  {{ t('standalone.logs.search_tooltip') }}
+                  {{ t('How often to the CPE will connect to ACS.') }}
                 </template>
               </NeTooltip>
             </template>

@@ -202,7 +202,7 @@ const closeDrawer = () => {
                         <template #tooltip>
                             <NeTooltip>
                                 <template #content>
-                                    {{ t('standalone.logs.search_tooltip') }}
+                                    {{ t('Enter the L2TP VPN IP pool should ideally be a seperate, unused range from the same subnet.') }}
                                 </template>
                             </NeTooltip>
                         </template>
@@ -213,7 +213,7 @@ const closeDrawer = () => {
                         <template #tooltip>
                             <NeTooltip>
                                 <template #content>
-                                    {{ t('standalone.logs.search_tooltip') }}
+                                    {{ t('Enter the L2TP VPN End IP pool should ideally be a seperate, unused range from the same subnet.') }}
                                 </template>
                             </NeTooltip>
                         </template>
@@ -224,7 +224,7 @@ const closeDrawer = () => {
                         <template #tooltip>
                             <NeTooltip>
                                 <template #content>
-                                    {{ t('standalone.logs.search_tooltip') }}
+                                    {{ t('Enter the local IP that can communicate within a IP pool range.') }}
                                 </template>
                             </NeTooltip>
                         </template>
@@ -235,7 +235,7 @@ const closeDrawer = () => {
                         <template #tooltip>
                             <NeTooltip>
                                 <template #content>
-                                    {{ t('standalone.logs.search_tooltip') }}
+                                    {{ t('Enter the unique identity username') }}
                                 </template>
                             </NeTooltip>
                         </template>
@@ -246,7 +246,7 @@ const closeDrawer = () => {
                         <template #tooltip>
                             <NeTooltip>
                                 <template #content>
-                                    {{ t('standalone.logs.search_tooltip') }}
+                                    {{ t('Enter the unique identity password') }}
                                 </template>
                             </NeTooltip>
                         </template>

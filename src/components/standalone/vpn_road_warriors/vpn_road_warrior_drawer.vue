@@ -207,7 +207,7 @@ const closeDrawer = () => {
                         <template #tooltip>
                             <NeTooltip>
                                 <template #content>
-                                    {{ t('standalone.logs.search_tooltip') }}
+                                    {{ t('Enter the task name') }}
                                 </template>
                             </NeTooltip>
                         </template>
@@ -310,7 +310,7 @@ const closeDrawer = () => {
                             <template #tooltip>
                                 <NeTooltip>
                                     <template #content>
-                                        {{ t('standalone.logs.search_tooltip') }}
+                                        {{ t('Enter day') }}
                                     </template>
                                 </NeTooltip>
                             </template>
@@ -347,7 +347,7 @@ const closeDrawer = () => {
                             <template #tooltip>
                                 <NeTooltip>
                                     <template #content>
-                                        {{ t('standalone.logs.search_tooltip') }}
+                                        {{ t('Enter year') }}
                                     </template>
                                 </NeTooltip>
                             </template>
@@ -384,7 +384,7 @@ const closeDrawer = () => {
                         <template #tooltip>
                             <NeTooltip>
                                 <template #content>
-                                    {{ t('standalone.logs.search_tooltip') }}
+                                    {{ t('Enter the interval time') }}
                                 </template>
                             </NeTooltip>
                         </template>

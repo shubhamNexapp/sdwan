@@ -176,7 +176,7 @@ const closeDrawer = () => {
                         <template #tooltip>
                             <NeTooltip>
                                 <template #content>
-                                    {{ t('standalone.logs.search_tooltip') }}
+                                    {{ t('Enter the task name.') }}
                                 </template>
                             </NeTooltip>
                         </template>
@@ -213,7 +213,7 @@ const closeDrawer = () => {
                         <template #tooltip>
                             <NeTooltip>
                                 <template #content>
-                                    {{ t('standalone.logs.search_tooltip') }}
+                                    {{ t('Enter the destination IP.') }}
                                 </template>
                             </NeTooltip>
                         </template>
@@ -226,7 +226,7 @@ const closeDrawer = () => {
                         <template #tooltip>
                             <NeTooltip>
                                 <template #content>
-                                    {{ t('standalone.logs.search_tooltip') }}
+                                    {{ t('Configured the ICMP rate limiting to request per second.') }}
                                 </template>
                             </NeTooltip>
                         </template>
@@ -239,7 +239,7 @@ const closeDrawer = () => {
                         <template #tooltip>
                             <NeTooltip>
                                 <template #content>
-                                    {{ t('standalone.logs.search_tooltip') }}
+                                    {{ t('Set the retry interval times.') }}
                                 </template>
                             </NeTooltip>
                         </template>

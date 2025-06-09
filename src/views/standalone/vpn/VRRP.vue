@@ -244,7 +244,7 @@ async function saveSettings() {
                     <template #tooltip>
                         <NeTooltip>
                             <template #content>
-                                {{ t('standalone.logs.search_tooltip') }}
+                                {{ t('Enter the numeric virtual id.') }}
                             </template>
                         </NeTooltip>
                     </template>
@@ -258,7 +258,7 @@ async function saveSettings() {
                     <template #tooltip>
                         <NeTooltip>
                             <template #content>
-                                {{ t('standalone.logs.search_tooltip') }}
+                                {{ t('Enter the virtual priority value.') }}
                             </template>
                         </NeTooltip>
                     </template>
@@ -271,7 +271,7 @@ async function saveSettings() {
                     <template #tooltip>
                         <NeTooltip>
                             <template #content>
-                                {{ t('standalone.logs.search_tooltip') }}
+                                {{ t('Enter the virtual IP should be private IP.') }}
                             </template>
                         </NeTooltip>
                     </template>
@@ -284,7 +284,7 @@ async function saveSettings() {
                     <template #tooltip>
                         <NeTooltip>
                             <template #content>
-                                {{ t('standalone.logs.search_tooltip') }}
+                                {{ t('Enter the user defined password') }}
                             </template>
                         </NeTooltip>
                     </template>

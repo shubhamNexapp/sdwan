@@ -501,7 +501,7 @@ const saveRule = async () => {
           <template #tooltip>
             <NeTooltip>
               <template #content>
-                {{ t('standalone.logs.search_tooltip') }}
+                {{ t('Enter the controller join id.') }}
               </template>
             </NeTooltip>
           </template>

@@ -135,7 +135,7 @@ const closeDrawer = () => {
                         <template #tooltip>
                             <NeTooltip>
                                 <template #content>
-                                    {{ t('standalone.logs.search_tooltip') }}
+                                    {{ t('Set the interface name') }}
                                 </template>
                             </NeTooltip>
                         </template>
@@ -148,7 +148,7 @@ const closeDrawer = () => {
                         <template #tooltip>
                             <NeTooltip>
                                 <template #content>
-                                    {{ t('standalone.logs.search_tooltip') }}
+                                    {{ t('Enter the public IP or peer IP') }}
                                 </template>
                             </NeTooltip>
                         </template>
@@ -161,7 +161,7 @@ const closeDrawer = () => {
                         <template #tooltip>
                             <NeTooltip>
                                 <template #content>
-                                    {{ t('standalone.logs.search_tooltip') }}
+                                    {{ t('Enter the username same as server side username') }}
                                 </template>
                             </NeTooltip>
                         </template>
@@ -173,7 +173,7 @@ const closeDrawer = () => {
                         <template #tooltip>
                             <NeTooltip>
                                 <template #content>
-                                    {{ t('standalone.logs.search_tooltip') }}
+                                    {{ t('Enter the password same as server side password') }}
                                 </template>
                             </NeTooltip>
                         </template>

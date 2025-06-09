@@ -87,7 +87,7 @@ async function saveSettings() {
               <template #tooltip>
                 <NeTooltip>
                   <template #content>
-                    {{ t('standalone.hotspot.settings.login_helper_username') }}
+                    {{ t('Enter the IP address or hostname of your TACACS+ server.') }}
                   </template>
                 </NeTooltip>
               </template>
@@ -104,7 +104,7 @@ async function saveSettings() {
               <template #tooltip>
                 <NeTooltip>
                   <template #content>
-                    {{ t('standalone.hotspot.settings.login_helper_username') }}
+                    {{ t('Enter the shared sectret key that is configured on your remote TACAS+ server.') }}
                   </template>
                 </NeTooltip>
               </template>

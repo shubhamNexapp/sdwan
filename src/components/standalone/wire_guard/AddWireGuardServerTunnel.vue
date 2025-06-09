@@ -159,7 +159,7 @@ const closeDrawer = () => {
                         <template #tooltip>
                             <NeTooltip>
                                 <template #content>
-                                    {{ t('standalone.logs.search_tooltip') }}
+                                    {{ t('Enter the wireguard address IP.') }}
                                 </template>
                             </NeTooltip>
                         </template>
@@ -170,7 +170,7 @@ const closeDrawer = () => {
                         <template #tooltip>
                             <NeTooltip>
                                 <template #content>
-                                    {{ t('standalone.logs.search_tooltip') }}
+                                    {{ t('Enter the wireguard listen port.') }}
                                 </template>
                             </NeTooltip>
                         </template>
@@ -181,7 +181,7 @@ const closeDrawer = () => {
                         <template #tooltip>
                             <NeTooltip>
                                 <template #content>
-                                    {{ t('standalone.logs.search_tooltip') }}
+                                    {{ t('Maximum transmission unit default is typically 1420 for wireguard') }}
                                 </template>
                             </NeTooltip>
                         </template>

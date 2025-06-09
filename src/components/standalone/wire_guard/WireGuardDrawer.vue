@@ -670,7 +670,7 @@ const saveRule = async () => {
           <template #tooltip>
             <NeTooltip>
               <template #content>
-                {{ t('standalone.logs.search_tooltip') }}
+                {{ t('Enter the private network ip.') }}
               </template>
             </NeTooltip>
           </template>
@@ -684,7 +684,7 @@ const saveRule = async () => {
           <template #tooltip>
             <NeTooltip>
               <template #content>
-                {{ t('standalone.logs.search_tooltip') }}
+                {{ t('Enter the wireguard listen port.') }}
               </template>
             </NeTooltip>
           </template>
@@ -705,7 +705,7 @@ const saveRule = async () => {
           <template #tooltip>
             <NeTooltip>
               <template #content>
-                {{ t('standalone.logs.search_tooltip') }}
+                {{ t('Enter the wireguard server port.') }}
               </template>
             </NeTooltip>
           </template>
@@ -719,7 +719,7 @@ const saveRule = async () => {
           <template #tooltip>
             <NeTooltip>
               <template #content>
-                {{ t('standalone.logs.search_tooltip') }}
+                {{ t('Enter the  server ip of wireguard.') }}
               </template>
             </NeTooltip>
           </template>
@@ -733,7 +733,7 @@ const saveRule = async () => {
           <template #tooltip>
             <NeTooltip>
               <template #content>
-                {{ t('standalone.logs.search_tooltip') }}
+                {{ t('Enter the public key same as the remote wireguard device.') }}
               </template>
             </NeTooltip>
           </template>
@@ -747,7 +747,7 @@ const saveRule = async () => {
           <template #tooltip>
             <NeTooltip>
               <template #content>
-                {{ t('standalone.logs.search_tooltip') }}
+                {{ t('Enter the IP address that this peer is allowed to route through the VPN tunnel. ') }}
               </template>
             </NeTooltip>
           </template>
@@ -761,7 +761,7 @@ const saveRule = async () => {
           <template #tooltip>
             <NeTooltip>
               <template #content>
-                {{ t('standalone.logs.search_tooltip') }}
+                {{ t('Set the keep alive time.') }}
               </template>
             </NeTooltip>
           </template>
@@ -776,7 +776,7 @@ const saveRule = async () => {
           <template #tooltip>
             <NeTooltip>
               <template #content>
-                {{ t('standalone.logs.search_tooltip') }}
+                {{ t('Maximum transmission unit default is typically 1420 for wireguard') }}
               </template>
             </NeTooltip>
           </template>

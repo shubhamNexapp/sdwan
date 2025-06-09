@@ -191,7 +191,7 @@ const closeDrawer = () => {
                         <template #tooltip>
                             <NeTooltip>
                                 <template #content>
-                                    {{ t('standalone.logs.search_tooltip') }}
+                                    {{ t('Enter the interface name') }}
                                 </template>
                             </NeTooltip>
                         </template>
@@ -202,7 +202,7 @@ const closeDrawer = () => {
                         <template #tooltip>
                             <NeTooltip>
                                 <template #content>
-                                    {{ t('standalone.logs.search_tooltip') }}
+                                    {{ t('Enter the id') }}
                                 </template>
                             </NeTooltip>
                         </template>

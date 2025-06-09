@@ -156,7 +156,7 @@ async function saveSettings() {
         <template #tooltip>
           <NeTooltip>
             <template #content>
-              {{ t('standalone.logs.search_tooltip') }}
+              {{ t('Enter the shared secret key that is configured on SDWAN Controller') }}
             </template>
           </NeTooltip>
         </template>
@@ -166,7 +166,7 @@ async function saveSettings() {
         <template #tooltip>
           <NeTooltip>
             <template #content>
-              {{ t('standalone.logs.search_tooltip') }}
+              {{ t('Enter the url of SDWAN Controller') }}
             </template>
           </NeTooltip>
         </template>
@@ -198,7 +198,7 @@ async function saveSettings() {
           <template #tooltip>
             <NeTooltip>
               <template #content>
-                {{ t('standalone.logs.search_tooltip') }}
+                {{ t('Enter the shared secret key that is configured on SDWAN Controller') }}
               </template>
             </NeTooltip>
           </template>
@@ -208,7 +208,7 @@ async function saveSettings() {
           <template #tooltip>
             <NeTooltip>
               <template #content>
-                {{ t('standalone.logs.search_tooltip') }}
+                {{ t('Enter the url of SDWAN Controller') }}
               </template>
             </NeTooltip>
           </template>

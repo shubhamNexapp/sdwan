@@ -173,7 +173,7 @@ function downloadLogsAsExcel() {
         <template #tooltip>
           <NeTooltip>
             <template #content>
-              {{ t('standalone.logs.search_tooltip') }}
+              {{ t('Search logs') }}
             </template>
           </NeTooltip>
         </template>

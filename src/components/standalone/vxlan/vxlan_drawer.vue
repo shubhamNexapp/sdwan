@@ -174,7 +174,7 @@ const closeDrawer = () => {
                         <template #tooltip>
                             <NeTooltip>
                                 <template #content>
-                                    {{ t('standalone.logs.search_tooltip') }}
+                                    {{ t('Enter interface name') }}
                                 </template>
                             </NeTooltip>
                         </template>
@@ -213,7 +213,7 @@ const closeDrawer = () => {
                         <template #tooltip>
                             <NeTooltip>
                                 <template #content>
-                                    {{ t('standalone.logs.search_tooltip') }}
+                                    {{ t('Enter the virtual id number') }}
                                 </template>
                             </NeTooltip>
                         </template>
@@ -225,7 +225,7 @@ const closeDrawer = () => {
                         <template #tooltip>
                             <NeTooltip>
                                 <template #content>
-                                    {{ t('standalone.logs.search_tooltip') }}
+                                    {{ t('Enter the peer ip') }}
                                 </template>
                             </NeTooltip>
                         </template>
@@ -238,7 +238,7 @@ const closeDrawer = () => {
                         <template #tooltip>
                             <NeTooltip>
                                 <template #content>
-                                    {{ t('standalone.logs.search_tooltip') }}
+                                    {{ t('Enter the vxlan port number') }}
                                 </template>
                             </NeTooltip>
                         </template>
@@ -251,7 +251,7 @@ const closeDrawer = () => {
                         <template #tooltip>
                             <NeTooltip>
                                 <template #content>
-                                    {{ t('standalone.logs.search_tooltip') }}
+                                    {{ t('Enter the vxlan private ip') }}
                                 </template>
                             </NeTooltip>
                         </template>

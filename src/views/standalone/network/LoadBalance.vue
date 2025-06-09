@@ -470,7 +470,7 @@ function handleNextStep() {
                         <template #tooltip>
                             <NeTooltip>
                                 <template #content>
-                                    {{ t('standalone.logs.search_tooltip') }}
+                                    {{ t('Use a reliable public ip that always respond to pings.') }}
                                 </template>
                             </NeTooltip>
                         </template>
@@ -481,7 +481,7 @@ function handleNextStep() {
                         <template #tooltip>
                             <NeTooltip>
                                 <template #content>
-                                    {{ t('standalone.logs.search_tooltip') }}
+                                    {{ t('Enter the nexthop gateway ip.') }}
                                 </template>
                             </NeTooltip>
                         </template>
@@ -492,7 +492,7 @@ function handleNextStep() {
                         <template #tooltip>
                             <NeTooltip>
                                 <template #content>
-                                    {{ t('standalone.logs.search_tooltip') }}
+                                    {{ t('Set the interval time') }}
                                 </template>
                             </NeTooltip>
                         </template>
@@ -503,7 +503,7 @@ function handleNextStep() {
                         <template #tooltip>
                             <NeTooltip>
                                 <template #content>
-                                    {{ t('standalone.logs.search_tooltip') }}
+                                    {{ t('Set the retry time') }}
                                 </template>
                             </NeTooltip>
                         </template>
@@ -514,7 +514,7 @@ function handleNextStep() {
                         <template #tooltip>
                             <NeTooltip>
                                 <template #content>
-                                    {{ t('standalone.logs.search_tooltip') }}
+                                    {{ t('Set the delay time') }}
                                 </template>
                             </NeTooltip>
                         </template>
@@ -525,7 +525,7 @@ function handleNextStep() {
                         <template #tooltip>
                             <NeTooltip>
                                 <template #content>
-                                    {{ t('standalone.logs.search_tooltip') }}
+                                    {{ t('Set a threshold') }}
                                 </template>
                             </NeTooltip>
                         </template>
@@ -561,7 +561,7 @@ function handleNextStep() {
                         <template #tooltip>
                             <NeTooltip>
                                 <template #content>
-                                    {{ t('standalone.logs.search_tooltip') }}
+                                    {{ t('Use a reliable public ip that always respond to pings.') }}
                                 </template>
                             </NeTooltip>
                         </template>
@@ -572,7 +572,7 @@ function handleNextStep() {
                         <template #tooltip>
                             <NeTooltip>
                                 <template #content>
-                                    {{ t('standalone.logs.search_tooltip') }}
+                                    {{ t('Enter the nexthop gateway ip.') }}
                                 </template>
                             </NeTooltip>
                         </template>
@@ -583,7 +583,7 @@ function handleNextStep() {
                         <template #tooltip>
                             <NeTooltip>
                                 <template #content>
-                                    {{ t('standalone.logs.search_tooltip') }}
+                                    {{ t('Set the interval time') }}
                                 </template>
                             </NeTooltip>
                         </template>
@@ -594,7 +594,7 @@ function handleNextStep() {
                         <template #tooltip>
                             <NeTooltip>
                                 <template #content>
-                                    {{ t('standalone.logs.search_tooltip') }}
+                                    {{ t('Set the retry time') }}
                                 </template>
                             </NeTooltip>
                         </template>
@@ -605,7 +605,7 @@ function handleNextStep() {
                         <template #tooltip>
                             <NeTooltip>
                                 <template #content>
-                                    {{ t('standalone.logs.search_tooltip') }}
+                                    {{ t('Set the delay time') }}
                                 </template>
                             </NeTooltip>
                         </template>
@@ -616,7 +616,7 @@ function handleNextStep() {
                         <template #tooltip>
                             <NeTooltip>
                                 <template #content>
-                                    {{ t('standalone.logs.search_tooltip') }}
+                                    {{ t('Set a threshold') }}
                                 </template>
                             </NeTooltip>
                         </template>

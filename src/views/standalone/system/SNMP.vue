@@ -224,7 +224,7 @@ async function saveSettings() {
             <template #tooltip>
               <NeTooltip>
                 <template #content>
-                  {{ t('standalone.logs.search_tooltip') }}
+                  {{ t('Enter the configured SNMP port number') }}
                 </template>
               </NeTooltip>
             </template>
@@ -238,7 +238,7 @@ async function saveSettings() {
             <template #tooltip>
               <NeTooltip>
                 <template #content>
-                  {{ t('standalone.logs.search_tooltip') }}
+                  {{ t('Enter the community secret') }}
                 </template>
               </NeTooltip>
             </template>
@@ -252,7 +252,7 @@ async function saveSettings() {
             <template #tooltip>
               <NeTooltip>
                 <template #content>
-                  {{ t('standalone.logs.search_tooltip') }}
+                  {{ t('Enter the Trap IP of server') }}
                 </template>
               </NeTooltip>
             </template>
@@ -266,7 +266,7 @@ async function saveSettings() {
             <template #tooltip>
               <NeTooltip>
                 <template #content>
-                  {{ t('standalone.logs.search_tooltip') }}
+                  {{ t('Enter the configured TRAP port number') }}
                 </template>
               </NeTooltip>
             </template>
@@ -283,7 +283,7 @@ async function saveSettings() {
           <template #tooltip>
             <NeTooltip>
               <template #content>
-                {{ t('standalone.logs.search_tooltip') }}
+                {{ t('Enter the configured SNMP port number') }}
               </template>
             </NeTooltip>
           </template>
@@ -296,7 +296,7 @@ async function saveSettings() {
           <template #tooltip>
             <NeTooltip>
               <template #content>
-                {{ t('standalone.logs.search_tooltip') }}
+                {{ t('Enter the configured TRAP IP') }}
               </template>
             </NeTooltip>
           </template>
@@ -309,7 +309,7 @@ async function saveSettings() {
           <template #tooltip>
             <NeTooltip>
               <template #content>
-                {{ t('standalone.logs.search_tooltip') }}
+                {{ t('Enter the SNMPv3 username that is configured on your SNMP manager.') }}
               </template>
             </NeTooltip>
           </template>
@@ -322,7 +322,7 @@ async function saveSettings() {
           <template #tooltip>
             <NeTooltip>
               <template #content>
-                {{ t('standalone.logs.search_tooltip') }}
+                {{ t('Enter the SNMPv3 password that is configured on your SNMP manager.') }}
               </template>
             </NeTooltip>
           </template>
@@ -370,7 +370,7 @@ async function saveSettings() {
           <template #tooltip>
             <NeTooltip>
               <template #content>
-                {{ t('standalone.logs.search_tooltip') }}
+                {{ t('Enter the privacy password used to encrypt SNMP data traffic.') }}
               </template>
             </NeTooltip>
           </template>
