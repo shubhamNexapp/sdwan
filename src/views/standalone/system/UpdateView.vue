@@ -294,7 +294,7 @@ onMounted(() => {
   <FormLayout class="max-w-4xl" :title="t('standalone.update.system_update')">
     <template #description>
       <p class="mb-4 text-sm font-normal text-gray-500 dark:text-gray-400">
-        {{ t('standalone.update.system_update_description') }}
+        {{ t('upload a compatible firmware image directly via the Upload Firmware option') }}
       </p>
       <div class="flex flex-row items-start mb-4 gap-x-2">
         <FontAwesomeIcon :icon="['fas', 'circle-info']" class="w-4 h-4 text-indigo-500 dark:text-indigo-300" />

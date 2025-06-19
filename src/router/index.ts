@@ -141,7 +141,7 @@ const standaloneRoutes = [
     component: () => import('../views/standalone/network/QoSView.vue')
   },
   {
-    path: 'network/nexapp-qos',
+    path: 'network/advance-qos',
     name: 'Advance QoS',
     component: () => import('../views/standalone/network/NexappQos.vue')
   },
@@ -201,8 +201,8 @@ const standaloneRoutes = [
     component: () => import('../views/standalone/firewall/FirewallRulesView.vue')
   },
   {
-    path: 'firewall/conntrack',
-    name: 'Conntrack',
+    path: 'firewall/connections',
+    name: 'Connections',
     component: () => import('../views/standalone/firewall/ConntrackView.vue')
   },
   // {
@@ -216,12 +216,12 @@ const standaloneRoutes = [
     component: () => import('../views/standalone/security/DpiFilterView.vue')
   },
   {
-    path: 'security/threat-shield-ip',
+    path: 'security/insta-shield-ip',
     name: 'ThreatShield',
     component: () => import('../views/standalone/security/ThreatShieldView.vue')
   },
   {
-    path: 'security/threat-shield-dns',
+    path: 'security/insta-shield-dns',
     name: 'ThreatShieldDns',
     component: () => import('../views/standalone/security/ThreatShieldDnsView.vue')
   },
@@ -326,7 +326,7 @@ const standaloneRoutes = [
     component: () => import('../views/standalone/security/IpsView.vue')
   },
   {
-    path: 'security/clamav',
+    path: 'security/antivirus',
     name: 'Anti Virus',
     component: () => import('../views/standalone/security/clamavView.vue')
   },

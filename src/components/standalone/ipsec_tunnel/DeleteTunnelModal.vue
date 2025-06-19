@@ -24,7 +24,7 @@ interface DeleteTunnel {
   connected: boolean;
   join: string;
 }
-
+ 
 const { t } = useI18n()
 
 const props = defineProps<{
@@ -66,13 +66,12 @@ const isDeleting = ref(false)
 async function deleteTunnel() {
   if (itemToDelete.value) {
     try {
-
       const payload = {
-        "join": itemToDelete.value.join,
+        "id": itemToDelete.value.id,
       }
 
-      const response = await axios.post(`${getSDControllerApiEndpoint()}/zerotier`, {
-        method: "delete-config",
+      const response = await axios.post(`${getSDControllerApiEndpoint()}/ipsec`, {
+        method: "delete-tunnel",
         payload
       });
 

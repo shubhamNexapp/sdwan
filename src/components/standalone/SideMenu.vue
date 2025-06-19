@@ -170,7 +170,7 @@ const navigation: Ref<MenuItem[]> = ref([
       },
       {
         name: 'Advance QoS',
-        to: 'network/nexapp-qos'
+        to: 'network/advance-qos'
       },
       {
         name: 'RIP',
@@ -232,7 +232,7 @@ const navigation: Ref<MenuItem[]> = ref([
       },
       {
         name: 'standalone.conntrack.short_title',
-        to: 'firewall/conntrack'
+        to: 'firewall/connections'
       },
       {
         name: 'standalone.zones_and_policies.title',
@@ -247,11 +247,11 @@ const navigation: Ref<MenuItem[]> = ref([
     children: [
       {
         name: 'standalone.threat_shield.title',
-        to: 'security/threat-shield-ip'
+        to: 'security/insta-shield-ip'
       },
       {
         name: 'standalone.threat_shield_dns.title',
-        to: 'security/threat-shield-dns'
+        to: 'security/insta-shield-dns'
       },
       // {
       //   name: 'standalone.flashstart.title',
@@ -267,7 +267,7 @@ const navigation: Ref<MenuItem[]> = ref([
       },
       {
         name: 'Anti Virus',
-        to: 'security/clamav'
+        to: 'security/antivirus'
       },
       {
         name: 'Anti Spam',

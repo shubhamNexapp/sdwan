@@ -18,7 +18,7 @@ import { useUciPendingChangesStore } from '@/stores/standalone/uciPendingChanges
 import { onMounted, onUnmounted, ref } from 'vue'
 import { ubusCall } from '@/lib/standalone/ubus'
 import TunnelTable from '@/components/standalone/ipsec_tunnel/TunnelTable.vue'
-import DeleteTunnelModal from '@/components/standalone/ipsec_tunnel/DeleteTunnelModal.vue'
+import DeleteTunnelModal from '@/components/standalone/zerotier/ZerotierDelete.vue'
 import ZeroTierDrawer from '@/components/standalone/zerotier/ZeroTierDrawer.vue'
 import axios from 'axios'
 import { getSDControllerApiEndpoint } from '@/lib/config'

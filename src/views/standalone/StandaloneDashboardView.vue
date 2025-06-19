@@ -102,7 +102,7 @@ function goTo(path: string) {
     <!-- threat shield dns -->
     <ServiceCard serviceName="threat_shield_dns" hasStatus :icon="['fas', 'shield']">
       <template #title>
-        <NeLink @click="goTo('/security/threat-shield-dns')" class="text-primary-900" >
+        <NeLink @click="goTo('/security/insta-shield-dns')" class="text-primary-900" >
           {{ t('standalone.threat_shield_dns.title') }}
         </NeLink>
       </template>

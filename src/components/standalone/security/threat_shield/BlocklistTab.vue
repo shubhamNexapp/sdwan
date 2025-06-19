@@ -164,7 +164,7 @@ onMounted(() => {
           kind="primary"
           @click="
             () => {
-              router.push(`${getStandaloneRoutePrefix()}/security/threat-shield-ip?tab=settings`)
+              router.push(`${getStandaloneRoutePrefix()}/security/insta-shield-ip?tab=settings`)
             }
           "
           ><template #prefix>

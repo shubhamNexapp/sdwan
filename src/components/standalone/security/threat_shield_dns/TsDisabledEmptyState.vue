@@ -24,7 +24,7 @@ const router = useRouter()
       kind="primary"
       @click="
         () => {
-          router.push(`${getStandaloneRoutePrefix()}/security/threat-shield-dns?tab=settings`)
+          router.push(`${getStandaloneRoutePrefix()}/security/insta-shield-dns?tab=settings`)
         }
       "
     >
