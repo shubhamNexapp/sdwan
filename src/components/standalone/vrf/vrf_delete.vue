@@ -52,7 +52,7 @@ async function deleteTunnel() {
             if (response.data.code === 200) {
                 notificationsStore.createNotification({
                     title: 'Success',
-                    description: 'Configuration updated successfully.',
+                    description: 'Configuration deleted successfully.',
                     kind: 'success'
                 });
                 close()
