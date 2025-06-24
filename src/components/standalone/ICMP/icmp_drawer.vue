@@ -118,6 +118,7 @@ const validate = () => {
 // Save function
 const saveRule = async () => {
     if (!validate()) return
+    loading.value.saveRule = true
 
     try {
         const payload = [{
@@ -146,14 +147,17 @@ const saveRule = async () => {
                 description: 'Configuration saved successfully.',
                 kind: 'success'
             })
+            loading.value.saveRule = false
 
             emit('save', payload)
             emit('close') // Close drawer on success
             emit('tunnel-added')
         }
     } catch (err) {
+        loading.value.saveRule = false
         console.error("Error saving rule:", getAxiosErrorMessage(err))
     }
+    loading.value.saveRule = false
 }
 
 // Close drawer function

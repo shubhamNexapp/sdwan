@@ -22,6 +22,8 @@ const loading = ref(false);
 const saving = ref(false);
 const errorBag = ref<{ [key: string]: string }>({});
 
+const loadingNew = ref({ saveRule: false })
+
 const community = ref('');
 const port = ref('');
 const trapIp = ref('');
@@ -129,6 +131,8 @@ function validate(): boolean {
 async function saveSettings() {
   if (!validate()) return;
 
+  loadingNew.value.saveRule = true
+
   try {
     saving.value = true;
     const payload: any = {
@@ -171,7 +175,9 @@ async function saveSettings() {
         description: 'Settings saved',
         kind: 'success'
       });
+      loadingNew.value.saveRule = false
     } else {
+      loadingNew.value.saveRule = false
       throw new Error('Server error');
     }
   } catch (err) {
@@ -180,9 +186,12 @@ async function saveSettings() {
       description: 'Failed to save settings',
       kind: 'danger'
     });
+    loadingNew.value.saveRule = false
   } finally {
     saving.value = false;
+    loadingNew.value.saveRule = false
   }
+  loadingNew.value.saveRule = false
 }
 </script>
 
@@ -387,7 +396,8 @@ async function saveSettings() {
 
     </div>
     <div class="flex mt-4 flex-col w-[90px]">
-      <NeButton class=" ml-1" kind="primary" size="lg" @click.prevent="saveSettings()">
+      <NeButton class=" ml-1" :disabled="loadingNew.saveRule" :loading="loadingNew.saveRule" kind="primary" size="lg"
+        @click.prevent="saveSettings()">
         <template #prefix>
           <FontAwesomeIcon :icon="faSave" />
         </template>

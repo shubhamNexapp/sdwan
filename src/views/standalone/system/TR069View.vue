@@ -92,6 +92,7 @@ const validate = () => {
 // Save function
 const saveRule = async () => {
   if (!validate()) return
+  loading.value.saveRule = true
 
   try {
     const payload = {
@@ -116,12 +117,17 @@ const saveRule = async () => {
         description: 'Configuration saved successfully.',
         kind: 'success'
       })
+      loading.value.saveRule = false
 
       emit('save', payload)
     }
   } catch (err) {
     console.error("Error saving rule:", getAxiosErrorMessage(err))
+    loading.value.saveRule = false
+
   }
+  loading.value.saveRule = false
+
 }
 
 // Close drawer function
@@ -145,6 +151,15 @@ const getLists = async () => {
 
     if (response.data.code === 200) {
       apiResponse.value = response.data.data // Store API response
+      const dataNew = response.data.data
+      service.value = dataNew.service === 'enable';
+      acsUrl.value = dataNew.acs_url || '';
+      acsUsername.value = dataNew.acs_username || '';
+      acsPassword.value = dataNew.acs_password || '';
+      cpeUsername.value = dataNew.cpe_username || '';
+      cpePassword.value = dataNew.cpe_password || '';
+      enableInterval.value = dataNew.enable_interval === 'enable';
+      interval.value = dataNew.interval || '';
     }
   } catch (err) {
   }
@@ -158,7 +173,7 @@ const getLists = async () => {
 
   <FormLayout
     :description="t('Configure TR069 service settings, including ACS credentials and connection intervals for remote device management.')">
-    <NeToggle class="mb-3" v-model="service" :label="service ? 'Enabled' : 'Disabled'" :topLabel="'Service'" />
+    <NeToggle class="mb-3" v-model="service" :label="service ? 'Enable' : 'Disable'" :topLabel="'Service'" />
 
     <div class="space-y-6">
 
@@ -266,5 +281,5 @@ const getLists = async () => {
     {{ t('Configure TR069 service settings, including ACS credentials and connection intervals for remote device management.') }}
   </p> -->
   <!-- <form @submit.prevent="saveRule"> -->
- 
+
 </template>
