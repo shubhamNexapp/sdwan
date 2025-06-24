@@ -23,7 +23,7 @@ import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 
-const loading = ref({ saveRule: false })
+const loading = ref({ saveRule: false, addRuleLoading: false })
 const service = ref(false)
 
 const interfaceOptions = ref([]);
@@ -141,15 +141,13 @@ const addModeDetails = () => {
 
 const saveNetworkConfig = async () => {
 
-    console.log("protocols====", protocols.value)
-
     loading.value.saveRule = true
     try {
 
         let payload = {
             "method": "set-config",
             payload: {
-                "service": "enable",
+                service: service.value ? 'enable' : 'disable',
                 "total_bandwidth": total_bandwidth.value,
                 "rate_high": rate_high.value,
                 "ceil_high": ceil_high.value,
@@ -228,6 +226,7 @@ const validateRules = () => {
 
 
 const addRule = async () => {
+    loading.value.addRuleLoading = true
     try {
 
         const isValid = validateRules();
@@ -283,8 +282,13 @@ const addRule = async () => {
                 description: 'Configuration saved successfully.',
                 kind: 'success'
             })
+            loading.value.addRuleLoading = false
+
         }
+        loading.value.addRuleLoading = false
+
     } catch (err) {
+        loading.value.addRuleLoading = false
     }
 }
 
@@ -345,7 +349,7 @@ const deleteRule = async (itemToDelete: string) => {
         if (response.data.code === 200) {
             notificationsStore.createNotification({
                 title: 'Success',
-                description: 'Configuration updated successfully.',
+                description: 'Configuration deleted successfully.',
                 kind: 'success'
             });
             getLists()
@@ -423,101 +427,108 @@ const deleteRule = async (itemToDelete: string) => {
                     :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')"
                     ref="protocolsRef" /> -->
 
-                <div class="mt-4 flex justify-end">
-                    <!-- Submit button (left aligned) -->
-                    <div class="flex  flex-col w-[90px]">
-                        <NeButton class="ml-1" :disabled="loading.saveRule" :loading="loading.saveRule" kind="primary"
-                            size="lg" @click.prevent="saveNetworkConfig()">
-                            <template #prefix>
-                                <FontAwesomeIcon :icon="faSave" />
-                            </template>
-                            {{ t('common.save') }}
-                        </NeButton>
-                    </div>
-                </div>
 
-                <div class="flex flex-row items-center justify-between mt-6">
-                    <p class="max-w-2xl font-bold text-black dark:text-gray-400">Mode Details</p>
-                    <NeButton kind="primary" size="lg" @click="addModeDetails">
-                        <template #prefix>
-                            <font-awesome-icon :icon="['fas', 'plus']" class="h-4 w-4" aria-hidden="true" />
-                        </template>
-                        Add
-                    </NeButton>
-                </div>
 
-                <NeTable cardBreakpoint="md" class="mt-2" ariaLabel="Interface Table">
-                    <NeTableHead>
-                        <NeTableHeadCell>Rule Name</NeTableHeadCell>
-                        <NeTableHeadCell>Protocol</NeTableHeadCell>
-                        <NeTableHeadCell>Dport</NeTableHeadCell>
-                        <NeTableHeadCell>Priority</NeTableHeadCell>
-                        <NeTableHeadCell>Service</NeTableHeadCell>
-                        <NeTableHeadCell>Actions</NeTableHeadCell>
-                    </NeTableHead>
-                    <NeTableBody>
-                        <NeTableRow v-for="(item, index) in modeDetails" :key="`new-${index}`">
-                            <NeTableCell>
-                                <NeTextInput v-model.trim="item.rule_name" placeholder="Rule name" />
-                            </NeTableCell>
-                            <NeTableCell>
-                                <NeCombobox v-model="item.protocol" :options="[
-                                    { label: 'udp', id: 'udp' },
-                                    { label: 'tcp', id: 'tcp' },
-                                    { label: 'any', id: 'any' }
-                                ]" class="grow" :noResultsLabel="t('ne_combobox.no_results')"
-                                    :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
-                                    :noOptionsLabel="t('ne_combobox.no_options_label')"
-                                    :selected-label="t('ne_combobox.selected')"
-                                    :user-input-label="t('ne_combobox.user_input_label')"
-                                    :optionalLabel="t('common.optional')" />
-                                <!-- <select v-model="item.protocol" class="border rounded p-1 w-[70px]">
-                                    <option value="tcp">tcp</option>
-                                    <option value="udp">udp</option>
-                                    <option value="both">both</option>
-                                </select> -->
-                            </NeTableCell>
-                            <NeTableCell>
-                                <NeTextInput v-model.trim="item.dport" placeholder="Dport" />
-                            </NeTableCell>
-                            <NeTableCell>
-                                <!-- <NeTextInput v-model.trim="item.priority" placeholder="Priority" /> -->
-                                <NeCombobox v-model="item.priority" :options="[
-                                    { label: 'low', id: 'low' },
-                                    { label: 'middle', id: 'middle' },
-                                    { label: 'high', id: 'high' }
-                                ]" class="grow" :noResultsLabel="t('ne_combobox.no_results')"
-                                    :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
-                                    :noOptionsLabel="t('ne_combobox.no_options_label')"
-                                    :selected-label="t('ne_combobox.selected')"
-                                    :user-input-label="t('ne_combobox.user_input_label')"
-                                    :optionalLabel="t('common.optional')" />
-                            </NeTableCell>
-                            <NeTableCell>
-                                <NeToggle v-model="item.rule_service" label="Enable" />
-                            </NeTableCell>
-                            <NeTableCell>
-                                <NeButton size="sm" @click="deleteRule(item.rule_name)">
-                                    <font-awesome-icon :icon="['fas', 'trash']" class="h-4 w-4" aria-hidden="true" />
-                                </NeButton>
-                            </NeTableCell>
-                        </NeTableRow>
-                    </NeTableBody>
-                </NeTable>
+
             </div>
         </template>
 
         <div class="mt-4 flex justify-end">
             <!-- Submit button (left aligned) -->
-            <div class="flex  flex-col w-[110px]">
+            <div class="flex  flex-col w-[90px]">
                 <NeButton class="ml-1" :disabled="loading.saveRule" :loading="loading.saveRule" kind="primary" size="lg"
-                    @click.prevent="addRule()">
+                    @click.prevent="saveNetworkConfig()">
                     <template #prefix>
                         <FontAwesomeIcon :icon="faSave" />
                     </template>
-                    {{ t('Add Rule') }}
+                    {{ t('common.save') }}
                 </NeButton>
             </div>
         </div>
+
+        <template v-if="service">
+
+            <div class="flex flex-row items-center justify-between mt-6">
+                <p class="max-w-2xl font-bold text-black dark:text-gray-400">Mode Details</p>
+                <NeButton kind="primary" size="lg" @click="addModeDetails">
+                    <template #prefix>
+                        <font-awesome-icon :icon="['fas', 'plus']" class="h-4 w-4" aria-hidden="true" />
+                    </template>
+                    Add
+                </NeButton>
+            </div>
+
+            <NeTable cardBreakpoint="md" class="mt-2" ariaLabel="Interface Table">
+                <NeTableHead>
+                    <NeTableHeadCell>Rule Name</NeTableHeadCell>
+                    <NeTableHeadCell>Protocol</NeTableHeadCell>
+                    <NeTableHeadCell>Dport</NeTableHeadCell>
+                    <NeTableHeadCell>Priority</NeTableHeadCell>
+                    <NeTableHeadCell>Service</NeTableHeadCell>
+                    <NeTableHeadCell>Actions</NeTableHeadCell>
+                </NeTableHead>
+                <NeTableBody>
+                    <NeTableRow v-for="(item, index) in modeDetails" :key="`new-${index}`">
+                        <NeTableCell>
+                            <NeTextInput v-model.trim="item.rule_name" placeholder="Rule name" />
+                        </NeTableCell>
+                        <NeTableCell>
+                            <NeCombobox v-model="item.protocol" :options="[
+                                { label: 'udp', id: 'udp' },
+                                { label: 'tcp', id: 'tcp' },
+                                { label: 'any', id: 'any' }
+                            ]" class="grow" :noResultsLabel="t('ne_combobox.no_results')"
+                                :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
+                                :noOptionsLabel="t('ne_combobox.no_options_label')"
+                                :selected-label="t('ne_combobox.selected')"
+                                :user-input-label="t('ne_combobox.user_input_label')"
+                                :optionalLabel="t('common.optional')" />
+                            <!-- <select v-model="item.protocol" class="border rounded p-1 w-[70px]">
+                                    <option value="tcp">tcp</option>
+                                    <option value="udp">udp</option>
+                                    <option value="both">both</option>
+                                </select> -->
+                        </NeTableCell>
+                        <NeTableCell>
+                            <NeTextInput v-model.trim="item.dport" placeholder="Dport" />
+                        </NeTableCell>
+                        <NeTableCell>
+                            <!-- <NeTextInput v-model.trim="item.priority" placeholder="Priority" /> -->
+                            <NeCombobox v-model="item.priority" :options="[
+                                { label: 'low', id: 'low' },
+                                { label: 'middle', id: 'middle' },
+                                { label: 'high', id: 'high' }
+                            ]" class="grow" :noResultsLabel="t('ne_combobox.no_results')"
+                                :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
+                                :noOptionsLabel="t('ne_combobox.no_options_label')"
+                                :selected-label="t('ne_combobox.selected')"
+                                :user-input-label="t('ne_combobox.user_input_label')"
+                                :optionalLabel="t('common.optional')" />
+                        </NeTableCell>
+                        <NeTableCell>
+                            <NeToggle v-model="item.rule_service" label="Enable" />
+                        </NeTableCell>
+                        <NeTableCell>
+                            <NeButton size="sm" @click="deleteRule(item.rule_name)">
+                                <font-awesome-icon :icon="['fas', 'trash']" class="h-4 w-4" aria-hidden="true" />
+                            </NeButton>
+                        </NeTableCell>
+                    </NeTableRow>
+                </NeTableBody>
+            </NeTable>
+
+            <div class="mt-4 flex justify-end">
+                <!-- Submit button (left aligned) -->
+                <div class="flex  flex-col w-[110px]">
+                    <NeButton class="ml-1" :disabled="loading.addRuleLoading" :loading="loading.addRuleLoading"
+                        kind="primary" size="lg" @click.prevent="addRule()">
+                        <template #prefix>
+                            <FontAwesomeIcon :icon="faSave" />
+                        </template>
+                        {{ t('Add Rule') }}
+                    </NeButton>
+                </div>
+            </div>
+        </template>
     </div>
 </template>
