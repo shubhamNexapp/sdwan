@@ -12,6 +12,7 @@ import {
 } from '@nethesis/vue-components';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faSave } from '@fortawesome/free-solid-svg-icons'
+import { Saved, Success } from '@/lib/tost';
 
 const { t } = useI18n();
 const notificationsStore = useNotificationsStore();
@@ -171,8 +172,8 @@ async function saveSettings() {
 
     if (res.data.code === 200) {
       notificationsStore.createNotification({
-        title: 'Success',
-        description: 'Settings saved',
+        title: Success,
+        description: Saved,
         kind: 'success'
       });
       loadingNew.value.saveRule = false

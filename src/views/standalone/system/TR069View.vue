@@ -15,6 +15,7 @@ import axios from 'axios'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faSave } from '@fortawesome/free-solid-svg-icons'
 import { useI18n } from 'vue-i18n'
+import { Saved, Success } from '@/lib/tost';
 
 const notificationsStore = useNotificationsStore()
 
@@ -113,8 +114,8 @@ const saveRule = async () => {
 
     if (response.data.code === 200) {
       notificationsStore.createNotification({
-        title: 'Success',
-        description: 'Configuration saved successfully.',
+        title: Success,
+        description: Saved,
         kind: 'success'
       })
       loading.value.saveRule = false

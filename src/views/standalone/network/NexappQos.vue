@@ -17,6 +17,7 @@ import { useNotificationsStore } from '../../../stores/notifications'
 import { onMounted, ref } from 'vue'
 import axios from 'axios'
 import { getSDControllerApiEndpoint } from '@/lib/config'
+import { Add, Delete, Saved, Success } from '@/lib/tost'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faSave } from '@fortawesome/free-solid-svg-icons'
 import { useI18n } from 'vue-i18n'
@@ -161,8 +162,8 @@ const saveNetworkConfig = async () => {
 
         await axios.post(`${getSDControllerApiEndpoint()}/qos`, payload)
         notificationsStore.createNotification({
-            title: 'Success',
-            description: 'Configuration saved successfully.',
+            title: Success,
+            description: Saved,
             kind: 'success'
         })
 
@@ -278,8 +279,8 @@ const addRule = async () => {
 
         if (response.data.code === 200) {
             notificationsStore.createNotification({
-                title: 'Success',
-                description: 'Configuration saved successfully.',
+                title: Success,
+                description: Add,
                 kind: 'success'
             })
             loading.value.addRuleLoading = false
@@ -348,8 +349,8 @@ const deleteRule = async (itemToDelete: string) => {
 
         if (response.data.code === 200) {
             notificationsStore.createNotification({
-                title: 'Success',
-                description: 'Configuration deleted successfully.',
+                title: Success,
+                description: Delete,
                 kind: 'success'
             });
             getLists()

@@ -229,10 +229,10 @@ const getLists = async () => {
     </div>
 
     <DeleteTunnelModal :visible="showDeleteModal" :itemToDelete="selectedTunnelName" @close="showDeleteModal = false"
-        @tunnel-deleted="fetchTunnels" />
+        @tunnel-deleted="getLists" />
 
     <VXLANDrawer :item-to-edit="selectedTunnel" @close="closeModalsAndDrawers" :rule-type="'forward'" :known-tags="[]"
-        @add-edit-tunnel="reloadTunnels" :is-shown="showCreateEditDrawer" />
+      @tunnel-added="getLists"  @add-edit-tunnel="reloadTunnels" :is-shown="showCreateEditDrawer" />
     <!-- <VXLANEdit :item-to-edit="selectedTunnels" @close="showEditModals = false" :rule-type="'forward'" :known-tags="[]"
         @add-edit-tunnel="reloadTunnels" :is-shown="showEditModals" /> -->
 

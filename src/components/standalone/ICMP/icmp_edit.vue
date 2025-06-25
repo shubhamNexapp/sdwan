@@ -14,6 +14,7 @@ import { getSDControllerApiEndpoint } from '@/lib/config'
 import axios from 'axios'
 import { useI18n } from 'vue-i18n'
 import { faSave } from '@fortawesome/free-solid-svg-icons'
+import { Success, Update } from '@/lib/tost'
 
 
 const { t } = useI18n()
@@ -139,6 +140,7 @@ const validate = () => {
 // Save/Update
 const saveRule = async () => {
     if (!validate()) return
+    loading.value.saveRule = true
 
     try {
         const payload = {
@@ -162,10 +164,12 @@ const saveRule = async () => {
 
         if (response.data.code === 200) {
             notificationsStore.createNotification({
-                title: 'Success',
-                description: 'Configuration updated successfully.',
+                title: Success,
+                description: Update,
                 kind: 'success'
             })
+            loading.value.saveRule = false
+
             emit('save', payload)
             emit('close')
         }
@@ -175,6 +179,8 @@ const saveRule = async () => {
             description: getAxiosErrorMessage(error),
             kind: 'danger'
         })
+        loading.value.saveRule = false
+
     }
 }
 
@@ -227,12 +233,12 @@ const closeDrawer = () => {
 
             <div class="flex justify-end">
                 <NeButton class=" ml-1" :disabled="loading.saveRule" :loading="loading.saveRule" kind="primary"
-                        size="lg" @click.prevent="saveRule()">
-                        <template #prefix>
-                            <FontAwesomeIcon :icon="faSave" />
-                        </template>
-                        {{ t('common.save') }}
-                    </NeButton>
+                    size="lg" @click.prevent="saveRule()">
+                    <template #prefix>
+                        <FontAwesomeIcon :icon="faSave" />
+                    </template>
+                    {{ t('common.save') }}
+                </NeButton>
             </div>
         </form>
     </NeSideDrawer>

@@ -31,7 +31,7 @@ let loading = ref({
     fetchRule: false,
 });
 
-const emit = defineEmits(['close', 'save'])
+const emit = defineEmits(['close', 'save', 'tunnel-added'])
 
 // Form fields
 const service = ref(false);
@@ -103,6 +103,8 @@ const validate = () => {
 const saveRule = async () => {
     if (!validate()) return
 
+    loading.value.saveRule = true
+
     try {
         // Collect entries into an array
         const payload = [
@@ -118,8 +120,6 @@ const saveRule = async () => {
             },
         ]
 
-        console.log("payload=====", payload)
-
         const response = await axios.post(`${getSDControllerApiEndpoint()}/vxlan`, {
             method: "set-config",
             payload,
@@ -132,12 +132,16 @@ const saveRule = async () => {
                 kind: 'success'
             })
 
+            loading.value.saveRule = false
             emit('save', payload)
             emit('close') // Close drawer on success
+            emit('tunnel-added')
         }
     } catch (err) {
+        loading.value.saveRule = false
         console.error("Error saving rule:", getAxiosErrorMessage(err))
     }
+    loading.value.saveRule = false
 }
 
 // Close drawer function

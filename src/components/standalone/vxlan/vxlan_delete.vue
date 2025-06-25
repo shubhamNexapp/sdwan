@@ -13,6 +13,7 @@ import { useNotificationsStore } from '../../../stores/notifications'
 
 
 import { getSDControllerApiEndpoint } from '@/lib/config'
+import { Delete, Success } from '@/lib/tost'
 const notificationsStore = useNotificationsStore()
 
 
@@ -57,10 +58,11 @@ async function deleteTunnel() {
 
             if (response.data.code === 200) {
                 notificationsStore.createNotification({
-                    title: 'Success',
-                    description: 'Configuration updated successfully.',
+                    title: Success,
+                    description: Delete,
                     kind: 'success'
                 });
+                emit('tunnel-deleted')
                 close()
             } else {
                 throw new Error('Failed to delete configuration.');

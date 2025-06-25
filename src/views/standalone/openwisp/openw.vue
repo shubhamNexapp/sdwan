@@ -8,6 +8,7 @@ import axios from 'axios';
 import { getSDControllerApiEndpoint } from '@/lib/config';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faSave } from '@fortawesome/free-solid-svg-icons'
+import { Saved, Success } from '@/lib/tost';
 
 
 const { t } = useI18n();
@@ -101,8 +102,8 @@ async function saveSettings() {
 
     if (response.data.code === 200) {
       notificationsStore.createNotification({
-        title: 'Success',
-        description: 'Configuration saved successfully.',
+        title: Success,
+        description: Saved,
         kind: 'success'
       });
       fetchConfiguration()
@@ -111,7 +112,7 @@ async function saveSettings() {
     }
   } catch (err) {
     console.error("Error:", err);
-    error.value = { title: 'Error', description: 'Failed to save OpenWISP configuration.' };
+    error.value = { title: 'Error', description: 'Failed to save SDWAN Controller configuration.' };
   } finally {
     saving.value = false;
   }

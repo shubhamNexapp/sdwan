@@ -1,0 +1,6 @@
+export const Success = 'Success'
+export const Saved = 'Configuration saved successfully.'
+export const Update = 'Configuration updated successfully.'
+export const Failed = 'Failed to save configuration.'
+export const Add = 'Configuration add successfully.'
+export const Delete = 'Configuration deleted successfully.'
