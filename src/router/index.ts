@@ -111,7 +111,7 @@ const standaloneRoutes = [
     component: () => import('../views/standalone/network/MultiWanView.vue')
   },
   {
-    path: 'network/laodbalance',
+    path: 'network/loadbalance',
     name: 'Load Balance',
     component: () => import('../views/standalone/network/LoadBalance.vue')
   },
