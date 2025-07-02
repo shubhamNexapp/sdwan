@@ -101,6 +101,7 @@ async function saveSettings() {
     });
 
     if (response.data.code === 200) {
+      saving.value = false;
       notificationsStore.createNotification({
         title: Success,
         description: Saved,
@@ -108,9 +109,11 @@ async function saveSettings() {
       });
       fetchConfiguration()
     } else {
+      saving.value = false;
       throw new Error('Failed to save configuration.');
     }
   } catch (err) {
+    saving.value = false;
     console.error("Error:", err);
     error.value = { title: 'Error', description: 'Failed to save SDWAN Controller configuration.' };
   } finally {

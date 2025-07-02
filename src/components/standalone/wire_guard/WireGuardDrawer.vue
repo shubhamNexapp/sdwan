@@ -501,7 +501,7 @@ watch(
       status.value = newValue.status === 'connect';
       localNetwork.value = newValue.local_network || "";
       listenPort.value = newValue.listen_port || "";
-      serverIP.value = newValue.server_port || "";
+      serverIP.value = newValue.server_ip || "";
       serverPort.value = newValue.server_port || "";
       peerPublicKey.value = newValue.peer_public_key || "";
       allowedIP.value = newValue.allowed_ips || "";
