@@ -49,23 +49,23 @@ const error = ref({
   notificationDetails: ''
 })
 
-async function fetchTunnels(setLoading: boolean = true) {
-  try {
-    if (setLoading) {
-      loading.value = true
-    }
-    tunnels.value = (await ubusCall('ns.ipsectunnel', 'list-tunnels')).data.tunnels
-    loading.value = false
-  } catch (err: any) {
-    error.value.notificationTitle = t('Cannot retrieve Gre tunnels')
-    error.value.notificationDescription = t(getAxiosErrorMessage(err))
-    error.value.notificationDetails = err.toString()
-  } finally {
-    if (setLoading) {
-      loading.value = false
-    }
-  }
-}
+// async function fetchTunnels(setLoading: boolean = true) {
+//   try {
+//     if (setLoading) {
+//       loading.value = true
+//     }
+//     tunnels.value = (await ubusCall('ns.ipsectunnel', 'list-tunnels')).data.tunnels
+//     loading.value = false
+//   } catch (err: any) {
+//     error.value.notificationTitle = t('Cannot retrieve Gre tunnels')
+//     error.value.notificationDescription = t(getAxiosErrorMessage(err))
+//     error.value.notificationDetails = err.toString()
+//   } finally {
+//     if (setLoading) {
+//       loading.value = false
+//     }
+//   }
+// }
 
 function openCreateEditDrawer(itemToEdit: IpsecTunnel | null) {
   selectedTunnel.value = itemToEdit
@@ -104,22 +104,22 @@ function cleanError() {
 
 async function reloadTunnels() {
   cleanError()
-  await fetchTunnels()
+  // await fetchTunnels()
   await uciChangesStore.getChanges()
 }
 
 onMounted(() => {
-  fetchTunnels()
+  // fetchTunnels()
   getLists()
   // periodically reload data
-  fetchTunnelsIntervalId.value = setInterval(() => fetchTunnels(false), RELOAD_INTERVAL)
+  // fetchTunnelsIntervalId.value = setInterval(() => fetchTunnels(false), RELOAD_INTERVAL)
 })
 
-onUnmounted(() => {
-  if (fetchTunnelsIntervalId.value) {
-    clearInterval(fetchTunnelsIntervalId.value)
-  }
-})
+// onUnmounted(() => {
+//   if (fetchTunnelsIntervalId.value) {
+//     clearInterval(fetchTunnelsIntervalId.value)
+//   }
+// })
 
 let apiResponse = ref()
 const getLists = async () => {
@@ -233,7 +233,7 @@ const getLists = async () => {
   </div>
 
   <DeleteTunnelModal :visible="showDeleteModal" :itemToDelete="selectedTunnelName" @close="showDeleteModal = false"
-    @tunnel-deleted="fetchTunnels" />
+    @tunnel-deleted="reloadTunnels" />
   <GreDrawer :item-to-edit="selectedTunnel" @close="closeModalsAndDrawers" :rule-type="'forward'" :known-tags="[]"
     @add-edit-tunnel="reloadTunnels" :is-shown="showCreateEditDrawer" />
   <GreEdit :item-to-edit="selectedTunnels" @close="showEditModals = false" :rule-type="'forward'" :known-tags="[]"

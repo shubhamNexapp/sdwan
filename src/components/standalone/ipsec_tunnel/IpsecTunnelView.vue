@@ -43,23 +43,23 @@ const error = ref({
   notificationDetails: ''
 })
 
-async function fetchTunnels(setLoading: boolean = true) {
-  try {
-    if (setLoading) {
-      loading.value = true
-    }
-    tunnels.value = (await ubusCall('ns.ipsectunnel', 'list-tunnels')).data.tunnels
-    loading.value = false
-  } catch (err: any) {
-    error.value.notificationTitle = t('error.cannot_retrieve_ipsec_tunnels')
-    error.value.notificationDescription = t(getAxiosErrorMessage(err))
-    error.value.notificationDetails = err.toString()
-  } finally {
-    if (setLoading) {
-      loading.value = false
-    }
-  }
-}
+// async function fetchTunnels(setLoading: boolean = true) {
+//   try {
+//     if (setLoading) {
+//       loading.value = true
+//     }
+//     tunnels.value = (await ubusCall('ns.ipsectunnel', 'list-tunnels')).data.tunnels
+//     loading.value = false
+//   } catch (err: any) {
+//     error.value.notificationTitle = t('error.cannot_retrieve_ipsec_tunnels')
+//     error.value.notificationDescription = t(getAxiosErrorMessage(err))
+//     error.value.notificationDetails = err.toString()
+//   } finally {
+//     if (setLoading) {
+//       loading.value = false
+//     }
+//   }
+// }
 
 function openCreateEditDrawer(itemToEdit: Tunnel | null) {
   selectedTunnel.value = itemToEdit
@@ -103,15 +103,15 @@ async function toggleTunnelEnable(tunnel: Tunnel) {
 
 async function reloadTunnels() {
   cleanError()
-  await fetchTunnels()
+  // await fetchTunnels()
   await uciChangesStore.getChanges()
 }
 
 onMounted(() => {
-  fetchTunnels()
+  // fetchTunnels()
 
   // periodically reload data
-  fetchTunnelsIntervalId.value = setInterval(() => fetchTunnels(false), RELOAD_INTERVAL)
+  // fetchTunnelsIntervalId.value = setInterval(() => fetchTunnels(false), RELOAD_INTERVAL)
 })
 
 onUnmounted(() => {
@@ -158,7 +158,7 @@ onUnmounted(() => {
           {{ error.notificationDetails }}
         </template></NeInlineNotification
       >
-      <NeSkeleton v-if="loading" :lines="8" size="lg" />
+      <!-- <NeSkeleton v-if="loading" :lines="8" size="lg" /> -->
       <template v-else>
         <NeEmptyState
           v-if="tunnels.length == 0"

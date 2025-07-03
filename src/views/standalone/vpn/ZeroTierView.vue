@@ -52,23 +52,23 @@ const error = ref({
   notificationDetails: ''
 })
 
-async function fetchTunnels(setLoading: boolean = true) {
-  try {
-    if (setLoading) {
-      loading.value = true
-    }
-    tunnels.value = (await ubusCall('ns.ipsectunnel', 'list-tunnels')).data.tunnels
-    loading.value = false
-  } catch (err: any) {
-    error.value.notificationTitle = t('error.cannot_retrieve_ipsec_tunnels')
-    error.value.notificationDescription = t(getAxiosErrorMessage(err))
-    error.value.notificationDetails = err.toString()
-  } finally {
-    if (setLoading) {
-      loading.value = false
-    }
-  }
-}
+// async function fetchTunnels(setLoading: boolean = true) {
+//   try {
+//     if (setLoading) {
+//       loading.value = true
+//     }
+//     tunnels.value = (await ubusCall('ns.ipsectunnel', 'list-tunnels')).data.tunnels
+//     loading.value = false
+//   } catch (err: any) {
+//     error.value.notificationTitle = t('error.cannot_retrieve_ipsec_tunnels')
+//     error.value.notificationDescription = t(getAxiosErrorMessage(err))
+//     error.value.notificationDetails = err.toString()
+//   } finally {
+//     if (setLoading) {
+//       loading.value = false
+//     }
+//   }
+// }
 
 function openCreateEditDrawer(itemToEdit: IpsecTunnel | null) {
   selectedTunnel.value = itemToEdit
@@ -113,22 +113,22 @@ async function toggleTunnelEnable(tunnel: IpsecTunnel) {
 
 async function reloadTunnels() {
   cleanError()
-  await fetchTunnels()
+  // await fetchTunnels()
   await uciChangesStore.getChanges()
 }
 
 onMounted(() => {
-  fetchTunnels()
+  // fetchTunnels()
   getLists()
   // periodically reload data
-  fetchTunnelsIntervalId.value = setInterval(() => fetchTunnels(false), RELOAD_INTERVAL)
+  // fetchTunnelsIntervalId.value = setInterval(() => fetchTunnels(false), RELOAD_INTERVAL)
 })
 
-onUnmounted(() => {
-  if (fetchTunnelsIntervalId.value) {
-    clearInterval(fetchTunnelsIntervalId.value)
-  }
-})
+// onUnmounted(() => {
+//   if (fetchTunnelsIntervalId.value) {
+//     clearInterval(fetchTunnelsIntervalId.value)
+//   }
+// })
 
 const apiResponse = ref()
 const getLists = async () => {

@@ -70,7 +70,6 @@ watch(
     () => apiResponse.value,
     (newValue) => {
         if (newValue) {
-            console.log("newValue======", newValue.backup_status)
             service.value = newValue.service === 'enable';
             mainStatus.value = newValue.main_status
             backupStatus.value = newValue.backup_status
