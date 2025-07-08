@@ -220,6 +220,7 @@ async function resetForm() {
   if (props.itemToEdit) {
     try {
       tunnelData = props.itemToEdit
+
       localIdentifier.value = tunnelData.local_identifier
       remoteIdentifier.value = tunnelData.remote_identifier
       forceencaps.value = tunnelData.forceencaps
@@ -613,9 +614,13 @@ watch(
         <NeRadioSelection v-if="!id" :label="t('standalone.ipsec_tunnel.pre_shared_key')" :options="presharedKeyOptions"
           v-model="presharedKeyMode" :card="true" :grid-style="'grid-cols-1 sm:grid-cols-2 gap-3'" />
 
-        <NeTextInput v-model="presharedKey" :invalidMessage="validationErrorBag.getFirstFor('presharedKey')"
+        <NeTextInput v-model="presharedKey" :label="t('Shared Key')"
+          :invalidMessage="validationErrorBag.getFirstFor('presharedKey')">
+        </NeTextInput>
+
+        <!-- <NeTextInput v-model="presharedKey" :invalidMessage="validationErrorBag.getFirstFor('presharedKey')"
           :label="id ? t('standalone.ipsec_tunnel.pre_shared_key') : ''" v-if="presharedKeyMode == 'import'" />
-        <NeCopyField v-else :value="generatedPresharedKey" />
+        <NeCopyField v-else :value="generatedPresharedKey" /> -->
 
         <div>
           <NeFormItemLabel>{{

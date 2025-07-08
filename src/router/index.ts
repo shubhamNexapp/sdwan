@@ -333,7 +333,7 @@ const standaloneRoutes = [
   {
     path: 'security/anti-spam',
     name: 'Anti Spam',
-    component: () => import('../views/standalone/security/AntiSpam.vue')
+    component: () => import('../views/standalone/security/AntiSpamView.vue')
   },
   // {
   //   path: 'security/spi-filter',
