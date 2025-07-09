@@ -231,6 +231,7 @@ const blackList = computed(() => {
                 <NeTable cardBreakpoint="md" class="mt-2">
                     <NeTableHead>
                         <NeTableHeadCell>#</NeTableHeadCell>
+                        <NeTableHeadCell>Rule Name</NeTableHeadCell>
                         <NeTableHeadCell>Score</NeTableHeadCell>
                         <NeTableHeadCell>Filter Type</NeTableHeadCell>
                         <NeTableHeadCell>Keyword</NeTableHeadCell>
@@ -240,6 +241,7 @@ const blackList = computed(() => {
                     <NeTableBody>
                         <NeTableRow v-for="(item, index) in apiResponse.keyword_filtering" :key="index">
                             <NeTableCell>{{ index + 1 }}</NeTableCell>
+                            <NeTableCell>{{ item.rule_name }}</NeTableCell>
                             <NeTableCell>{{ item.score }}</NeTableCell>
                             <NeTableCell>{{ item.listname }}</NeTableCell>
                             <NeTableCell>

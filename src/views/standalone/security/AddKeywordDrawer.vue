@@ -101,7 +101,7 @@ const saveRule = async () => {
         const payload =
         {
             service: service.value ? "enable" : "disable",
-            "rule_name": "test3",
+            "rule_name": name.value,
             "listname": listName.value,
             "score": score.value,
             words: words.value.map((w: any) => ({ word: w }))
