@@ -493,7 +493,7 @@ async function createOrEditTunnel() {
 
   try {
     isSavingChanges.value = true
-    await ubusCall('ns.ipsectunnel', requestType, payload)
+    // await ubusCall('ns.ipsectunnel', requestType, payload)
     const response = await axios.post(`${getSDControllerApiEndpoint()}/ipsec_server`, {
       method: 'set-config',
       payload
@@ -546,7 +546,7 @@ watch(
     ">
     <NeInlineNotification v-if="error.notificationTitle" :title="error.notificationTitle"
       :description="error.notificationDescription" class="mb-6" kind="error">
-      <template #details v-if="error.notificationDetails">
+      <template  v-if="error.notificationDetails">
         {{ error.notificationDetails }}
       </template>
     </NeInlineNotification>
@@ -601,8 +601,8 @@ watch(
         <button @click="addField" type="button" class="text-blue-500">➕ Add Another Network</button> -->
 
         <NeTextInput v-model="localIdentifier" :label="t('standalone.ipsec_tunnel.local_identifier')"
-          :invalidMessage="validationErrorBag.getFirstFor('localIdentifier')"><template #tooltip>
-            <NeTooltip><template #content>{{
+          :invalidMessage="validationErrorBag.getFirstFor('localIdentifier')"><template >
+            <NeTooltip><template >{{
               t('standalone.ipsec_tunnel.local_identifier_tooltip')
             }}</template></NeTooltip>
           </template>
@@ -688,9 +688,9 @@ watch(
           :options="diffieHellmanOptions" :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
           :selected-label="t('ne_combobox.selected')" :user-input-label="t('ne_combobox.user_input_label')"
           :optionalLabel="t('common.optional')">
-          <template #tooltip>
+          <template >
             <NeTooltip>
-              <template #content>
+              <template >
                 {{ t('standalone.ipsec_tunnel.diffie_hellman_group_tooltip') }}
               </template>
             </NeTooltip>
