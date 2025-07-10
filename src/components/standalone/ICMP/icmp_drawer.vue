@@ -213,7 +213,7 @@ const closeDrawer = () => {
                         {{ errorBag.sourceInterface }}
                     </span>
 
-                    <NeTextInput @input="ipInputHandler" v-model="destination" :invalidMessage="errorBag.destination"
+                    <NeTextInput v-model="destination" :invalidMessage="errorBag.destination"
                         :label="t('Destination')" :placeholder="t('Enter Destination')">
                         <template #tooltip>
                             <NeTooltip>
