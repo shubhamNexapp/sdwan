@@ -69,29 +69,29 @@ const error = ref({
   notificationDetails: ''
 })
 
-// async function fetchTunnels(setLoading: boolean = true) {
-//   try {
-//     if (setLoading) {
-//       loading.value = true
-//     }
-//     const listTunnelResponse = await ubusCall('ns.ovpntunnel', 'list-tunnels')
-//     if (props.manageClientTunnels) {
-//       tunnels.value = listTunnelResponse.data.clients
-//     } else {
-//       tunnels.value = listTunnelResponse.data.servers
-//     }
-//   } catch (err: any) {
-//     error.value.notificationTitle = props.manageClientTunnels
-//       ? t('error.cannot_retrieve_client_tunnels')
-//       : t('error.cannot_retrieve_server_tunnels')
-//     error.value.notificationDescription = t(getAxiosErrorMessage(err))
-//     error.value.notificationDetails = err.toString()
-//   } finally {
-//     if (setLoading) {
-//       loading.value = false
-//     }
-//   }
-// }
+async function fetchTunnels(setLoading: boolean = true) {
+  try {
+    if (setLoading) {
+      loading.value = true
+    }
+    const listTunnelResponse = await ubusCall('ns.ovpntunnel', 'list-tunnels')
+    if (props.manageClientTunnels) {
+      tunnels.value = listTunnelResponse.data.clients
+    } else {
+      tunnels.value = listTunnelResponse.data.servers
+    }
+  } catch (err: any) {
+    error.value.notificationTitle = props.manageClientTunnels
+      ? t('error.cannot_retrieve_client_tunnels')
+      : t('error.cannot_retrieve_server_tunnels')
+    error.value.notificationDescription = t(getAxiosErrorMessage(err))
+    error.value.notificationDetails = err.toString()
+  } finally {
+    if (setLoading) {
+      loading.value = false
+    }
+  }
+}
 
 function openCreateEditDrawer(itemToEdit: Tunnel | null) {
   selectedTunnel.value = itemToEdit
@@ -146,22 +146,22 @@ async function toggleTunnelEnable(tunnel: Tunnel) {
 
 async function reloadTunnels() {
   cleanError()
-  // await fetchTunnels()
+  await fetchTunnels()
   await uciChangesStore.getChanges()
 }
 
 onMounted(() => {
-  // fetchTunnels()
+  fetchTunnels()
 
   // periodically reload data
-  // fetchTunnelsIntervalId.value = setInterval(() => fetchTunnels(false), RELOAD_INTERVAL)
+  fetchTunnelsIntervalId.value = setInterval(() => fetchTunnels(false), RELOAD_INTERVAL)
 })
 
-// onUnmounted(() => {
-//   if (fetchTunnelsIntervalId.value) {
-//     clearInterval(fetchTunnelsIntervalId.value)
-//   }
-// })
+onUnmounted(() => {
+  if (fetchTunnelsIntervalId.value) {
+    clearInterval(fetchTunnelsIntervalId.value)
+  }
+})
 </script>
 
 <template>

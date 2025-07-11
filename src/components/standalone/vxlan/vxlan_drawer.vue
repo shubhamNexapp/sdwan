@@ -60,13 +60,20 @@ const onlyNumbers = (event: Event) => {
 
 const ipInputHandler = (event: Event) => {
     const input = event.target as HTMLInputElement;
-    // Allow numbers and dots, and remove other characters
-    input.value = input.value.replace(/[^0-9.]/g, '');
-    // Limit to max 128 characters
-    if (input.value.length > 128) {
-        input.value = input.value.slice(0, 128);
+
+    // Allow only numbers, dots, and at most one slash
+    let value = input.value.replace(/[^0-9./]/g, '');
+
+    // Ensure only one slash is allowed
+    const parts = value.split('/');
+    if (parts.length > 2) {
+        value = parts[0] + '/' + parts.slice(1).join('').replace(/\//g, '');
     }
+
+    // Limit to 128 characters
+    input.value = value.slice(0, 128);
 };
+
 
 // Form validation function
 const validate = () => {
@@ -107,21 +114,19 @@ const saveRule = async () => {
 
     try {
         // Collect entries into an array
-        const payload = [
-            {
-                service: service.value ? "enable" : "disable",
-                // status: status.value ? "connected" : "disconnect",
-                interface_name: interfaceName.value,
-                base_interface: baseInterface.value,
-                vid: vid.value,
-                peer: peer.value,
-                port: port.value,
-                ipaddr: ipaddr.value,
-            },
-        ]
+        const payload =
+        {
+            service: service.value ? "enable" : "disable",
+            interface_name: interfaceName.value,
+            base_interface: baseInterface.value,
+            vid: vid.value,
+            peer: peer.value,
+            port: port.value,
+            ipaddr: ipaddr.value,
+        }
 
         const response = await axios.post(`${getSDControllerApiEndpoint()}/vxlan`, {
-            method: "set-config",
+            method: "add-config",
             payload,
         });
 

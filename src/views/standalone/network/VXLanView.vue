@@ -212,7 +212,7 @@ const getLists = async () => {
                                         {{ t('common.edit') }}
                                     </NeButton>
                                     <NeButton kind="tertiary" size="lg" :disabled="item.readonly"
-                                        @click="openDeleteModal(item)">
+                                        @click="openDeleteModal(item.interface_name)">
                                         <template #prefix>
                                             <font-awesome-icon :icon="['fas', 'trash']" class="h-4 w-4"
                                                 aria-hidden="true" />

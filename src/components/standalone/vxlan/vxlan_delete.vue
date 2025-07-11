@@ -40,19 +40,12 @@ const isDeleting = ref(false)
 async function deleteTunnel() {
     if (itemToDelete.value) {
         try {
-
-            const payload = [{
-                "interface_name": "",
-                "base_interface": "",
-                "service": "",
-                "vid": "",
-                "peer": "",
-                "port": "",
-                "ipaddr": ""
-            }]
+            const payload = {
+                "interface_name": itemToDelete.value
+            }
 
             const response = await axios.post(`${getSDControllerApiEndpoint()}/vxlan`, {
-                method: "set-config",
+                method: "delete-config",
                 payload
             });
 
