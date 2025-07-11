@@ -439,19 +439,16 @@ async function createOrEditTunnel() {
   error.value.notificationDescription = ''
   const isEditing = id.value != ''
   const requestType = isEditing ? 'edit-tunnel' : 'add-tunnel'
-  const subnet = [];
+  const subnet: any[] = [];
 
   const localSubnets = localNetworks.value.filter((x: any) => x.id !== '').map((x: any) => x.id);
   const remoteSubnets = remoteNetworksNew.value.filter((x) => x !== '');
 
-  // Match each pair by index
-  const maxLength = Math.max(localSubnets.length, remoteSubnets.length);
-
-  for (let i = 0; i < maxLength; i++) {
-    if (localSubnets[i] && remoteSubnets[i]) {
+  if (localSubnets.length > 0) {
+    for (const remote of remoteSubnets) {
       subnet.push({
-        local_subnet: localSubnets[i],
-        remote_subnet: remoteSubnets[i]
+        local_subnet: localSubnets[0], // always use the first local subnet
+        remote_subnet: remote
       });
     }
   }
@@ -546,7 +543,7 @@ watch(
     ">
     <NeInlineNotification v-if="error.notificationTitle" :title="error.notificationTitle"
       :description="error.notificationDescription" class="mb-6" kind="error">
-      <template  v-if="error.notificationDetails">
+      <template v-if="error.notificationDetails">
         {{ error.notificationDetails }}
       </template>
     </NeInlineNotification>
@@ -601,10 +598,10 @@ watch(
         <button @click="addField" type="button" class="text-blue-500">➕ Add Another Network</button> -->
 
         <NeTextInput v-model="localIdentifier" :label="t('standalone.ipsec_tunnel.local_identifier')"
-          :invalidMessage="validationErrorBag.getFirstFor('localIdentifier')"><template >
-            <NeTooltip><template >{{
+          :invalidMessage="validationErrorBag.getFirstFor('localIdentifier')"><template>
+            <NeTooltip><template>{{
               t('standalone.ipsec_tunnel.local_identifier_tooltip')
-            }}</template></NeTooltip>
+                }}</template></NeTooltip>
           </template>
         </NeTextInput>
         <NeTextInput v-model="remoteIdentifier" :label="t('standalone.ipsec_tunnel.remote_identifier')"
@@ -688,9 +685,9 @@ watch(
           :options="diffieHellmanOptions" :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
           :selected-label="t('ne_combobox.selected')" :user-input-label="t('ne_combobox.user_input_label')"
           :optionalLabel="t('common.optional')">
-          <template >
+          <template>
             <NeTooltip>
-              <template >
+              <template>
                 {{ t('standalone.ipsec_tunnel.diffie_hellman_group_tooltip') }}
               </template>
             </NeTooltip>
