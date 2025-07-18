@@ -118,7 +118,7 @@ function parsedSubnets(subnetString: string) {
 </script>
 
 <template>
-  <NeTable :data="tunnels" :headers="tableHeaders">
+  <!-- <NeTable :data="tunnels" :headers="tableHeaders">
 
     <template #name="{ item }: { item: IpsecTunnel }">
       <p :class="[...getCellClasses(item)]">{{ item.dpdaction }}</p>
@@ -186,10 +186,10 @@ function parsedSubnets(subnetString: string) {
           </template>
           {{ t('common.edit') }}
         </NeButton>
-        <!-- <NeDropdown :items="getDropdownItems(item)" :align-to-right="true" /> -->
+        <NeDropdown :items="getDropdownItems(item)" :align-to-right="true" />
       </div>
     </template>
-  </NeTable>
+  </NeTable> -->
 
   <h1><b>Remote Data</b></h1>
 

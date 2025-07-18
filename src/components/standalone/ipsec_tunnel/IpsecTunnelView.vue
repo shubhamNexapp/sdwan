@@ -153,7 +153,7 @@ onUnmounted(() => {
 <template>
   <div class="flex flex-col">
     <div class="space-y-6">
-      <div class="flex flex-col items-start justify-between gap-6 lg:flex-row">
+    <!-- <div class="flex flex-col items-start justify-between gap-6 lg:flex-row">
         <p class="max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
           {{ t('standalone.ipsec_tunnel.description') }}
         </p>
@@ -165,7 +165,7 @@ onUnmounted(() => {
             {{ t('standalone.ipsec_tunnel.add_ipsec_tunnel') }}
           </NeButton>
         </div>
-      </div>
+      </div>  -->
       <NeInlineNotification kind="error" :title="error.notificationTitle" :description="error.notificationDescription"
         v-if="error.notificationTitle"><template  v-if="error.notificationDetails">
           {{ error.notificationDetails }}
