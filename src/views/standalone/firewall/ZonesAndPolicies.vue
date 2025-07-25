@@ -88,7 +88,7 @@ function editZone(zone: Zone) {
       <div>
         <!-- TODO: add settings -->
         <NeButton kind="secondary" @click="createZone" size="lg">
-          <template #prefix>
+          <template >
             <FontAwesomeIcon :icon="['fas', 'circle-plus']" />
           </template>
           {{ t('standalone.zones_and_policies.add_zone') }}
@@ -96,7 +96,7 @@ function editZone(zone: Zone) {
       </div>
     </div>
     <NeInlineNotification v-if="firewallConfig.error" :title="t(firewallConfig.error.message)" kind="error" />
-    <NeTable v-else :ariaLabel="t('standalone.zones_and_policies.firewall_zones')" cardBreakpoint="2xl"
+    <NeTable v-else :ariaLabel="t('standalone.zones_and_policies.firewall_zones')" cardBreakpoint="xl"
       :loading="firewallConfig.loading" :skeletonColumns="6" :skeletonRows="5">
       <NeTableHead>
         <NeTableHeadCell>{{ t('standalone.zones_and_policies.zone') }}</NeTableHeadCell>
@@ -202,7 +202,7 @@ function editZone(zone: Zone) {
           </NeTableCell>
         </NeTableRow>
       </NeTableBody>
-      <template #paginator>
+      <template #paginator="{}">
         <NePaginator :current-page="currentPage" :total-rows="firewallConfig.zonesWithoutAliases.length"
           :page-size="pageSize" :nav-pagination-label="t('ne_table.pagination')"
           :next-label="t('ne_table.go_to_next_page')" :previous-label="t('ne_table.go_to_previous_page')"

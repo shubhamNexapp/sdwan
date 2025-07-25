@@ -110,10 +110,15 @@ const standaloneRoutes = [
     name: 'MultiWAN',
     component: () => import('../views/standalone/network/MultiWanView.vue')
   },
+  // {
+  //   path: 'network/loadbalance',
+  //   name: 'Load Balance',
+  //   component: () => import('../views/standalone/network/LoadBalance.vue')
+  // },
   {
-    path: 'network/loadbalance',
-    name: 'Load Balance',
-    component: () => import('../views/standalone/network/LoadBalance.vue')
+    path: 'network/performance-sla',
+    name: 'Performance SLA',
+    component: () => import('../views/standalone/network/PerformanceSLA.vue')
   },
   {
     path: 'network/routes',
