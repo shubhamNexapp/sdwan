@@ -466,9 +466,9 @@ function handleNextStep() {
 
                     <NeTextInput @input="ipInputHandler" v-model="checkIP" :label="t('Check IP')"
                         :placeholder="t('Enter Check IP')" :invalidMessage="errorBag.checkIP">
-                        <template #tooltip>
+                        <template>
                             <NeTooltip>
-                                <template #content>
+                                <template>
                                     {{ t('Use a reliable public ip that always respond to pings.') }}
                                 </template>
                             </NeTooltip>
@@ -477,9 +477,9 @@ function handleNextStep() {
 
                     <NeTextInput v-model="gateway" :label="t('Gateway')" :placeholder="t('Enter Gateway')"
                         :invalidMessage="errorBag.gateway">
-                        <template #tooltip>
+                        <template>
                             <NeTooltip>
-                                <template #content>
+                                <template>
                                     {{ t('Enter the nexthop gateway ip.') }}
                                 </template>
                             </NeTooltip>
@@ -488,9 +488,9 @@ function handleNextStep() {
 
                     <NeTextInput @input="onlyNumbers" v-model="interval" :label="t('Interval')"
                         :placeholder="t('Enter interval')" :invalidMessage="errorBag.interval">
-                        <template #tooltip>
+                        <template>
                             <NeTooltip>
-                                <template #content>
+                                <template>
                                     {{ t('Set the interval time') }}
                                 </template>
                             </NeTooltip>
@@ -499,9 +499,9 @@ function handleNextStep() {
 
                     <NeTextInput @input="onlyNumbers" v-model="retry" :label="t('Retry')"
                         :placeholder="t('Enter Retry')" :invalidMessage="errorBag.retry">
-                        <template #tooltip>
+                        <template>
                             <NeTooltip>
-                                <template #content>
+                                <template>
                                     {{ t('Set the retry time') }}
                                 </template>
                             </NeTooltip>
@@ -510,9 +510,9 @@ function handleNextStep() {
 
                     <NeTextInput @input="onlyNumbers" v-model="delay" :label="t('Delay')"
                         :placeholder="t('Enter Delay')" :invalidMessage="errorBag.delay">
-                        <template #tooltip>
+                        <template>
                             <NeTooltip>
-                                <template #content>
+                                <template>
                                     {{ t('Set the delay time') }}
                                 </template>
                             </NeTooltip>
@@ -521,9 +521,9 @@ function handleNextStep() {
 
                     <NeTextInput @input="onlyNumbers" v-model="packetLoss" :label="t('Packet Loss')"
                         :placeholder="t('Enter Packet Loss')" :invalidMessage="errorBag.packetLoss">
-                        <template #tooltip>
+                        <template>
                             <NeTooltip>
-                                <template #content>
+                                <template>
                                     {{ t('Set a threshold') }}
                                 </template>
                             </NeTooltip>
@@ -557,9 +557,9 @@ function handleNextStep() {
 
                     <NeTextInput @input="ipInputHandler" v-model="backup_checkIP" :label="t('Check IP')"
                         :placeholder="t('Enter Check IP')" :invalidMessage="errorBag.backup_checkIP">
-                        <template #tooltip>
+                        <template>
                             <NeTooltip>
-                                <template #content>
+                                <template>
                                     {{ t('Use a reliable public ip that always respond to pings.') }}
                                 </template>
                             </NeTooltip>
@@ -568,9 +568,9 @@ function handleNextStep() {
 
                     <NeTextInput v-model="backup_gateway" :label="t('Gateway')" :placeholder="t('Enter Gateway')"
                         :invalidMessage="errorBag.backup_gateway">
-                        <template #tooltip>
+                        <template>
                             <NeTooltip>
-                                <template #content>
+                                <template>
                                     {{ t('Enter the nexthop gateway ip.') }}
                                 </template>
                             </NeTooltip>
@@ -579,9 +579,9 @@ function handleNextStep() {
 
                     <NeTextInput @input="onlyNumbers" v-model="backup_interval" :label="t('Interval')"
                         :placeholder="t('Enter interval')" :invalidMessage="errorBag.backup_interval">
-                        <template #tooltip>
+                        <template>
                             <NeTooltip>
-                                <template #content>
+                                <template>
                                     {{ t('Set the interval time') }}
                                 </template>
                             </NeTooltip>
@@ -590,9 +590,9 @@ function handleNextStep() {
 
                     <NeTextInput @input="onlyNumbers" v-model="backup_retry" :label="t('Retry')"
                         :placeholder="t('Enter Retry')" :invalidMessage="errorBag.backup_retry">
-                        <template #tooltip>
+                        <template>
                             <NeTooltip>
-                                <template #content>
+                                <template>
                                     {{ t('Set the retry time') }}
                                 </template>
                             </NeTooltip>
@@ -601,9 +601,9 @@ function handleNextStep() {
 
                     <NeTextInput @input="onlyNumbers" v-model="backup_delay" :label="t('Delay')"
                         :placeholder="t('Enter Delay')" :invalidMessage="errorBag.backup_delay">
-                        <template #tooltip>
+                        <template>
                             <NeTooltip>
-                                <template #content>
+                                <template>
                                     {{ t('Set the delay time') }}
                                 </template>
                             </NeTooltip>
@@ -612,9 +612,9 @@ function handleNextStep() {
 
                     <NeTextInput @input="onlyNumbers" v-model="backup_packetLoss" :label="t('Packet Loss')"
                         :placeholder="t('Enter Packet Loss')" :invalidMessage="errorBag.backup_packetLoss">
-                        <template #tooltip>
+                        <template>
                             <NeTooltip>
-                                <template #content>
+                                <template>
                                     {{ t('Set a threshold') }}
                                 </template>
                             </NeTooltip>
@@ -643,7 +643,7 @@ function handleNextStep() {
                     <div class="flex  flex-col w-[90px]">
                         <NeButton class="ml-1" :disabled="loading.saveRule" :loading="loading.saveRule" kind="primary"
                             size="lg" @click.prevent="saveNetworkConfig()">
-                            <template #prefix>
+                            <template>
                                 <FontAwesomeIcon :icon="faSave" />
                             </template>
                             {{ t('common.save') }}
@@ -657,7 +657,7 @@ function handleNextStep() {
                 <div class="flex flex-row items-center justify-between mt-8">
                     <p class="max-w-2xl font-bold text-black dark:text-gray-400">More Details</p>
                     <NeButton kind="primary" size="lg" @click="addDetails">
-                        <template #prefix>
+                        <template>
                             <font-awesome-icon :icon="['fas', 'plus']" class="h-4 w-4" aria-hidden="true" />
                         </template>
                         Add
@@ -723,7 +723,7 @@ function handleNextStep() {
                 <div class="flex  flex-col w-[130px]">
                     <NeButton class="ml-1" :disabled="loading.moreDetails" :loading="loading.moreDetails" kind="primary"
                         size="lg" @click.prevent="saveMoreDetails()">
-                        <template #prefix>
+                        <template>
                             <FontAwesomeIcon :icon="faSave" />
                         </template>
                         {{ t('Add Details') }}
