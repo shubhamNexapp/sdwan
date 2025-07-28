@@ -243,7 +243,7 @@ const closeDrawer = () => {
             :options="[
               { label: 'tcp', id: 'tcp' },
               { label: 'udp', id: 'udp' },
-              { label: 'any', id: 'any' },
+              { label: 'all', id: 'all' },
             ]"
             :label="t('Protocol')"
             class="grow"

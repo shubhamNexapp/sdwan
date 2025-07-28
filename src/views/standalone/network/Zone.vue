@@ -48,10 +48,10 @@ async function fetchConfiguration() {
 
       service.value = config.service === "enable";
       name.value = config.zone_name;
-      interfaceName.value = config.zone_ifname;
+      interfaceName.value = config.up_ifname;
 
       // Get unique values from "zone_ifname"
-      const uniqueIfnames = [...new Set(config.zone_ifname as string[])];
+      const uniqueIfnames = [...new Set(config.up_ifname as string[])];
 
       // Format for NeCombobox
       interfaceOptions.value = uniqueIfnames.map((ifname) => ({

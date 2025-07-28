@@ -58,7 +58,6 @@ function openCreateEditDrawer(itemToEdit: IpsecTunnel | null) {
 const selectedTunnelName = ref<string | null>(null);
 
 function openDeleteModal(tunnelName: string) {
-    console.log("tunnelName======",tunnelName)
   selectedTunnelName.value = tunnelName;
   showDeleteModal.value = true;
 }
