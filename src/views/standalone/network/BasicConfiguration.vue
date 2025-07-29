@@ -21,6 +21,7 @@ const notificationsStore = useNotificationsStore();
 // Validation error messages
 const errorBag = ref<{ [key: string]: string }>({});
 const participantOptions = ref<{ label: string; id: string }[]>([]);
+const baseOptions = ref();
 
 const loading = ref(false);
 const saving = ref(false);
@@ -83,6 +84,8 @@ async function fetchConfiguration() {
         label: ifname,
         id: ifname,
       }));
+
+      baseOptions.value = [...new Set(config.base_particpants as string[])];
     }
   } catch (err) {
     // error.value = {
@@ -153,26 +156,27 @@ async function saveSettings() {
   try {
     saving.value = true;
 
-    console.log("participant,=======",participant.value.map((item) => item.id),)
-
+    const payload = {
+      update_static_route: service.value ? "enable" : "disable",
+      zone_name: name.value,
+      zone_ifname: interfaceName.value,
+      base_protocol: protocol.value,
+      base_particpants: participant.value.map((item) => item.id),
+      base_server: server.value,
+      sla_target: slaTarget.value ? "enable" : "disable",
+      sla_latency: latencyThreshold.value,
+      sla_jitter: jitterThreshold.value,
+      sla_check_interval: checkInterval.value,
+      sla_fail_interval: failuresBeforeInactive.value,
+      sla_restore_interval: restoreLinkAfter.value,
+      sla_packet_loss: packetLoss.value,
+    };
+    console.log("payload========", payload);
     const response = await axios.post(
       `${getSDControllerApiEndpoint()}/performance_sla`,
       {
         method: "set-base",
-        payload: {
-          service: service.value ? "enable" : "disable",
-          zone_name: name.value,
-          zone_ifname: interfaceName.value,
-          protocol: protocol.value,
-          base_participants: participant.value.map((item) => item.id),
-          server: server.value,
-          sla_target: slaTarget.value,
-          latency_threshold: latencyThreshold.value,
-          jitter_threshold: jitterThreshold.value,
-          check_interval: checkInterval.value,
-          failures_before_inactive: failuresBeforeInactive.value,
-          restore_link_after: restoreLinkAfter.value,
-        },
+        payload: payload,
       }
     );
 
@@ -228,7 +232,7 @@ async function saveSettings() {
       :label="t('Protocol')"
       class="grow"
     />
-    
+
     <p
       v-if="errorBag.protocol"
       class="text-sm"
@@ -253,10 +257,10 @@ async function saveSettings() {
       :optionalLabel="$t('common.optional')"
     />
 
-     <!-- Display the selected values in a clean array -->
+    <!-- Display the selected values in a clean array -->
     <p class="mt-2 flex flex-wrap gap-2 text-gray-700">
       <span
-        v-for="(item, index) in participantOptions"
+        v-for="(item, index) in baseOptions"
         :key="index"
         class="me-2 rounded-full border border-blue-300 bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800"
       >
