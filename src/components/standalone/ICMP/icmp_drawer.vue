@@ -1,305 +1,418 @@
 <script setup lang="ts">
 import {
-    NeSideDrawer,
-    NeButton,
-    NeTextInput,
-    NeToggle,
-    getAxiosErrorMessage,
-    NeTooltip,
-    NeCombobox
-} from '@nethesis/vue-components'
-import { ref } from 'vue'
-import { useNotificationsStore } from '../../../stores/notifications'
-import { getSDControllerApiEndpoint } from '@/lib/config'
-import axios from 'axios'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faSave } from '@fortawesome/free-solid-svg-icons'
-import { useI18n } from 'vue-i18n'
-import { Saved, Success } from '@/lib/tost'
+  NeSideDrawer,
+  NeButton,
+  NeTextInput,
+  NeToggle,
+  getAxiosErrorMessage,
+  NeTooltip,
+  NeCombobox,
+} from "@nethesis/vue-components";
+import { onMounted, ref } from "vue";
+import { useNotificationsStore } from "../../../stores/notifications";
+import { getSDControllerApiEndpoint } from "@/lib/config";
+import axios from "axios";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { faSave } from "@fortawesome/free-solid-svg-icons";
+import { useI18n } from "vue-i18n";
+import { Saved, Success } from "@/lib/tost";
 
 const { t } = useI18n();
 
-const notificationsStore = useNotificationsStore()
+const notificationsStore = useNotificationsStore();
 
-const props = defineProps({
-    isShown: { type: Boolean, default: false }
-})
+const sourceInterfaceOptions = ref<{ label: string; id: string }[]>([]);
 
-let loading = ref({
-    listServiceSuggestions: false,
-    listObjectSuggestions: false,
-    listProtocols: false,
-    saveRule: false,
-    fetchRule: false,
+onMounted(() => {
+  fetchInterfaces();
 });
 
-const emit = defineEmits(['close', 'save', 'tunnel-added'])
+const props = defineProps({
+  isShown: { type: Boolean, default: false },
+});
+
+let loading = ref({
+  listServiceSuggestions: false,
+  listObjectSuggestions: false,
+  listProtocols: false,
+  saveRule: false,
+  fetchRule: false,
+});
+
+const emit = defineEmits(["close", "save", "tunnel-added"]);
 
 // Form fields
-const service = ref(false)
-const name = ref("")
-const destination = ref("")
-const timeInterval = ref("")
-const retryTimes = ref("")
-const command = ref("")
-const timeOutAction = ref("")
-const sourceInterface = ref("")
-const checkType = ref("")
-const custom_command = ref("")
+const service = ref(false);
+const name = ref("");
+const destination = ref("");
+const timeInterval = ref("");
+const retryTimes = ref("");
+const command = ref("");
+const timeOutAction = ref("");
+const sourceInterface = ref("");
+const checkType = ref("");
+const custom_command = ref("");
 
 // Validation error messages
-const errorBag = ref<{ [key: string]: string }>({})
+const errorBag = ref<{ [key: string]: string }>({});
+
+const fetchInterfaces = async () => {
+  loading.value.listProtocols = true;
+  try {
+    const response = await axios.post(
+      `${getSDControllerApiEndpoint()}/icmpcheck`,
+      {
+        method: "get-config",
+      }
+    );
+
+    if (response?.data?.data?.up_interface) {
+      sourceInterfaceOptions.value = response.data.data.up_interface.map(
+        (iface: { ifname: string }) => ({
+          label: iface.ifname,
+          id: iface.ifname,
+        })
+      );
+    }
+  } catch (error) {
+    console.error("Failed to fetch interfaces:", getAxiosErrorMessage(error));
+  } finally {
+    loading.value.listProtocols = false;
+  }
+};
 
 // Function to allow only letters in string fields
 const onlyLetters = (event: Event) => {
-    const input = event.target as HTMLInputElement
-    input.value = input.value.replace(/[^a-zA-Z\s]/g, '') // Allow only letters and spaces
-}
+  const input = event.target as HTMLInputElement;
+  input.value = input.value.replace(/[^a-zA-Z\s]/g, ""); // Allow only letters and spaces
+};
 
 // Function to allow only numbers in number fields
 const onlyNumbers = (event: Event) => {
-    const input = event.target as HTMLInputElement
-    input.value = input.value.replace(/[^0-9]/g, '') // Allow only numbers
-}
-
-const ipInputHandler = (event: Event) => {
-    const input = event.target as HTMLInputElement;
-    // Allow numbers and dots, and remove other characters
-    input.value = input.value.replace(/[^0-9.]/g, '');
-    // Limit to max 128 characters
-    if (input.value.length > 128) {
-        input.value = input.value.slice(0, 128);
-    }
+  const input = event.target as HTMLInputElement;
+  input.value = input.value.replace(/[^0-9]/g, ""); // Allow only numbers
 };
 
+const ipInputHandler = (event: Event) => {
+  const input = event.target as HTMLInputElement;
+  // Allow numbers and dots, and remove other characters
+  input.value = input.value.replace(/[^0-9.]/g, "");
+  // Limit to max 128 characters
+  if (input.value.length > 128) {
+    input.value = input.value.slice(0, 128);
+  }
+};
 
 // Form validation function
 const validate = () => {
-    errorBag.value = {}
+  errorBag.value = {};
 
-    if (service.value) { // Validate only if enabled
-        if (!name.value.trim() || name.value.length > 64) {
-            errorBag.value.name = "Task name is required and must be max 64 characters."
-        }
-
-        if (!destination.value.trim() || destination.value.length > 128) {
-            errorBag.value.destination = "Destination is required and must be max 128 characters."
-        }
-
-        const timeInt = Number(timeInterval.value)
-        if (!timeInterval.value.trim() || isNaN(timeInt) || timeInt < 1 || timeInt > 65535) {
-            errorBag.value.timeInterval = "Time Interval must be between 1 and 65535."
-        }
-
-        const retryInt = Number(retryTimes.value)
-        if (!retryTimes.value.trim() || isNaN(retryInt) || retryInt < 1 || retryInt > 65535) {
-            errorBag.value.retryTimes = "Retry Times must be between 1 and 65535."
-        }
-
-        // if (command.value.trim().toLowerCase() !== "reboot") {
-        //     errorBag.value.command = "Command must be 'reboot'."
-        // }
-
-        if (!timeOutAction.value) {
-            errorBag.value.timeOutAction = "Time out action is required'."
-        }
-
-        if (!sourceInterface.value) {
-            errorBag.value.sourceInterface = "Source interface is required'."
-        }
-
-        if (!checkType.value) {
-            errorBag.value.checkType = "Check type is required'."
-        }
+  if (service.value) {
+    // Validate only if enabled
+    if (!name.value.trim() || name.value.length > 64) {
+      errorBag.value.name =
+        "Task name is required and must be max 64 characters.";
     }
 
-    return Object.keys(errorBag.value).length === 0
-}
+    if (!destination.value.trim() || destination.value.length > 128) {
+      errorBag.value.destination =
+        "Destination is required and must be max 128 characters.";
+    }
+
+    const timeInt = Number(timeInterval.value);
+    if (
+      !timeInterval.value.trim() ||
+      isNaN(timeInt) ||
+      timeInt < 1 ||
+      timeInt > 65535
+    ) {
+      errorBag.value.timeInterval =
+        "Time Interval must be between 1 and 65535.";
+    }
+
+    const retryInt = Number(retryTimes.value);
+    if (
+      !retryTimes.value.trim() ||
+      isNaN(retryInt) ||
+      retryInt < 1 ||
+      retryInt > 65535
+    ) {
+      errorBag.value.retryTimes = "Retry Times must be between 1 and 65535.";
+    }
+
+    // if (command.value.trim().toLowerCase() !== "reboot") {
+    //     errorBag.value.command = "Command must be 'reboot'."
+    // }
+
+    if (!timeOutAction.value) {
+      errorBag.value.timeOutAction = "Time out action is required'.";
+    }
+
+    if (!sourceInterface.value) {
+      errorBag.value.sourceInterface = "Source interface is required'.";
+    }
+
+    if (!checkType.value) {
+      errorBag.value.checkType = "Check type is required'.";
+    }
+  }
+
+  return Object.keys(errorBag.value).length === 0;
+};
 
 // Save function
 const saveRule = async () => {
-    if (!validate()) return
-    loading.value.saveRule = true
+  if (!validate()) return;
+  loading.value.saveRule = true;
 
-    try {
-        const payload = [{
-            service: service.value ? "enabled" : "disabled",
-            name: name.value,
-            destination: destination.value,
-            time_interval: timeInterval.value,
-            source_interface: sourceInterface.value,
-            check_type: checkType.value,
-            retry_times: retryTimes.value,
-            // command: command.value,
-            time_out_action: timeOutAction.value,
-            ...(timeOutAction.value === 'custom' && {
-                custom_command: custom_command.value
-            })
-        }]
+  try {
+    const payload = [
+      {
+        service: service.value ? "enabled" : "disabled",
+        name: name.value,
+        destination: destination.value,
+        time_interval: timeInterval.value,
+        source_interface: sourceInterface.value,
+        check_type: checkType.value,
+        retry_times: retryTimes.value,
+        // command: command.value,
+        time_out_action: timeOutAction.value,
+        ...(timeOutAction.value === "custom" && {
+          custom_command: custom_command.value,
+        }),
+      },
+    ];
 
-        const response = await axios.post(`${getSDControllerApiEndpoint()}/icmpcheck`, {
-            method: "set-config",
-            payload,
-        });
+    const response = await axios.post(
+      `${getSDControllerApiEndpoint()}/icmpcheck`,
+      {
+        method: "set-config",
+        payload,
+      }
+    );
 
-        if (response.data.code === 200) {
-            notificationsStore.createNotification({
-                title: Success,
-                description: Saved,
-                kind: 'success'
-            })
-            loading.value.saveRule = false
+    if (response.data.code === 200) {
+      notificationsStore.createNotification({
+        title: Success,
+        description: Saved,
+        kind: "success",
+      });
+      loading.value.saveRule = false;
 
-            emit('save', payload)
-            emit('close') // Close drawer on success
-            emit('tunnel-added')
-        }
-    } catch (err) {
-        loading.value.saveRule = false
-        console.error("Error saving rule:", getAxiosErrorMessage(err))
+      emit("save", payload);
+      emit("close"); // Close drawer on success
+      emit("tunnel-added");
     }
-    loading.value.saveRule = false
-}
+  } catch (err) {
+    loading.value.saveRule = false;
+    console.error("Error saving rule:", getAxiosErrorMessage(err));
+  }
+  loading.value.saveRule = false;
+};
 
 // Close drawer function
 const closeDrawer = () => {
-    emit('close')
-}
-
+  emit("close");
+};
 </script>
 
 <template>
-    <NeSideDrawer :isShown="isShown" title="Add ICMP Check" closeAriaLabel="Close" @close="closeDrawer">
-        <form>
-            <div class="space-y-6">
-                <NeToggle v-model="service" :label="service ? 'Enable' : 'Disable'" :topLabel="'Service'" />
+  <NeSideDrawer
+    :isShown="isShown"
+    title="Add ICMP Check"
+    closeAriaLabel="Close"
+    @close="closeDrawer"
+  >
+    <form>
+      <div class="space-y-6">
+        <NeToggle
+          v-model="service"
+          :label="service ? 'Enable' : 'Disable'"
+          :topLabel="'Service'"
+        />
 
-                <!-- Show form fields only if service is enabled -->
-                <template v-if="service">
-                    <NeTextInput @input="onlyLetters" v-model="name" :invalidMessage="errorBag.name"
-                        :label="t('Task Name')" :placeholder="t('Enter Task Name')">
-                        <template #tooltip>
-                            <NeTooltip>
-                                <template #content>
-                                    {{ t('Enter the task name.') }}
-                                </template>
-                            </NeTooltip>
-                        </template>
-                    </NeTextInput>
-                    <!-- <NeTextInput label="Task Name" v-model.trim="name" @input="onlyLetters"
+        <!-- Show form fields only if service is enabled -->
+        <template v-if="service">
+          <NeTextInput
+            @input="onlyLetters"
+            v-model="name"
+            :invalidMessage="errorBag.name"
+            :label="t('Task Name')"
+            :placeholder="t('Enter Task Name')"
+          >
+            <template>
+              <NeTooltip>
+                <template>
+                  {{ t("Enter the task name.") }}
+                </template>
+              </NeTooltip>
+            </template>
+          </NeTextInput>
+          <!-- <NeTextInput label="Task Name" v-model.trim="name" @input="onlyLetters"
                         :invalidMessage="errorBag.name" /> -->
 
-                    <NeCombobox v-model="checkType" :options="[
-                        { label: 'icmp', id: 'icmp' },
-                        { label: 'domain', id: 'domain' },
-                    ]" :label="t('Check Type')" class="grow" :noResultsLabel="t('ne_combobox.no_results')"
-                        :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
-                        :noOptionsLabel="t('ne_combobox.no_options_label')" :selected-label="t('ne_combobox.selected')"
-                        :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" />
+          <NeCombobox
+            v-model="checkType"
+            :options="[
+              { label: 'icmp', id: 'icmp' },
+              { label: 'domain', id: 'domain' },
+            ]"
+            :label="t('Check Type')"
+            class="grow"
+            :noResultsLabel="t('ne_combobox.no_results')"
+            :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
+            :noOptionsLabel="t('ne_combobox.no_options_label')"
+            :selected-label="t('ne_combobox.selected')"
+            :user-input-label="t('ne_combobox.user_input_label')"
+            :optionalLabel="t('common.optional')"
+          />
 
-                    <NeCombobox v-model="sourceInterface" :options="[
-                        { label: 'eth0', id: 'eth0' },
-                        { label: 'eth1', id: 'eth1' },
-                        { label: 'eth2', id: 'eth2' },
-                        { label: 'eth3', id: 'eth3' },
-                        { label: 'eth4', id: 'eth4' },
-                        { label: 'eth5', id: 'eth5' },
-                    ]" :label="t('Source Interface')" class="grow" :noResultsLabel="t('ne_combobox.no_results')"
-                        :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
-                        :noOptionsLabel="t('ne_combobox.no_options_label')" :selected-label="t('ne_combobox.selected')"
-                        :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" />
+          <NeCombobox
+            v-model="sourceInterface"
+            :options="sourceInterfaceOptions"
+            :label="t('Source Interface')"
+            class="grow"
+            :noResultsLabel="t('ne_combobox.no_results')"
+            :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
+            :noOptionsLabel="t('ne_combobox.no_options_label')"
+            :selected-label="t('ne_combobox.selected')"
+            :user-input-label="t('ne_combobox.user_input_label')"
+            :optionalLabel="t('common.optional')"
+          />
 
-                    <span v-if="errorBag.sourceInterface" style="color: rgb(190 18 60 / var(--tw-text-opacity));">
-                        {{ errorBag.sourceInterface }}
-                    </span>
+          <span
+            v-if="errorBag.sourceInterface"
+            style="color: rgb(190 18 60 / var(--tw-text-opacity))"
+          >
+            {{ errorBag.sourceInterface }}
+          </span>
 
-                    <NeTextInput v-model="destination" :invalidMessage="errorBag.destination"
-                        :label="t('Destination')" :placeholder="t('Enter Destination')">
-                        <template #tooltip>
-                            <NeTooltip>
-                                <template #content>
-                                    {{ t('Enter the destination IP.') }}
-                                </template>
-                            </NeTooltip>
-                        </template>
-                    </NeTextInput>
-                    <!-- <NeTextInput label="Destination" v-model.trim="destination" @input="ipInputHandler"
+          <NeTextInput
+            v-model="destination"
+            :invalidMessage="errorBag.destination"
+            :label="t('Destination')"
+            :placeholder="t('Enter Destination')"
+          >
+            <template >
+              <NeTooltip>
+                <template >
+                  {{ t("Enter the destination IP.") }}
+                </template>
+              </NeTooltip>
+            </template>
+          </NeTextInput>
+          <!-- <NeTextInput label="Destination" v-model.trim="destination" @input="ipInputHandler"
                         :invalidMessage="errorBag.destination" /> -->
 
-                    <NeTextInput @input="onlyNumbers" v-model="timeInterval" :invalidMessage="errorBag.timeInterval"
-                        :label="t('Time Interval')" :placeholder="t('Enter Time Interval')">
-                        <template #tooltip>
-                            <NeTooltip>
-                                <template #content>
-                                    {{ t('Configured the ICMP rate limiting to request per second.') }}
-                                </template>
-                            </NeTooltip>
-                        </template>
-                    </NeTextInput>
-                    <!-- <NeTextInput label="Time Interval" v-model.trim="timeInterval" @input="onlyNumbers"
+          <NeTextInput
+            @input="onlyNumbers"
+            v-model="timeInterval"
+            :invalidMessage="errorBag.timeInterval"
+            :label="t('Time Interval')"
+            :placeholder="t('Enter Time Interval')"
+          >
+            <template >
+              <NeTooltip>
+                <template >
+                  {{
+                    t(
+                      "Configured the ICMP rate limiting to request per second."
+                    )
+                  }}
+                </template>
+              </NeTooltip>
+            </template>
+          </NeTextInput>
+          <!-- <NeTextInput label="Time Interval" v-model.trim="timeInterval" @input="onlyNumbers"
                         :invalidMessage="errorBag.timeInterval" /> -->
 
-                    <NeTextInput @input="onlyNumbers" v-model="retryTimes" :invalidMessage="errorBag.retryTimes"
-                        :label="t('Retry Times')" :placeholder="t('Enter Retry Times')">
-                        <template #tooltip>
-                            <NeTooltip>
-                                <template #content>
-                                    {{ t('Set the retry interval times.') }}
-                                </template>
-                            </NeTooltip>
-                        </template>
-                    </NeTextInput>
-                    <!-- <NeTextInput label="Retry Times" v-model.trim="retryTimes" @input="onlyNumbers"
+          <NeTextInput
+            @input="onlyNumbers"
+            v-model="retryTimes"
+            :invalidMessage="errorBag.retryTimes"
+            :label="t('Retry Times')"
+            :placeholder="t('Enter Retry Times')"
+          >
+            <template >
+              <NeTooltip>
+                <template >
+                  {{ t("Set the retry interval times.") }}
+                </template>
+              </NeTooltip>
+            </template>
+          </NeTextInput>
+          <!-- <NeTextInput label="Retry Times" v-model.trim="retryTimes" @input="onlyNumbers"
                         :invalidMessage="errorBag.retryTimes" /> -->
 
-                    <!-- <NeTextInput @input="onlyLetters" v-model="command" :invalidMessage="errorBag.command"
+          <!-- <NeTextInput @input="onlyLetters" v-model="command" :invalidMessage="errorBag.command"
                         :label="t('Command')" :placeholder="t('Enter Command')">
-                        <template #tooltip>
+                        <template >
                             <NeTooltip>
-                                <template #content>
+                                <template >
                                     {{ t('standalone.logs.search_tooltip') }}
                                 </template>
                             </NeTooltip>
                         </template>
                     </NeTextInput> -->
-                    <!-- <NeTextInput label="Command" v-model.trim="command" @input="onlyLetters"
+          <!-- <NeTextInput label="Command" v-model.trim="command" @input="onlyLetters"
                         :invalidMessage="errorBag.command" /> -->
 
-                    <NeCombobox v-model="timeOutAction" :options="[
-                        { label: 'reboot', id: 'reboot' },
-                        { label: 'custom', id: 'custom' },
-                    ]" :label="t('Time Out Action')" class="grow" :noResultsLabel="t('ne_combobox.no_results')"
-                        :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
-                        :noOptionsLabel="t('ne_combobox.no_options_label')" :selected-label="t('ne_combobox.selected')"
-                        :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" />
+          <NeCombobox
+            v-model="timeOutAction"
+            :options="[
+              { label: 'reboot', id: 'reboot' },
+              { label: 'custom', id: 'custom' },
+            ]"
+            :label="t('Time Out Action')"
+            class="grow"
+            :noResultsLabel="t('ne_combobox.no_results')"
+            :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
+            :noOptionsLabel="t('ne_combobox.no_options_label')"
+            :selected-label="t('ne_combobox.selected')"
+            :user-input-label="t('ne_combobox.user_input_label')"
+            :optionalLabel="t('common.optional')"
+          />
 
-                    <span v-if="errorBag.timeOutAction" style="color: rgb(190 18 60 / var(--tw-text-opacity));">
-                        {{ errorBag.timeOutAction }}
-                    </span>
-                    <!-- Conditionally rendered input if timeOutAction is 'custom' -->
-                    <NeTextInput v-if="timeOutAction === 'custom'" v-model="custom_command"
-                        :invalidMessage="errorBag.custom_command" :label="t('Custom Command')"
-                        :placeholder="t('Enter Custom Command')" maxlength="128" />
-                </template>
-            </div>
+          <span
+            v-if="errorBag.timeOutAction"
+            style="color: rgb(190 18 60 / var(--tw-text-opacity))"
+          >
+            {{ errorBag.timeOutAction }}
+          </span>
+          <!-- Conditionally rendered input if timeOutAction is 'custom' -->
+          <NeTextInput
+            v-if="timeOutAction === 'custom'"
+            v-model="custom_command"
+            :invalidMessage="errorBag.custom_command"
+            :label="t('Custom Command')"
+            :placeholder="t('Enter Custom Command')"
+            maxlength="128"
+          />
+        </template>
+      </div>
 
-            <!-- Footer -->
-            <div class="flex justify-end mt-6">
-                <NeButton kind="tertiary" @click.prevent="closeDrawer" class="mr-3">
-                    Cancel
-                </NeButton>
-                <!-- Submit button (left aligned) -->
-                <div class="flex flex-col w-[90px]">
-                    <NeButton class=" ml-1" :disabled="loading.saveRule" :loading="loading.saveRule" kind="primary"
-                        size="lg" @click.prevent="saveRule()">
-                        <template #prefix>
-                            <FontAwesomeIcon :icon="faSave" />
-                        </template>
-                        {{ t('common.save') }}
-                    </NeButton>
-
-                </div>
-            </div>
-        </form>
-    </NeSideDrawer>
+      <!-- Footer -->
+      <div class="mt-6 flex justify-end">
+        <NeButton kind="tertiary" @click.prevent="closeDrawer" class="mr-3">
+          Cancel
+        </NeButton>
+        <!-- Submit button (left aligned) -->
+        <div class="flex w-[90px] flex-col">
+          <NeButton
+            class="ml-1"
+            :disabled="loading.saveRule"
+            :loading="loading.saveRule"
+            kind="primary"
+            size="lg"
+            @click.prevent="saveRule()"
+          >
+            <template>
+              <FontAwesomeIcon :icon="faSave" />
+            </template>
+            {{ t("common.save") }}
+          </NeButton>
+        </div>
+      </div>
+    </form>
+  </NeSideDrawer>
 </template>

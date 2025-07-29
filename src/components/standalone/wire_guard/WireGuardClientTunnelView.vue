@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
+import { useI18n } from "vue-i18n";
 import {
   NeHeading,
   NeButton,
@@ -13,43 +13,41 @@ import {
   NeTableBody,
   NeTableRow,
   NeTableCell,
-} from '@nethesis/vue-components'
-import { useUciPendingChangesStore } from '@/stores/standalone/uciPendingChanges'
-import { onMounted, onUnmounted, ref } from 'vue'
-import { ubusCall } from '@/lib/standalone/ubus'
-import TunnelTable from '@/components/standalone/ipsec_tunnel/TunnelTable.vue'
-import DeleteTunnelModal from '@/components/standalone/ipsec_tunnel/DeleteTunnelModal.vue'
-import WireGuardDrawer from '@/components/standalone/wire_guard/WireGuardDrawer.vue'
-import axios from 'axios'
-import { getSDControllerApiEndpoint } from '@/lib/config'
-
-
+} from "@nethesis/vue-components";
+import { useUciPendingChangesStore } from "@/stores/standalone/uciPendingChanges";
+import { onMounted, onUnmounted, ref } from "vue";
+import { ubusCall } from "@/lib/standalone/ubus";
+import TunnelTable from "@/components/standalone/ipsec_tunnel/TunnelTable.vue";
+import DeleteTunnelModal from "@/components/standalone/ipsec_tunnel/DeleteTunnelModal.vue";
+import WireGuardDrawer from "@/components/standalone/wire_guard/WireGuardDrawer.vue";
+import axios from "axios";
+import { getSDControllerApiEndpoint } from "@/lib/config";
 
 export type IpsecTunnel = {
-  id: string
-  name: string
-  local: string[]
-  remote: string[]
-  enabled: '0' | '1'
-  connected: boolean
-}
+  id: string;
+  name: string;
+  local: string[];
+  remote: string[];
+  enabled: "0" | "1";
+  connected: boolean;
+};
 
-const { t } = useI18n()
-const uciChangesStore = useUciPendingChangesStore()
+const { t } = useI18n();
+const uciChangesStore = useUciPendingChangesStore();
 
-const RELOAD_INTERVAL = 10000
-const loading = ref(true)
-const tunnels = ref([])
-const selectedTunnel = ref()
-const showCreateEditDrawer = ref(false)
-const showDeleteModal = ref(false)
-const fetchTunnelsIntervalId = ref(0)
+const RELOAD_INTERVAL = 10000;
+const loading = ref(true);
+const tunnels = ref([]);
+const selectedTunnel = ref();
+const showCreateEditDrawer = ref(false);
+const showDeleteModal = ref(false);
+const fetchTunnelsIntervalId = ref(0);
 
 const error = ref({
-  notificationTitle: '',
-  notificationDescription: '',
-  notificationDetails: ''
-})
+  notificationTitle: "",
+  notificationDescription: "",
+  notificationDetails: "",
+});
 
 // async function fetchTunnels(setLoading: boolean = true) {
 //   try {
@@ -70,58 +68,63 @@ const error = ref({
 // }
 
 function openCreateEditDrawer(itemToEdit: IpsecTunnel | null) {
-  selectedTunnel.value = itemToEdit
-  showCreateEditDrawer.value = true
+  selectedTunnel.value = itemToEdit;
+  showCreateEditDrawer.value = true;
 }
 
-
 function openDeleteModal(itemToDelete: IpsecTunnel) {
-  selectedTunnel.value = itemToDelete
-  showDeleteModal.value = true
+  selectedTunnel.value = itemToDelete;
+  showDeleteModal.value = true;
 }
 
 function closeModalsAndDrawers() {
-  selectedTunnel.value = null
-  showDeleteModal.value = false
-  showCreateEditDrawer.value = false
+  selectedTunnel.value = null;
+  showDeleteModal.value = false;
+  showCreateEditDrawer.value = false;
 }
 
 function cleanError() {
   error.value = {
-    notificationTitle: '',
-    notificationDescription: '',
-    notificationDetails: ''
-  }
+    notificationTitle: "",
+    notificationDescription: "",
+    notificationDetails: "",
+  };
 }
 
 async function toggleTunnelEnable(tunnel: IpsecTunnel) {
   try {
-    cleanError()
-    await ubusCall('ns.ipsectunnel', tunnel.enabled === '1' ? 'disable-tunnel' : 'enable-tunnel', {
-      id: tunnel.id
-    })
-    await reloadTunnels()
+    cleanError();
+    await ubusCall(
+      "ns.ipsectunnel",
+      tunnel.enabled === "1" ? "disable-tunnel" : "enable-tunnel",
+      {
+        id: tunnel.id,
+      }
+    );
+    await reloadTunnels();
   } catch (err: any) {
     error.value.notificationTitle = t(
-      tunnel.enabled ? 'error.cannot_disable_tunnel' : 'error.cannot_enable_tunnel'
-    )
-    error.value.notificationDescription = t(getAxiosErrorMessage(err))
-    error.value.notificationDetails = err.toString()
+      tunnel.enabled
+        ? "error.cannot_disable_tunnel"
+        : "error.cannot_enable_tunnel"
+    );
+    error.value.notificationDescription = t(getAxiosErrorMessage(err));
+    error.value.notificationDetails = err.toString();
   }
 }
 
 async function reloadTunnels() {
-  cleanError()
+  cleanError();
   // await fetchTunnels()
-  await uciChangesStore.getChanges()
+  await uciChangesStore.getChanges();
 }
 
 onMounted(() => {
   // fetchTunnels()
-  getLists()
+  getLists();
   // periodically reload data
   // fetchTunnelsIntervalId.value = setInterval(() => fetchTunnels(false), RELOAD_INTERVAL)
-})
+});
 
 // onUnmounted(() => {
 //   if (fetchTunnelsIntervalId.value) {
@@ -129,20 +132,21 @@ onMounted(() => {
 //   }
 // })
 
-const apiResponse = ref()
+const apiResponse = ref();
 const getLists = async () => {
-
   try {
-
     loading.value = true;
-    const response = await axios.post(`${getSDControllerApiEndpoint()}/wireguard`, {
-      method: 'get-config',
-      payload: {}
-    });
+    const response = await axios.post(
+      `${getSDControllerApiEndpoint()}/wireguard`,
+      {
+        method: "get-config",
+        payload: {},
+      }
+    );
 
     if (response.data.code === 200) {
       loading.value = false;
-      apiResponse.value = [response.data.data] // Store API response
+      apiResponse.value = [response.data.data]; // Store API response
     }
   } catch (err) {
     loading.value = false;
@@ -150,8 +154,6 @@ const getLists = async () => {
   }
   loading.value = false;
 };
-
-
 </script>
 
 <template>
@@ -163,16 +165,18 @@ const getLists = async () => {
       {{ t('standalone.ping_latency_monitor.description') }}
     </p> -->
     <div class="space-y-6">
-      <NeInlineNotification kind="error" :title="error.notificationTitle" :description="error.notificationDescription"
-        v-if="error.notificationTitle">
+      <NeInlineNotification
+        kind="error"
+        :title="error.notificationTitle"
+        :description="error.notificationDescription"
+        v-if="error.notificationTitle"
+      >
         <template #details v-if="error.notificationDetails">
           {{ error.notificationDetails }}
         </template>
       </NeInlineNotification>
 
       <NeSkeleton v-if="loading" :lines="8" size="lg" />
-
-
 
       <template v-else>
         <!-- Show "Add WireGuard Tunnel" button if dummyData is empty -->
@@ -182,11 +186,19 @@ const getLists = async () => {
           </template>
 {{ t('standalone.wire_guard.add_wire_guard_tunnel') }}
 </NeButton> -->
-        <NeButton v-if="!apiResponse[0]?.local_network" kind="primary" @click="openCreateEditDrawer(null)">
+        <NeButton
+          v-if="!apiResponse[0]?.local_network"
+          kind="primary"
+          @click="openCreateEditDrawer(null)"
+        >
           <template #prefix>
-            <font-awesome-icon :icon="['fas', 'circle-plus']" class="h-4 w-4" aria-hidden="true" />
+            <font-awesome-icon
+              :icon="['fas', 'circle-plus']"
+              class="h-4 w-4"
+              aria-hidden="true"
+            />
           </template>
-          {{ t('standalone.wire_guard.add_wire_guard_tunnel') }}
+          {{ t("standalone.wire_guard.add_wire_guard_tunnel") }}
         </NeButton>
         <!-- Show table if apiresponse has values -->
         <NeTable cardBreakpoint="md" class="mt-2">
@@ -197,39 +209,68 @@ const getLists = async () => {
             <NeTableHeadCell>Server IP</NeTableHeadCell>
             <NeTableHeadCell>Server Port</NeTableHeadCell>
             <NeTableHeadCell>Peer Public Key</NeTableHeadCell>
+            <NeTableHeadCell>Status</NeTableHeadCell>
             <NeTableHeadCell>Allowed IPs</NeTableHeadCell>
             <NeTableHeadCell></NeTableHeadCell>
           </NeTableHead>
           <NeTableBody>
             <NeTableRow v-for="(item, index) in apiResponse" :key="index">
-              <NeTableCell :data-label="t('standalone.real_time_monitor.interface')">
+              <NeTableCell
+                :data-label="t('standalone.real_time_monitor.interface')"
+              >
                 {{ item.local_public_key }}
               </NeTableCell>
-              <NeTableCell :data-label="t('standalone.real_time_monitor.interface')">
+              <NeTableCell
+                :data-label="t('standalone.real_time_monitor.interface')"
+              >
                 {{ item.local_network }}
               </NeTableCell>
-              <NeTableCell :data-label="t('standalone.real_time_monitor.interface')">
+              <NeTableCell
+                :data-label="t('standalone.real_time_monitor.interface')"
+              >
                 {{ item.listen_port }}
               </NeTableCell>
-              <NeTableCell :data-label="t('standalone.real_time_monitor.interface')">
+              <NeTableCell
+                :data-label="t('standalone.real_time_monitor.interface')"
+              >
                 {{ item.server_ip }}
               </NeTableCell>
-              <NeTableCell :data-label="t('standalone.real_time_monitor.interface')">
+              <NeTableCell
+                :data-label="t('standalone.real_time_monitor.interface')"
+              >
                 {{ item.server_port }}
               </NeTableCell>
-              <NeTableCell :data-label="t('standalone.real_time_monitor.interface')">
+              <NeTableCell
+                :data-label="t('standalone.real_time_monitor.interface')"
+              >
                 {{ item.peer_public_key }}
               </NeTableCell>
-              <NeTableCell :data-label="t('standalone.real_time_monitor.interface')">
+              <NeTableCell
+                :data-label="t('standalone.real_time_monitor.interface')"
+              >
+                {{ item.status }}
+              </NeTableCell>
+              <NeTableCell
+                :data-label="t('standalone.real_time_monitor.interface')"
+              >
                 {{ item.allowed_ips }}
               </NeTableCell>
               <NeTableCell :data-label="t('common.actions')">
                 <div class="-ml-2.5 flex gap-2 xl:ml-0 xl:justify-end">
-                  <NeButton kind="tertiary" size="lg" :disabled="item.readonly" @click="openCreateEditDrawer(item)">
+                  <NeButton
+                    kind="tertiary"
+                    size="lg"
+                    :disabled="item.readonly"
+                    @click="openCreateEditDrawer(item)"
+                  >
                     <template #prefix>
-                      <font-awesome-icon :icon="['fas', 'pen-to-square']" class="h-4 w-4" aria-hidden="true" />
+                      <font-awesome-icon
+                        :icon="['fas', 'pen-to-square']"
+                        class="h-4 w-4"
+                        aria-hidden="true"
+                      />
                     </template>
-                    {{ t('common.edit') }}
+                    {{ t("common.edit") }}
                   </NeButton>
                   <!-- <NeButton kind="tertiary" size="lg" :disabled="item.readonly"
                     @click="openDeleteModal(item.tunnel_name)">
@@ -248,13 +289,22 @@ const getLists = async () => {
             </NeTableRow>
           </NeTableBody>
         </NeTable>
-
       </template>
     </div>
   </div>
 
-  <DeleteTunnelModal :visible="showDeleteModal" :item-to-delete="selectedTunnel" @close="closeModalsAndDrawers"
-    @tunnel-deleted="reloadTunnels" />
-  <WireGuardDrawer :item-to-edit="selectedTunnel" :rule-type="'forward'" :known-tags="[]" @close="closeModalsAndDrawers"
-    @add-edit-tunnel="reloadTunnels" :is-shown="showCreateEditDrawer" />
+  <DeleteTunnelModal
+    :visible="showDeleteModal"
+    :item-to-delete="selectedTunnel"
+    @close="closeModalsAndDrawers"
+    @tunnel-deleted="reloadTunnels"
+  />
+  <WireGuardDrawer
+    :item-to-edit="selectedTunnel"
+    :rule-type="'forward'"
+    :known-tags="[]"
+    @close="closeModalsAndDrawers"
+    @add-edit-tunnel="reloadTunnels"
+    :is-shown="showCreateEditDrawer"
+  />
 </template>

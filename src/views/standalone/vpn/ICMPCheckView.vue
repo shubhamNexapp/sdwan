@@ -134,7 +134,7 @@ const getLists = async () => {
 
         if (response.data.code === 200) {
             loading.value = false;
-            apiResponse.value = response.data.data // Store API response
+            apiResponse.value = response.data.data.rules // Store API response
         }
     } catch (err) {
         loading.value = false;
@@ -162,7 +162,7 @@ function handleFectLists() {
 
             <NeInlineNotification kind="error" :title="error.notificationTitle"
                 :description="error.notificationDescription" v-if="error.notificationTitle">
-                <template #details v-if="error.notificationDetails">
+                <template  v-if="error.notificationDetails">
                     {{ error.notificationDetails }}
                 </template>
             </NeInlineNotification>
@@ -173,7 +173,7 @@ function handleFectLists() {
                 <!-- Show "Add WireGuard Tunnel" button if dummyData is empty -->
 
                 <NeButton kind="primary" @click="openCreateEditDrawer(null)">
-                    <template #prefix>
+                    <template>
                         <font-awesome-icon :icon="['fas', 'circle-plus']" class="h-4 w-4" aria-hidden="true" />
                     </template>
                     {{ t('standalone.openvpn_warrior.add') }}
@@ -202,7 +202,7 @@ function handleFectLists() {
                                 <div class="-ml-2.5 flex gap-2 xl:ml-0 xl:justify-end">
                                     <NeButton kind="tertiary" size="lg" :disabled="item.readonly"
                                         @click="openEditModal(item)">
-                                        <template #prefix>
+                                        <template >
                                             <font-awesome-icon :icon="['fas', 'pen-to-square']" class="h-4 w-4"
                                                 aria-hidden="true" />
                                         </template>
@@ -210,7 +210,7 @@ function handleFectLists() {
                                     </NeButton>
                                     <NeButton kind="tertiary" size="lg" :disabled="item.readonly"
                                         @click="openDeleteModal(item.name)">
-                                        <template #prefix>
+                                        <template >
                                             <font-awesome-icon :icon="['fas', 'trash']" class="h-4 w-4"
                                                 aria-hidden="true" />
                                         </template>
