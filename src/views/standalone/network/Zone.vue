@@ -18,6 +18,7 @@ import { Saved, Success } from "@/lib/tost";
 const { t } = useI18n();
 const notificationsStore = useNotificationsStore();
 const interfaceOptions = ref<{ label: string; id: string }[]>([]);
+const zoneOptionsShow = ref<{ label: string; id: string }[]>([]);
 
 const loading = ref(false);
 const saving = ref(false);
@@ -31,6 +32,8 @@ const error = ref({ title: "", description: "" });
 onMounted(() => {
   fetchConfiguration();
 });
+
+const zoneUniqueIfnames = ref();
 
 async function fetchConfiguration() {
   try {
@@ -58,6 +61,8 @@ async function fetchConfiguration() {
         label: ifname,
         id: ifname,
       }));
+
+      zoneUniqueIfnames.value = [...new Set(config.zone_ifname as string[])];
     }
   } catch (err) {
     // error.value = {
@@ -155,7 +160,7 @@ async function saveSettings() {
     <!-- Display the selected values in a clean array -->
     <p class="mt-2 flex flex-wrap gap-2 text-gray-700">
       <span
-        v-for="(item, index) in interfaceOptions"
+        v-for="(item, index) in zoneUniqueIfnames"
         :key="index"
         class="me-2 rounded-full border border-blue-300 bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800"
       >
