@@ -1,241 +1,236 @@
 <script setup lang="ts">
 import {
-    NeSideDrawer,
-    NeButton,
-    NeTextInput,
-    NeToggle,
-    getAxiosErrorMessage,
-    NeTooltip,
-    NeCombobox
-} from '@nethesis/vue-components'
-import { onMounted, ref, watch } from 'vue'
-import { useNotificationsStore } from '../../../stores/notifications'
-import { getSDControllerApiEndpoint } from '@/lib/config'
-import axios from 'axios'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faSave } from '@fortawesome/free-solid-svg-icons'
-import { useI18n } from 'vue-i18n'
-const { t } = useI18n()
+  NeSideDrawer,
+  NeButton,
+  NeTextInput,
+  NeToggle,
+  getAxiosErrorMessage,
+  NeTooltip,
+  NeCombobox,
+} from "@nethesis/vue-components";
+import { onMounted, ref, watch } from "vue";
+import { useNotificationsStore } from "../../../stores/notifications";
+import { getSDControllerApiEndpoint } from "@/lib/config";
+import axios from "axios";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { faSave } from "@fortawesome/free-solid-svg-icons";
+import { useI18n } from "vue-i18n";
 
-const notificationsStore = useNotificationsStore()
+const { t } = useI18n();
+const notificationsStore = useNotificationsStore();
 
 const props = defineProps({
-    isShown: { type: Boolean, default: false }
-})
-
-let loading = ref({
-    listServiceSuggestions: false,
-    listObjectSuggestions: false,
-    listProtocols: false,
-    saveRule: false,
-    fetchRule: false,
+  isShown: { type: Boolean, default: false },
 });
 
-const emit = defineEmits(['close', 'save','tunnel-added'])
+const emit = defineEmits(["close", "save", "tunnel-added"]);
 
-// Form fields
-const baseInterface = ref("eth0");
-const interfaceName = ref("");
-const vid = ref("");
-const peer = ref("");
-const port = ref("");
-const ipaddr = ref("");
+const loading = ref({
+  saveRule: false,
+  fetchRule: false,
+});
 
 const service = ref(false);
 const name = ref("");
 const id = ref("");
 const bindInterfaceName = ref("");
+const bindMode = ref("lan");
+const network = ref("");
+const gateway = ref("");
 
-let apiResponse = ref()
 const interfaceOptions = ref([]);
-
-watch(
-    () => apiResponse.value,
-    (newValue) => {
-        if (newValue) {
-
-            interfaceOptions.value = (newValue.up_interface || []).map((item: any) => ({
-                label: item.ifname,
-                id: item.ifname,
-            }));
-
-        }
-    },
-    { immediate: true }
-);
-
+const errorBag = ref<{ [key: string]: string }>({});
+const apiResponse = ref();
 
 onMounted(() => {
-    getLists();
+  getLists();
 });
 
 const getLists = async () => {
-    try {
-        const response = await axios.post(`${getSDControllerApiEndpoint()}/vrf`, {
-            method: 'get-config',
-            payload: {}
-        });
-        if (response.data.code === 200) {
-            apiResponse.value = response.data.data;
-
-        }
-    } catch (err) {
-        console.error("Error fetching data:", err);
+  try {
+    const response = await axios.post(`${getSDControllerApiEndpoint()}/vrf`, {
+      method: "get-config",
+      payload: {},
+    });
+    if (response.data.code === 200) {
+      apiResponse.value = response.data.data;
     }
+  } catch (err) {
+    console.error("Error fetching data:", err);
+  }
 };
 
+watch(
+  () => apiResponse.value,
+  (newValue) => {
+    if (newValue) {
+      interfaceOptions.value = (newValue.up_interface || []).map(
+        (item: any) => ({
+          label: item.ifname,
+          id: item.ifname,
+        })
+      );
+    }
+  },
+  { immediate: true }
+);
 
-
-// Validation error messages
-const errorBag = ref<{ [key: string]: string }>({})
-
-// Function to allow only letters in string fields
-const onlyLetters = (event: Event) => {
-    const input = event.target as HTMLInputElement
-    input.value = input.value.replace(/[^a-zA-Z\s]/g, '') // Allow only letters and spaces
-}
-
-// Function to allow only numbers in number fields
 const onlyNumbers = (event: Event) => {
-    const input = event.target as HTMLInputElement
-    input.value = input.value.replace(/[^0-9]/g, '') // Allow only numbers
-}
-
-const ipInputHandler = (event: Event) => {
-    const input = event.target as HTMLInputElement;
-    // Allow numbers and dots, and remove other characters
-    input.value = input.value.replace(/[^0-9.]/g, '');
-    // Limit to max 128 characters
-    if (input.value.length > 128) {
-        input.value = input.value.slice(0, 128);
-    }
+  const input = event.target as HTMLInputElement;
+  input.value = input.value.replace(/[^0-9]/g, "");
 };
 
-// Form validation function
 const validate = () => {
-    errorBag.value = {}
+  errorBag.value = {};
 
-    if (service.value) { // Validate only if enabled
-        if (!name.value.trim() || name.value.length > 32) {
-            errorBag.value.name = "Name is required and must be max 32 characters."
-        }
-
-        const timeInt = Number(id.value)
-        if (!id.value.trim() || isNaN(timeInt) || timeInt < 0 || timeInt > 65535) {
-            errorBag.value.id = "Id must be between 0 and 65535."
-        }
-
-        if (!bindInterfaceName.value.trim()) {
-            errorBag.value.bindInterfaceName = "Interface name is required."
-        }
-
+  if (service.value) {
+    if (!name.value.trim() || name.value.length > 32) {
+      errorBag.value.name = "Name is required and must be max 32 characters.";
     }
 
-    return Object.keys(errorBag.value).length === 0
-}
+    if (!bindInterfaceName.value.trim()) {
+      errorBag.value.bindInterfaceName = "Interface name is required.";
+    }
 
-// Save function
+    if (!network.value.trim()) {
+      errorBag.value.network = "Network is required.";
+    }
+
+    if (bindMode.value === "wan" && !gateway.value.trim()) {
+      errorBag.value.gateway = "Gateway is required when bind mode is WAN.";
+    }
+  }
+
+  return Object.keys(errorBag.value).length === 0;
+};
+
 const saveRule = async () => {
-    if (!validate()) return
+  if (!validate()) return;
 
-    try {
-        // Collect entries into an array
-        const payload =
-        {
-            service: service.value ? "enable" : "disable",
-            "name": name.value,
-            "id": id.value,
-            "bind_ifname": bindInterfaceName.value
-        }
+  const payload = {
+    service: service.value ? "enable" : "disable",
+    name: name.value,
+    bind_ifname: bindInterfaceName.value,
+    bind_mode: bindMode.value,
+    network: network.value,
+    gateway: bindMode.value === "wan" ? gateway.value : "",
+  };
 
+  try {
+    const response = await axios.post(`${getSDControllerApiEndpoint()}/vrf`, {
+      method: "add-config",
+      payload,
+    });
 
-        const response = await axios.post(`${getSDControllerApiEndpoint()}/vrf`, {
-            method: "add-config",
-            payload,
-        });
+    if (response.data.code === 200) {
+      notificationsStore.createNotification({
+        title: "Success",
+        description: "Configuration saved successfully.",
+        kind: "success",
+      });
 
-        if (response.data.code === 200) {
-            notificationsStore.createNotification({
-                title: 'Success',
-                description: 'Configuration saved successfully.',
-                kind: 'success'
-            })
-
-            emit('save', payload)
-            emit('close') // Close drawer on success
-            emit('tunnel-added')
-        }
-    } catch (err) {
-        console.error("Error saving rule:", getAxiosErrorMessage(err))
+      emit("save", payload);
+      emit("close");
+      emit("tunnel-added");
     }
-}
+  } catch (err) {
+    console.error("Error saving rule:", getAxiosErrorMessage(err));
+  }
+};
 
-// Close drawer function
 const closeDrawer = () => {
-    emit('close')
-}
-
+  emit("close");
+};
 </script>
 
 <template>
-    <NeSideDrawer :isShown="isShown" title="Add VRF" closeAriaLabel="Close" @close="closeDrawer">
-        <form @submit.prevent="saveRule">
-            <div class="space-y-6">
-                <NeToggle v-model="service" :label="service ? 'Enable' : 'Disable'" :topLabel="'Service'" />
+  <NeSideDrawer
+    :isShown="isShown"
+    title="Add VRF"
+    closeAriaLabel="Close"
+    @close="closeDrawer"
+  >
+    <form @submit.prevent="saveRule">
+      <div class="space-y-6">
+        <NeToggle
+          v-model="service"
+          :label="service ? 'Enable' : 'Disable'"
+          :topLabel="'Service'"
+        />
 
-                <!-- Show form fields only if status is enabled -->
-                <template v-if="service">
+        <template v-if="service">
+          <NeTextInput
+            v-model.trim="name"
+            :label="t('Name')"
+            :placeholder="t('Enter Name')"
+            :invalidMessage="errorBag.name"
+          >
+            <template >
+              <NeTooltip>
+                <template>{{
+                  t("Enter the interface name")
+                }}</template>
+              </NeTooltip>
+            </template>
+          </NeTextInput>
 
-                    <NeTextInput v-model.trim="name" :label="t('Name')"
-                        :placeholder="t('Enter Name')" :invalidMessage="errorBag.name">
-                        <template #tooltip>
-                            <NeTooltip>
-                                <template #content>
-                                    {{ t('Enter the interface name') }}
-                                </template>
-                            </NeTooltip>
-                        </template>
-                    </NeTextInput>
+          <!-- Bind Mode -->
+          <NeCombobox
+            v-model="bindMode"
+            :options="[
+              { label: 'LAN', id: 'lan' },
+              { label: 'WAN', id: 'wan' },
+            ]"
+            :label="t('Bind Mode')"
+          />
 
-                    <NeTextInput @input="onlyNumbers" v-model.trim="id" :label="t('Id')" :placeholder="t('Enter id')"
-                        :invalidMessage="errorBag.id">
-                        <template #tooltip>
-                            <NeTooltip>
-                                <template #content>
-                                    {{ t('Enter the id') }}
-                                </template>
-                            </NeTooltip>
-                        </template>
-                    </NeTextInput>
+          <!-- Interface Name -->
+          <NeCombobox
+            v-model="bindInterfaceName"
+            :options="interfaceOptions"
+            :label="t('Interface Name')"
+            :invalidMessage="errorBag.bindInterfaceName"
+          />
 
-                    <div>
-                        <NeCombobox v-model="bindInterfaceName" :options="interfaceOptions" :label="t('Interface Name')"
-                            class="grow" :noResultsLabel="t('ne_combobox.no_results')"
-                            :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
-                            :noOptionsLabel="t('ne_combobox.no_options_label')"
-                            :selected-label="t('ne_combobox.selected')"
-                            :user-input-label="t('ne_combobox.user_input_label')"
-                            :optionalLabel="t('common.optional')" />
-                    </div>
-                </template>
-            </div>
+          <!-- Network -->
+          <NeTextInput
+            v-model.trim="network"
+            :label="t('Network')"
+            :placeholder="'e.g. 192.168.1.0/24'"
+            :invalidMessage="errorBag.network"
+          />
 
-            <!-- Footer -->
-            <div class="flex justify-end mt-6">
-                <NeButton kind="tertiary" @click.prevent="closeDrawer" class="mr-3">
-                    Cancel
-                </NeButton>
-                <!-- Submit button (left aligned) -->
-                <div class="flex  flex-col w-[90px]">
-                    <NeButton class="ml-1" :disabled="loading.saveRule" :loading="loading.saveRule" kind="primary"
-                        size="lg" @click.prevent="saveRule()">
-                        <template #prefix>
-                            <FontAwesomeIcon :icon="faSave" />
-                        </template>
-                        {{ t('common.save') }}
-                    </NeButton>
-                </div>
-            </div>
-        </form>
-    </NeSideDrawer>
+          <!-- Gateway (only if bind_mode === 'wan') -->
+          <NeTextInput
+            v-if="bindMode === 'wan'"
+            v-model.trim="gateway"
+            :label="t('Gateway')"
+            :placeholder="'e.g. 192.168.1.1'"
+            :invalidMessage="errorBag.gateway"
+          />
+        </template>
+      </div>
+
+      <div class="mt-6 flex justify-end">
+        <NeButton kind="tertiary" @click.prevent="closeDrawer" class="mr-3"
+          >Cancel</NeButton
+        >
+        <div class="flex w-[90px] flex-col">
+          <NeButton
+            class="ml-1"
+            :disabled="loading.saveRule"
+            :loading="loading.saveRule"
+            kind="primary"
+            size="lg"
+            @click.prevent="saveRule()"
+          >
+            <template>
+              <FontAwesomeIcon :icon="faSave" />
+            </template>
+            {{ t("common.save") }}
+          </NeButton>
+        </div>
+      </div>
+    </form>
+  </NeSideDrawer>
 </template>

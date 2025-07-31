@@ -109,7 +109,7 @@ const getLists = async () => {
 
             <NeInlineNotification kind="error" :title="error.notificationTitle"
                 :description="error.notificationDescription" v-if="error.notificationTitle">
-                <template #details v-if="error.notificationDetails">
+                <template v-if="error.notificationDetails">
                     {{ error.notificationDetails }}
                 </template>
             </NeInlineNotification>
@@ -120,7 +120,7 @@ const getLists = async () => {
                 <!-- Show "Add WireGuard Tunnel" button if dummyData is empty -->
 
                 <NeButton kind="primary" @click="openCreateEditDrawer(null)">
-                    <template #prefix>
+                    <template>
                         <font-awesome-icon :icon="['fas', 'circle-plus']" class="h-4 w-4" aria-hidden="true" />
                     </template>
                     {{ t('standalone.openvpn_warrior.add') }}
@@ -131,7 +131,7 @@ const getLists = async () => {
                         <NeTableHeadCell>#</NeTableHeadCell>
                         <NeTableHeadCell>Rule Name</NeTableHeadCell>
                         <NeTableHeadCell>Service</NeTableHeadCell>
-                        <NeTableHeadCell>Rule id</NeTableHeadCell>
+                        <NeTableHeadCell>Network</NeTableHeadCell>
                         <NeTableHeadCell>Bind Interface</NeTableHeadCell>
                         <NeTableHeadCell>Status</NeTableHeadCell>
                     </NeTableHead>
@@ -140,14 +140,14 @@ const getLists = async () => {
                             <NeTableCell>{{ index + 1 }}</NeTableCell>
                             <NeTableCell>{{ item.name }}</NeTableCell>
                             <NeTableCell>{{ item.service }}</NeTableCell>
-                            <NeTableCell>{{ item.id }}</NeTableCell>
+                            <NeTableCell>{{ item.network }}</NeTableCell>
                             <NeTableCell>{{ item.bind_ifname }}</NeTableCell>
                             <NeTableCell>{{ item.status }}</NeTableCell>
                             <NeTableCell :data-label="t('common.actions')">
                                 <div class="-ml-2.5 flex gap-2 xl:ml-0 xl:justify-end">
                                     <!-- <NeButton kind="tertiary" size="lg" :disabled="item.readonly"
                                         @click="openEditModal(item)">
-                                        <template #prefix>
+                                        <template>
                                             <font-awesome-icon :icon="['fas', 'pen-to-square']" class="h-4 w-4"
                                                 aria-hidden="true" />
                                         </template>
@@ -155,7 +155,7 @@ const getLists = async () => {
                                     </NeButton> -->
                                     <NeButton kind="tertiary" size="lg" :disabled="item.readonly"
                                         @click="openDeleteModal(item.name)">
-                                        <template #prefix>
+                                        <template>
                                             <font-awesome-icon :icon="['fas', 'trash']" class="h-4 w-4"
                                                 aria-hidden="true" />
                                         </template>
