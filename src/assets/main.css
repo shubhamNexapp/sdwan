@@ -8,6 +8,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  html {
+    font-size: 15px; /* or 12px or whatever you define as "small" */
+  }
+}
+
 @font-face {
   font-family: 'Poppins';
   src: url(/Poppins-Regular.ttf) format('truetype');

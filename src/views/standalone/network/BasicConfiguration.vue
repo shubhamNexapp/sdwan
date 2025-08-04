@@ -203,6 +203,28 @@ async function saveSettings() {
     saving.value = false;
   }
 }
+
+const showLatency = ref(true);
+const showJitter = ref(true);
+const showPacketLoss = ref(true);
+
+const validateRangeField = (value: string) => {
+  if (!value.trim()) {
+    return "Range value is required";
+  }
+  // Add additional logic if needed
+  return "";
+};
+
+if (showLatency.value) {
+  validateRangeField(latencyThreshold.value);
+}
+// if (showJitter.value) {
+//   validateRangeField(jitterThreshold.value, "jitterThreshold");
+// }
+// if (showPacketLoss.value) {
+//   validateRangeField(packetLoss.value, "packetLoss");
+// }
 </script>
 
 <template>
@@ -290,21 +312,74 @@ async function saveSettings() {
       :invalidMessage="errorBag.slaTarget"
     />
 
-    <NeTextInput
-      v-model="latencyThreshold"
-      :label="t('Latency Threshold (ms)')"
-      :placeholder="t('Enter latency in ms')"
-      :invalidMessage="errorBag.latencyThreshold"
-      @input="onlyNumbers"
-    />
+    <!-- Threshold Configuration -->
+    <div class="grid grid-cols-12 gap-x-6 gap-y-4">
+      <!-- Latency Threshold -->
+      <div class="col-span-12 flex items-center">
+        <label class="w-1/4 font-medium">{{
+          t("Latency Threshold (ms)")
+        }}</label>
+        <NeToggle
+          class="mr-4"
+          v-model="showLatency"
+          :label="showLatency ? t('Enabled') : t('Disabled')"
+        />
+        <NeTextInput
+          class="w-1/3"
+          v-model="latencyThreshold"
+          :placeholder="t('Enter latency in ms')"
+          :invalidMessage="errorBag.latencyThreshold"
+          :disabled="!showLatency"
+          @input="onlyNumbers"
+        />
+      </div>
 
-    <NeTextInput
+      <!-- Jitter Threshold -->
+      <div class="col-span-12 flex items-center">
+        <label class="w-1/4 font-medium">{{
+          t("Jitter Threshold (ms)")
+        }}</label>
+        <NeToggle
+          class="mr-4"
+          v-model="showJitter"
+          :label="showJitter ? t('Enabled') : t('Disabled')"
+        />
+        <NeTextInput
+          class="w-1/3"
+          v-model="jitterThreshold"
+          :placeholder="t('Enter jitter in ms')"
+          :invalidMessage="errorBag.jitterThreshold"
+          :disabled="!showJitter"
+          @input="onlyNumbers"
+        />
+      </div>
+
+      <!-- Packet Loss -->
+      <div class="col-span-12 flex items-center">
+        <label class="w-1/4 font-medium">{{ t("Packet Loss (%)") }}</label>
+        <NeToggle
+          class="mr-4"
+          v-model="showPacketLoss"
+          :label="showPacketLoss ? t('Enabled') : t('Disabled')"
+        />
+        <NeTextInput
+          class="w-1/3"
+          v-model="packetLoss"
+          :placeholder="t('Enter packet loss')"
+          :invalidMessage="errorBag.packetLoss"
+          :disabled="!showPacketLoss"
+          @input="onlyNumbers"
+        />
+      </div>
+    </div>
+
+    <!-- <NeTextInput
       v-model="jitterThreshold"
       :label="t('Jitter Threshold (ms)')"
       :placeholder="t('Enter jitter in ms')"
       :invalidMessage="errorBag.jitterThreshold"
       @input="onlyNumbers"
-    />
+    /> -->
 
     <NeTextInput
       v-model="checkInterval"
@@ -331,13 +406,13 @@ async function saveSettings() {
       @input="onlyNumbers"
     />
 
-    <NeTextInput
+    <!-- <NeTextInput
       v-model="packetLoss"
       :label="t('Packet Loss')"
       :placeholder="t('Enter packet loss')"
       :invalidMessage="errorBag.packetLoss"
       @input="onlyNumbers"
-    />
+    /> -->
   </div>
 
   <NeButton

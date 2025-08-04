@@ -15,15 +15,15 @@ const { t } = useI18n();
 const { tabs, selectedTab } = useTabs([
   {
     name: "zone",
-    label: t("Zone"),
-  },
-  {
-    name: "basic-configuration",
-    label: t("Basic Configuration"),
+    label: t("SD-WAN Zones"),
   },
   {
     name: "rule",
-    label: t("Rule"),
+    label: t("SD-WAN Rules"),
+  },
+  {
+    name: "performance-parameters",
+    label: t("Performance Parameters"),
   },
 ]);
 </script>
@@ -54,7 +54,7 @@ const { tabs, selectedTab } = useTabs([
       class="mb-8"
     />
     <Zone v-if="selectedTab == 'zone'" />
-    <BasicConfiguration v-else-if="selectedTab == 'basic-configuration'" />
     <Rule v-else-if="selectedTab == 'rule'" />
+    <BasicConfiguration v-else-if="selectedTab == 'performance-parameters'" />
   </div>
 </template>
