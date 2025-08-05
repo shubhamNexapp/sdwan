@@ -125,8 +125,13 @@ const standaloneRoutes = [
     name: 'Routes',
     component: () => import('../views/standalone/network/RoutesView.vue')
   },
-  {
-    path: 'network/vxlan',
+  // {
+  //   path: 'network/vxlan',
+  //   name: 'VXLAN',
+  //   component: () => import('../views/standalone/network/VXLanView.vue')
+  // },
+   {
+    path: 'vpn/vxlan',
     name: 'VXLAN',
     component: () => import('../views/standalone/network/VXLanView.vue')
   },

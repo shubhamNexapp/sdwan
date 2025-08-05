@@ -144,10 +144,10 @@ const navigation: Ref<MenuItem[]> = ref([
         name: 'standalone.routes.title',
         to: 'network/routes'
       },
-      {
-        name: 'VXLAN',
-        to: 'network/vxlan'
-      },
+      // {
+      //   name: 'VXLAN',
+      //   to: 'network/vxlan'
+      // },
       {
         name: 'standalone.multi_wan.title',
         to: 'network/multi-wan'
@@ -335,6 +335,10 @@ const navigation: Ref<MenuItem[]> = ref([
       {
         name: 'Open VPN',
         to: 'vpn/open-vpn'
+      },
+      {
+        name: 'VXLAN',
+        to: 'vpn/vxlan'
       }
     ]
   },
