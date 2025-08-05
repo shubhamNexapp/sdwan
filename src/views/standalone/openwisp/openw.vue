@@ -184,7 +184,7 @@ async function saveSettings() {
         :noOptionsLabel="t('ne_combobox.no_options_label')" :selected-label="t('ne_combobox.selected')"
         :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" /> -->
 
-      <NeCheckbox v-model="mainVerifySSL" :label="t('Verify SSL')" />
+      <NeCheckbox v-model="mainVerifySSL" :label="t('TLS 1.3')" />
 
       <p class="max-w-2xl font-bold text-black dark:text-gray-400 mt-4">Backup</p>
 
@@ -226,7 +226,7 @@ async function saveSettings() {
           :noOptionsLabel="t('ne_combobox.no_options_label')" :selected-label="t('ne_combobox.selected')"
           :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" /> -->
 
-        <NeCheckbox v-model="backupVerifySSL" :label="t('Verify SSL')" />
+        <NeCheckbox v-model="backupVerifySSL" :label="t('TLS 1.3')" />
 
       </div>
 
