@@ -1026,7 +1026,7 @@
       "pppoe_name_too_long_need_reconfiguration": "PPPoE interface names are limited to {num} characters. You can remove the configuration from this device, then reconfigure it with a shorter interface name."
     },
     "multi_wan": {
-      "title": "FlowEdge MultiWAN",
+      "title": "FlowEDGE",
       "tabs": {
         "multi_wan_manager": "FlowEdge MultiWAN Manager",
         "general_settings": "General Settings"
