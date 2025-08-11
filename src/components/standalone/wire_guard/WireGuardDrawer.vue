@@ -498,7 +498,7 @@ watch(
   (newValue) => {
     if (newValue) {
       isRuleEnabled.value = newValue.isRuleEnabled === 'enable';
-      status.value = newValue.status === 'connect';
+      // status.value = newValue.status === 'connect';
       localNetwork.value = newValue.local_network || "";
       listenPort.value = newValue.listen_port || "";
       serverIP.value = newValue.server_ip || "";
@@ -595,7 +595,7 @@ const saveRule = async () => {
       method: "set-config",
       payload: {
         service: isRuleEnabled.value ? "enable" : "disable",
-        status: status.value ? "connect" : "disconnect",
+        // status: status.value ? "connect" : "disconnect",
         local_network: localNetwork.value,
         listen_port: listenPort.value,
         // listen_ip: listenip.value,
@@ -662,7 +662,7 @@ const saveRule = async () => {
         <!-- enabled -->
         <NeToggle v-model="isRuleEnabled" :topLabel="t('common.status')" :disabled="loading.saveRule" />
 
-        <NeToggle v-model="status" :topLabel="t('Connection')" :disabled="loading.saveRule" />
+        <!-- <NeToggle v-model="status" :topLabel="t('Connection')" :disabled="loading.saveRule" /> -->
 
         <!-- local network -->
         <NeTextInput v-model="localNetwork" :invalidMessage="errorBag.getFirstFor('localNetwork')"

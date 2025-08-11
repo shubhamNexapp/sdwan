@@ -18,7 +18,7 @@ import { useUciPendingChangesStore } from "@/stores/standalone/uciPendingChanges
 import { onMounted, onUnmounted, ref } from "vue";
 import { ubusCall } from "@/lib/standalone/ubus";
 import TunnelTable from "@/components/standalone/ipsec_tunnel/TunnelTable.vue";
-import DeleteTunnelModal from "@/components/standalone/ipsec_tunnel/DeleteTunnelModal.vue";
+import DeleteTunnelModal from "./DeleteModal.vue";
 import WireGuardDrawer from "@/components/standalone/wire_guard/WireGuardDrawer.vue";
 import axios from "axios";
 import { getSDControllerApiEndpoint } from "@/lib/config";
@@ -272,13 +272,13 @@ const getLists = async () => {
                     </template>
                     {{ t("common.edit") }}
                   </NeButton>
-                  <!-- <NeButton kind="tertiary" size="lg" :disabled="item.readonly"
+                  <NeButton kind="tertiary" size="lg" :disabled="item.readonly"
                     @click="openDeleteModal(item.tunnel_name)">
                     <template #prefix>
                       <font-awesome-icon :icon="['fas', 'trash']" class="h-4 w-4" aria-hidden="true" />
                     </template>
                     {{ t('common.delete') }}
-                  </NeButton> -->
+                  </NeButton>
                 </div>
               </NeTableCell>
               <!-- <NeTableCell>
