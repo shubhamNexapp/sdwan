@@ -32,9 +32,9 @@ console.log("Group Card Props:==", props.group.group_name);
     class="border-l-4 border-green-400 dark:border-indigo-500"
   >
     <!-- Header -->
-    <template #header>
+    <template #title>
       <div :class="{ 'opacity-50': !group.enabled }">
-        <span class="font-semibold">{{ props.group.group_name }}</span>
+        <span >{{ props.group.group_name }}</span>
       </div>
     </template>
 
@@ -47,10 +47,6 @@ console.log("Group Card Props:==", props.group.group_name);
         {{ t("common.edit") }}
       </NeButton>
     </template>
-
-        <div class="divide-y divide-gray-300 dark:divide-gray-600">
-            {{ group.group_name }}
-        </div>
 
     <!-- Status -->
     <div :class="{ 'opacity-50': !group.enabled }" class="mt-2">

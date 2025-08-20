@@ -30,36 +30,15 @@ const error = ref({
 });
 const isDeleting = ref(false);
 
-async function deleteException() {
-  if (props.itemToDelete) {
-    try {
-      error.value = {
-        notificationDescription: "",
-        notificationDetails: "",
-      };
-      isDeleting.value = true;
-      await ubusCall("ns.dpi", "delete-exemption", {
-        "config-name": props.itemToDelete["config-name"],
-      });
-      emit("dpi-exception-deleted");
-      emit("close");
-    } catch (err: any) {
-      error.value.notificationDescription = t(getAxiosErrorMessage(err));
-      error.value.notificationDetails = err.toString();
-    } finally {
-      isDeleting.value = false;
-    }
-  }
-}
-
 const deleteModalVisible = async () => {
+  if (!props.itemToDelete) return; // <-- ✅ prevents null usage
+
   const response = await axios.post(`${getSDControllerApiEndpoint()}/dpi`, {
     method: "delete-exemption",
     payload: { exemption_name: props.itemToDelete.exemption_name },
   });
   emit("dpi-exception-deleted");
   emit("close");
-  console.log("Delete response:===", response.data);
 };
 
 function close() {
@@ -94,7 +73,7 @@ function close() {
       :title="t('error.cannot_delete_dpi_exception')"
       :description="error.notificationDescription"
       class="my-2"
-      ><template #details v-if="error.notificationDetails">
+      ><template v-if="error.notificationDetails">
         {{ error.notificationDetails }}
       </template></NeInlineNotification
     >

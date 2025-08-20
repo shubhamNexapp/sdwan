@@ -36,7 +36,7 @@ const emit = defineEmits<{
   >
     <template #title>
       <div :class="{ 'opacity-50': !exception.enabled }">
-        <span>{{ exception.description }}</span>
+        <span>{{ exception.exemption_name }}</span>
       </div>
     </template>
     <template #topRight>
