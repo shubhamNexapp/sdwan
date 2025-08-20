@@ -212,7 +212,7 @@ const closeDrawer = () => {
 
       <!-- Footer -->
       <div class="mt-6 flex justify-end">
-        <NeButton kind="tertiary" @click.prevent="closeDrawer" class="mr-3">
+        <NeButton kind="tertiary" @click.prevent="closeDrawer" class="mr-2">
           Cancel
         </NeButton>
         <NeButton

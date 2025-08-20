@@ -1,7 +1,7 @@
+<!-- CreateOrEditDpiGroupDrawer.vue -->
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import type { DpiException } from "./DpiExceptions.vue";
 import {
   NeInlineNotification,
   NeSideDrawer,
@@ -15,14 +15,21 @@ import { MessageBag } from "@/lib/validation";
 import axios from "axios";
 import { getSDControllerApiEndpoint } from "@/lib/config";
 
+export type DpiGroup = {
+  group_name: string;
+  ip: { network: string }[];
+  enabled: boolean;
+};
+
 const props = defineProps<{
   isShown: boolean;
-  itemToEdit: DpiException | null;
+  itemToEdit: DpiGroup | null;
 }>();
 
-const emit = defineEmits(["close", "add-edit-exception"]);
+const emit = defineEmits(["close", "save"]);
 const { t } = useI18n();
 
+// State
 const isSavingChanges = ref(false);
 const error = ref({
   notificationTitle: "",
@@ -32,23 +39,32 @@ const error = ref({
 const validationErrorBag = ref(new MessageBag());
 
 // Form fields
-const id = ref("");
-const exemptionName = ref("");
-const criteria = ref("");
+const groupName = ref("");
+const ipList = ref<{ network: string }[]>([]);
 const enabled = ref(true);
 
-// Reset form values when drawer is opened
+// Reset form values when drawer opens
 function resetForm() {
-  id.value = props.itemToEdit?.["config-name"] ?? "";
-  exemptionName.value = props.itemToEdit?.exemption_name ?? "";
-  criteria.value = props.itemToEdit?.criteria ?? "";
+  groupName.value = props.itemToEdit?.group_name ?? "";
+  ipList.value = props.itemToEdit?.ip
+    ? JSON.parse(JSON.stringify(props.itemToEdit.ip))
+    : [];
   enabled.value = props.itemToEdit?.enabled ?? true;
 }
 
-// Save function (Add or Edit)
-const saveRule = async () => {
+// Add new empty IP row
+function addIpField() {
+  ipList.value.push({ network: "" });
+}
+
+// Remove IP row
+function removeIpField(index: number) {
+  ipList.value.splice(index, 1);
+}
+
+// Save group
+async function saveGroup() {
   try {
-    console.log("exemptionName.value======", exemptionName.value);
     isSavingChanges.value = true;
     error.value = {
       notificationTitle: "",
@@ -56,38 +72,32 @@ const saveRule = async () => {
       notificationDetails: "",
     };
 
-    // Build payload
     const payload = {
-      exemption_name: exemptionName.value,
+      group_name: groupName.value,
+      ip: ipList.value,
       enabled: enabled.value ? "1" : "0",
-      criteria: criteria.value,
     };
 
-    let method = "";
-    if (exemptionName.value === "") {
-      method = "add-exemption";
-    } else {
-      method = "edit-exemption";
-    }
+    const method = props.itemToEdit ? "edit-group" : "add-group";
 
     await axios.post(`${getSDControllerApiEndpoint()}/dpi`, {
       method,
       payload,
     });
 
-    emit("add-edit-exception"); // refresh parent list
+    emit("save"); // refresh parent
     close();
   } catch (err: any) {
-    console.error("Error saving rule:", err);
-    error.value.notificationTitle = t("error.cannot_save_dpi_exception");
+    console.error("Error saving group:", err);
+    error.value.notificationTitle = t("error.cannot_save_dpi_group");
     error.value.notificationDescription = getAxiosErrorMessage(err);
     error.value.notificationDetails = err.toString();
   } finally {
     isSavingChanges.value = false;
   }
-};
+}
 
-// Close drawer and reset form
+// Close drawer
 function close() {
   resetForm();
   error.value = {
@@ -113,12 +123,12 @@ watch(
     :is-shown="isShown"
     @close="close"
     :title="
-      id
-        ? t('standalone.dpi.edit_exception')
-        : t('standalone.dpi.add_exception')
+      props.itemToEdit
+        ? t('Edit Group')
+        : t('Add Group')
     "
   >
-    <!-- Error -->
+    <!-- Error Notification -->
     <NeInlineNotification
       v-if="error.notificationTitle"
       kind="error"
@@ -126,9 +136,9 @@ watch(
       :description="error.notificationDescription"
       class="mb-6"
     >
-      <template v-if="error.notificationDetails">{{
-        error.notificationDetails
-      }}</template>
+      <template v-if="error.notificationDetails">
+        {{ error.notificationDetails }}
+      </template>
     </NeInlineNotification>
 
     <!-- Form -->
@@ -142,21 +152,37 @@ watch(
         />
       </div>
 
-      <!-- Criteria -->
+      <!-- Group Name -->
       <NeTextInput
-        v-model="criteria"
-        :label="t('standalone.dpi.ip_address')"
-        :invalid-message="t(validationErrorBag.getFirstI18nKeyFor('criteria'))"
-      />
-
-      <!-- Name -->
-      <NeTextInput
-        v-model="exemptionName"
-        :label="t('standalone.dpi.exception_name')"
+        v-model="groupName"
+        :label="t('Group Name')"
         :invalid-message="
-          t(validationErrorBag.getFirstI18nKeyFor('exemption_name'))
+          t(validationErrorBag.getFirstI18nKeyFor('group_name'))
         "
       />
+
+      <!-- IP Addresses -->
+      <div>
+        <NeFormItemLabel>{{ t("IP Addresses") }}</NeFormItemLabel>
+        <div class="flex flex-col gap-2">
+          <div
+            v-for="(ip, index) in ipList"
+            :key="index"
+            class="flex items-center gap-2"
+          >
+            <NeTextInput v-model="ip.network" class="flex-1" />
+            <NeButton
+              kind="tertiary"
+              size="sm"
+              @click="removeIpField(index)"
+              icon="trash"
+            />
+          </div>
+          <NeButton kind="secondary" size="sm" @click="addIpField">
+            {{ t("Add IP") }}
+          </NeButton>
+        </div>
+      </div>
 
       <!-- Actions -->
       <hr />
@@ -166,11 +192,13 @@ watch(
         </NeButton>
         <NeButton
           kind="primary"
-          @click="saveRule"
+          @click="saveGroup"
           :disabled="isSavingChanges"
           :loading="isSavingChanges"
         >
-          {{ id ? t("common.save") : t("standalone.dpi.add_exception") }}
+          {{
+            props.itemToEdit ? t("common.save") : t("Save")
+          }}
         </NeButton>
       </div>
     </div>

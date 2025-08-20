@@ -8,11 +8,13 @@ import { useI18n } from 'vue-i18n'
 import DpiRules from '@/components/standalone/dpi/DpiRules.vue'
 import DpiExceptions from '@/components/standalone/dpi/DpiExceptions.vue'
 import { useTabs } from '@/composables/useTabs'
+import Policy from '@/components/standalone/dpi/Policy.vue'
 
 const { t } = useI18n()
 const { tabs, selectedTab } = useTabs([
   { name: 'rules', label: t('standalone.dpi.rules') },
-  { name: 'exceptions', label: t('standalone.dpi.exceptions') }
+  { name: 'exceptions', label: t('standalone.dpi.exceptions') },
+  { name: 'policy', label: t('Policy') }
 ])
 </script>
 
@@ -30,6 +32,9 @@ const { tabs, selectedTab } = useTabs([
       </template>
       <template v-else-if="selectedTab === 'exceptions'">
         <DpiExceptions />
+      </template>
+      <template v-else-if="selectedTab === 'policy'">
+        <Policy />
       </template>
     </div>
   </div>
