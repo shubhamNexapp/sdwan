@@ -1,179 +1,183 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
+import { useI18n } from "vue-i18n";
 import {
-    NeHeading,
-    NeButton,
-    NeInlineNotification,
-    NeSkeleton,
-    NeTable,
-    NeTableHead,
-    NeTableHeadCell,
-    NeTableBody,
-    NeTableRow,
-    NeTableCell,
-} from '@nethesis/vue-components'
-import { useUciPendingChangesStore } from '@/stores/standalone/uciPendingChanges'
-import { onMounted, onUnmounted, ref } from 'vue'
-import { ubusCall } from '@/lib/standalone/ubus'
-import DeleteTunnelModal from '@/components/standalone/vrf/vrf_delete.vue'
-import VRFDrawer from '@/components/standalone/vrf/vrf_drawer.vue'
-import axios from 'axios'
-import { getSDControllerApiEndpoint } from '@/lib/config'
-import { nextTick } from 'vue'
+  NeHeading,
+  NeButton,
+  NeInlineNotification,
+  NeSkeleton,
+  NeTable,
+  NeTableHead,
+  NeTableHeadCell,
+  NeTableBody,
+  NeTableRow,
+  NeTableCell,
+} from "@nethesis/vue-components";
+import { onMounted, ref, nextTick } from "vue";
+import { getSDControllerApiEndpoint } from "@/lib/config";
+import axios from "axios";
 
-export type IpsecTunnel = {
-    id: string
-    name: string
-    local: string[]
-    remote: string[]
-    enabled: '0' | '1'
-    connected: boolean
-    tunnelName: string
-    interfaceName: string
-}
+import DeleteTunnelModal from "@/components/standalone/vrf/vrf_delete.vue";
+import VRFDrawer from "@/components/standalone/vrf/vrf_drawer.vue";
 
-const { t } = useI18n()
-const uciChangesStore = useUciPendingChangesStore()
+export type VRFRule = {
+  name: string;
+  service: string;
+  bind_ifname: string;
+  route: { network: string; via: string; dev: string }[];
+  status: string;
+};
 
-const RELOAD_INTERVAL = 10000
-const loading = ref(true)
-const tunnels = ref([])
-const selectedTunnel = ref<IpsecTunnel | null>(null)
-const showCreateEditDrawer = ref(false)
-const showDeleteModal = ref(false)
-const fetchTunnelsIntervalId = ref(0)
+const { t } = useI18n();
+const loading = ref(true);
+const apiResponse = ref<VRFRule[]>([]);
+
+const selectedRule = ref<VRFRule | null>(null);
+const showDrawer = ref(false);
+const showDeleteModal = ref(false);
+const selectedRuleName = ref<string | null>(null);
 
 const error = ref({
-    notificationTitle: '',
-    notificationDescription: '',
-    notificationDetails: ''
-})
+  notificationTitle: "",
+  notificationDescription: "",
+  notificationDetails: "",
+});
 
-
-function openCreateEditDrawer(itemToEdit: IpsecTunnel | null) {
-    selectedTunnel.value = itemToEdit
-    showCreateEditDrawer.value = true
+function openDrawer(rule: VRFRule | null) {
+  selectedRule.value = rule;
+  showDrawer.value = true;
 }
 
-const selectedTunnelName = ref<string | null>(null);
-
-async function openDeleteModal(tunnelName: any) {
-    selectedTunnelName.value = tunnelName
-    await nextTick()
-    showDeleteModal.value = true
+async function openDeleteModal(ruleName: string) {
+  selectedRuleName.value = ruleName;
+  await nextTick();
+  showDeleteModal.value = true;
 }
 
 function closeModalsAndDrawers() {
-    selectedTunnel.value = null
-    showDeleteModal.value = false
-    showCreateEditDrawer.value = false
+  selectedRule.value = null;
+  showDrawer.value = false;
+  showDeleteModal.value = false;
 }
 
-
 onMounted(() => {
-    getLists()
-})
+  getLists();
+});
 
-let apiResponse = ref()
 const getLists = async () => {
-
-    try {
-
-        loading.value = true;
-        const response = await axios.post(`${getSDControllerApiEndpoint()}/vrf`, {
-            method: 'get-config',
-            payload: {}
-        });
-
-        if (response.data.code === 200) {
-            loading.value = false;
-            apiResponse.value = response.data.data.rule // Store API response
-        }
-    } catch (err) {
-        loading.value = false;
+  try {
+    loading.value = true;
+    const response = await axios.post(`${getSDControllerApiEndpoint()}/vrf`, {
+      method: "get-config",
+      payload: {},
+    });
+    if (response.data.code === 200) {
+      apiResponse.value = response.data.data.rule || [];
     }
+  } catch (err) {
+    console.error(err);
+  } finally {
     loading.value = false;
+  }
 };
-
 </script>
 
 <template>
-    <div class="flex flex-col">
-        <div class="flex flex-col justify-between md:flex-row md:items-center">
-            <NeHeading tag="h3" class="mb-7">{{ t('VRF') }}</NeHeading>
-        </div>
-        <p class="mb-6 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
-            {{ t('Configure VRF interfaces, including peer IPs, ports, and VLAN IDs, to enable efficient Layer 2 network extension over IP networks.') }}
-        </p>
-        <div class="space-y-6">
-
-            <NeInlineNotification kind="error" :title="error.notificationTitle"
-                :description="error.notificationDescription" v-if="error.notificationTitle">
-                <template v-if="error.notificationDetails">
-                    {{ error.notificationDetails }}
-                </template>
-            </NeInlineNotification>
-
-            <NeSkeleton v-if="loading" :lines="8" size="lg" />
-
-            <template v-else>
-                <!-- Show "Add WireGuard Tunnel" button if dummyData is empty -->
-
-                <NeButton kind="primary" @click="openCreateEditDrawer(null)">
-                    <template>
-                        <font-awesome-icon :icon="['fas', 'circle-plus']" class="h-4 w-4" aria-hidden="true" />
-                    </template>
-                    {{ t('standalone.openvpn_warrior.add') }}
-                </NeButton>
-                <!-- Show table if apiresponse has values -->
-                <NeTable cardBreakpoint="md" class="mt-2">
-                    <NeTableHead>
-                        <NeTableHeadCell>#</NeTableHeadCell>
-                        <NeTableHeadCell>Rule Name</NeTableHeadCell>
-                        <NeTableHeadCell>Service</NeTableHeadCell>
-                        <NeTableHeadCell>Network</NeTableHeadCell>
-                        <NeTableHeadCell>Bind Interface</NeTableHeadCell>
-                        <NeTableHeadCell>Status</NeTableHeadCell>
-                    </NeTableHead>
-                    <NeTableBody>
-                        <NeTableRow v-for="(item, index) in apiResponse" :key="index">
-                            <NeTableCell>{{ index + 1 }}</NeTableCell>
-                            <NeTableCell>{{ item.name }}</NeTableCell>
-                            <NeTableCell>{{ item.service }}</NeTableCell>
-                            <NeTableCell>{{ item.network }}</NeTableCell>
-                            <NeTableCell>{{ item.bind_ifname }}</NeTableCell>
-                            <NeTableCell>{{ item.status }}</NeTableCell>
-                            <NeTableCell :data-label="t('common.actions')">
-                                <div class="-ml-2.5 flex gap-2 xl:ml-0 xl:justify-end">
-                                    <!-- <NeButton kind="tertiary" size="lg" :disabled="item.readonly"
-                                        @click="openEditModal(item)">
-                                        <template>
-                                            <font-awesome-icon :icon="['fas', 'pen-to-square']" class="h-4 w-4"
-                                                aria-hidden="true" />
-                                        </template>
-                                        {{ t('common.edit') }}
-                                    </NeButton> -->
-                                    <NeButton kind="tertiary" size="lg" :disabled="item.readonly"
-                                        @click="openDeleteModal(item.name)">
-                                        <template>
-                                            <font-awesome-icon :icon="['fas', 'trash']" class="h-4 w-4"
-                                                aria-hidden="true" />
-                                        </template>
-                                        {{ t('common.delete') }}
-                                    </NeButton>
-                                </div>
-                            </NeTableCell>
-                        </NeTableRow>
-                    </NeTableBody>
-                </NeTable>
-            </template>
-        </div>
+  <div class="flex flex-col">
+    <div class="flex flex-col justify-between md:flex-row md:items-center">
+      <NeHeading tag="h3" class="mb-7">{{ t("VRF") }}</NeHeading>
     </div>
 
-    <DeleteTunnelModal :visible="showDeleteModal" :itemToDelete="selectedTunnelName" @close="showDeleteModal = false"
-        @tunnel-deleted="getLists" />
+    <p
+      class="mb-6 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400"
+    >
+      {{ t("Configure VRF interfaces and routing rules.") }}
+    </p>
 
-    <VRFDrawer :item-to-edit="selectedTunnel" @close="closeModalsAndDrawers" :rule-type="'forward'" :known-tags="[]"
-    @tunnel-added="getLists"   :is-shown="showCreateEditDrawer" />
+    <div class="space-y-6">
+      <NeInlineNotification
+        kind="error"
+        :title="error.notificationTitle"
+        :description="error.notificationDescription"
+        v-if="error.notificationTitle"
+      >
+        <template v-if="error.notificationDetails">
+          {{ error.notificationDetails }}
+        </template>
+      </NeInlineNotification>
 
+      <NeSkeleton v-if="loading" :lines="8" size="lg" />
+
+      <template v-else>
+        <NeButton kind="primary" @click="openDrawer(null)">
+          <template>
+            <font-awesome-icon :icon="['fas', 'circle-plus']" class="h-4 w-4" />
+          </template>
+          {{ t("Add VRF Rule") }}
+        </NeButton>
+
+        <NeTable cardBreakpoint="md" class="mt-2">
+          <NeTableHead>
+            <NeTableHeadCell>#</NeTableHeadCell>
+            <NeTableHeadCell>Rule Name</NeTableHeadCell>
+            <NeTableHeadCell>Service</NeTableHeadCell>
+            <NeTableHeadCell>Bind Interface</NeTableHeadCell>
+            <NeTableHeadCell>Status</NeTableHeadCell>
+            <NeTableHeadCell>{{ t("common.actions") }}</NeTableHeadCell>
+          </NeTableHead>
+
+          <NeTableBody>
+            <NeTableRow v-for="(item, index) in apiResponse" :key="index">
+              <NeTableCell>{{ index + 1 }}</NeTableCell>
+              <NeTableCell>{{ item.name }}</NeTableCell>
+              <NeTableCell>{{ item.service }}</NeTableCell>
+              <NeTableCell>{{ item.bind_ifname }}</NeTableCell>
+              <NeTableCell>{{ item.status }}</NeTableCell>
+              <NeTableCell>
+                <div class="flex gap-2">
+                  <!-- 🔹 Edit Button -->
+                  <NeButton kind="tertiary" size="lg" @click="openDrawer(item)">
+                    <template>
+                      <font-awesome-icon
+                        :icon="['fas', 'pen-to-square']"
+                        class="h-4 w-4"
+                      />
+                    </template>
+                    {{ t("common.edit") }}
+                  </NeButton>
+
+                  <NeButton
+                    kind="tertiary"
+                    size="lg"
+                    @click="openDeleteModal(item.name)"
+                  >
+                    <template>
+                      <font-awesome-icon
+                        :icon="['fas', 'trash']"
+                        class="h-4 w-4"
+                      />
+                    </template>
+                    {{ t("common.delete") }}
+                  </NeButton>
+                </div>
+              </NeTableCell>
+            </NeTableRow>
+          </NeTableBody>
+        </NeTable>
+      </template>
+    </div>
+  </div>
+
+  <DeleteTunnelModal
+    :visible="showDeleteModal"
+    :itemToDelete="selectedRuleName"
+    @close="showDeleteModal = false"
+    @tunnel-deleted="getLists"
+  />
+
+  <VRFDrawer
+    :is-shown="showDrawer"
+    :item-to-edit="selectedRule"
+    @close="closeModalsAndDrawers"
+    @tunnel-added="getLists"
+  />
 </template>
