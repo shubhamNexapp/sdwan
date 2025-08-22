@@ -1,49 +1,49 @@
 <script setup lang="ts">
+import { ref, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
+import FormLayout from "@/components/standalone/FormLayout.vue";
+import { useNotificationsStore } from "@/stores/notifications";
 import {
-  NeHeading,
+  NeToggle,
+  NeTextInput,
   NeButton,
+  NeCombobox,
+  NeHeading,
   NeInlineNotification,
-  NeSkeleton,
-  NeTable,
-  NeTableHead,
-  NeTableHeadCell,
-  NeTableBody,
-  NeTableRow,
-  NeTableCell,
+  NeTooltip,
 } from "@nethesis/vue-components";
-import { onMounted, ref, nextTick } from "vue";
 import axios from "axios";
 import { getSDControllerApiEndpoint } from "@/lib/config";
-import NSHADrawer from "@/components/standalone/ns_ha/NSHADrawer.vue";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { faSave } from "@fortawesome/free-solid-svg-icons";
+import { Saved, Success } from "@/lib/tost";
 
 const { t } = useI18n();
+const notificationsStore = useNotificationsStore();
 
-const loading = ref(true);
-const apiResponse = ref<any | null>(null);
+const loading = ref(false);
+const saving = ref(false);
 
-const showCreateEditDrawer = ref(false);
-const error = ref({
-  notificationTitle: "",
-  notificationDescription: "",
-  notificationDetails: "",
-});
+const error = ref({ title: "", description: "" });
 
-// open drawer
-function openCreateEditDrawer() {
-  showCreateEditDrawer.value = true;
-}
+// form fields
+const service = ref(false);
+const status = ref("");
+const role = ref("");
+const primaryNodeIp = ref("");
+const backupNodeIp = ref("");
+const virtualIp = ref("");
+const wanIfname = ref("");
+const wanVirtualIp = ref("");
+const wanGateway = ref("");
+const backupPassword = ref("");
 
-function closeModalsAndDrawers() {
-  showCreateEditDrawer.value = false;
-}
-
+// fetch existing config
 onMounted(() => {
-  getConfig();
+  fetchConfiguration();
 });
 
-// Fetch ns_ha config
-const getConfig = async () => {
+async function fetchConfiguration() {
   try {
     loading.value = true;
     const response = await axios.post(`${getSDControllerApiEndpoint()}/ns_ha`, {
@@ -52,86 +52,166 @@ const getConfig = async () => {
     });
 
     if (response.data.code === 200) {
-      apiResponse.value = response.data.data;
+      const config = response.data.data;
+
+      service.value = config.service === "enable";
+      status.value = config.status;
+      role.value = config.role;
+      primaryNodeIp.value = config.primary_node_ip;
+      backupNodeIp.value = config.backup_node_ip;
+      virtualIp.value = config.virtual_ip;
+      wanIfname.value = config.wan_ifname;
+      wanVirtualIp.value = config.wan_virtual_ip;
+      wanGateway.value = config.wan_gateway;
+      backupPassword.value = config.backup_password;
     }
-  } catch (err: any) {
-    error.value.notificationTitle = "Error";
-    error.value.notificationDescription = err.toString();
+  } catch (err) {
+    error.value = {
+      title: "Error",
+      description: "Failed to fetch configuration.",
+    };
   } finally {
     loading.value = false;
   }
-};
+}
+
+async function saveSettings() {
+  try {
+    saving.value = true;
+    const payload = {
+      service: service.value ? "enable" : "disable",
+      status: status.value,
+      role: role.value,
+      primary_node_ip: primaryNodeIp.value,
+      backup_node_ip: backupNodeIp.value,
+      virtual_ip: virtualIp.value,
+      wan_ifname: wanIfname.value,
+      wan_virtual_ip: wanVirtualIp.value,
+      wan_gateway: wanGateway.value,
+      backup_password: backupPassword.value,
+    };
+
+    const response = await axios.post(`${getSDControllerApiEndpoint()}/ns_ha`, {
+      method: "set-config",
+      payload,
+    });
+
+    if (response.data.code === 200) {
+      notificationsStore.createNotification({
+        title: Success,
+        description: Saved,
+        kind: "success",
+      });
+      fetchConfiguration();
+    } else {
+      throw new Error("Failed to save configuration.");
+    }
+  } catch (err) {
+    console.error("Error:", err);
+    error.value = {
+      title: "Error",
+      description: "Failed to save configuration.",
+    };
+  } finally {
+    saving.value = false;
+  }
+}
 </script>
 
 <template>
-  <div class="flex flex-col">
-    <div class="flex flex-col justify-between md:flex-row md:items-center">
-      <NeHeading tag="h3" class="mb-7">{{ t("NS HA") }}</NeHeading>
-    </div>
-    <p
-      class="mb-6 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400"
-    >
-      {{
-        t("Configure High Availability settings for primary and backup nodes.")
-      }}
-    </p>
+  <NeHeading tag="h3" class="mb-4">{{ t("NS-HA Configuration") }}</NeHeading>
 
-    <div class="space-y-6">
-      <NeInlineNotification
-        kind="error"
-        :title="error.notificationTitle"
-        :description="error.notificationDescription"
-        v-if="error.notificationTitle"
+  <FormLayout
+    :description="t('Enable or disable NS-HA and adjust its settings.')"
+  >
+    <NeInlineNotification
+      v-if="error.title"
+      class="my-4"
+      kind="error"
+      :title="error.title"
+      :description="error.description"
+    />
+
+    <!-- Toggle service -->
+    <NeToggle
+      v-model="service"
+      :topLabel="t('Service')"
+      :label="service ? 'Enable' : 'Disable'"
+    />
+
+    <div v-if="service" class="mt-4 flex flex-col gap-y-3">
+      <p>
+        <strong>Status :</strong>
+        <span :class="status === 'primary' ? 'text-green-500' : 'text-red-500'">
+          {{ status }}
+        </span>
+      </p>
+      <p><strong>Role :</strong> {{ role }}</p>
+
+      <NeTextInput
+        v-model="primaryNodeIp"
+        :label="t('Primary Node IP')"
+        placeholder="192.168.1.1"
+      />
+      <NeTextInput
+        v-model="backupNodeIp"
+        :label="t('Backup Node IP')"
+        placeholder="192.168.1.2"
+      />
+      <NeTextInput
+        v-model="virtualIp"
+        :label="t('Virtual IP')"
+        placeholder="192.168.1.4/24"
       >
-        <template v-if="error.notificationDetails">
-          {{ error.notificationDetails }}
+        <template>
+          <NeTooltip>
+            <template>
+              {{ t("Enter the virtual IP with subnet (e.g. 192.168.1.4/24)") }}
+            </template>
+          </NeTooltip>
         </template>
-      </NeInlineNotification>
+      </NeTextInput>
 
-      <NeSkeleton v-if="loading" :lines="8" size="lg" />
+      <NeCombobox
+        v-model="wanIfname"
+        :options="[
+          { label: 'eth0', id: 'eth0' },
+          { label: 'eth1', id: 'eth1' },
+        ]"
+        :label="t('WAN Interface')"
+        class="grow"
+      />
 
-      <template v-else>
-        <NeButton kind="primary" @click="openCreateEditDrawer">
-          <template>
-            <font-awesome-icon :icon="['fas', 'circle-plus']" class="h-4 w-4" />
-          </template>
-          {{ t("Add") }}
-        </NeButton>
-
-        <NeTable v-if="apiResponse" cardBreakpoint="md" class="mt-2">
-          <NeTableHead>
-            <NeTableHeadCell>Service</NeTableHeadCell>
-            <NeTableHeadCell>Role</NeTableHeadCell>
-            <NeTableHeadCell>Primary Node</NeTableHeadCell>
-            <NeTableHeadCell>Backup Node</NeTableHeadCell>
-            <NeTableHeadCell>Virtual IP</NeTableHeadCell>
-            <NeTableHeadCell>WAN Iface</NeTableHeadCell>
-            <NeTableHeadCell>WAN Virtual IP</NeTableHeadCell>
-            <NeTableHeadCell>WAN Gateway</NeTableHeadCell>
-            <NeTableHeadCell>Public Key</NeTableHeadCell>
-          </NeTableHead>
-          <NeTableBody>
-            <NeTableRow>
-              <NeTableCell>{{ apiResponse.service }}</NeTableCell>
-              <NeTableCell>{{ apiResponse.role }}</NeTableCell>
-              <NeTableCell>{{ apiResponse.primary_node_ip }}</NeTableCell>
-              <NeTableCell>{{ apiResponse.backup_node_ip }}</NeTableCell>
-              <NeTableCell>{{ apiResponse.virtual_ip }}</NeTableCell>
-              <NeTableCell>{{ apiResponse.wan_ifname }}</NeTableCell>
-              <NeTableCell>{{ apiResponse.wan_virtual_ip }}</NeTableCell>
-              <NeTableCell>{{ apiResponse.wan_gateway }}</NeTableCell>
-              <NeTableCell>{{ apiResponse.pubbkey }}</NeTableCell>
-            </NeTableRow>
-          </NeTableBody>
-        </NeTable>
-      </template>
+      <NeTextInput
+        v-model="wanVirtualIp"
+        :label="t('WAN Virtual IP')"
+        placeholder="192.168.40.1/24"
+      />
+      <NeTextInput
+        v-model="wanGateway"
+        :label="t('WAN Gateway')"
+        placeholder="192.168.40.1"
+      />
+      <NeTextInput
+        type="password"
+        v-model="backupPassword"
+        :label="t('Backup Password')"
+        placeholder="Enter Backup Password"
+      />
     </div>
-  </div>
 
-  <NSHADrawer
-    :is-shown="showCreateEditDrawer"
-    :config="apiResponse"
-    @close="closeModalsAndDrawers"
-    @save="getConfig"
-  />
+    <NeButton
+      class="ml-1 mt-5"
+      :disabled="saving"
+      :loading="saving"
+      kind="primary"
+      size="lg"
+      @click.prevent="saveSettings()"
+    >
+      <template>
+        <FontAwesomeIcon :icon="faSave" />
+      </template>
+      {{ t("common.save") }}
+    </NeButton>
+  </FormLayout>
 </template>

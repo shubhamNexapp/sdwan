@@ -18,6 +18,7 @@ const props = defineProps<{
 const emit = defineEmits(["close", "save"]);
 
 const service = ref(props.config?.service || "enable");
+const status = ref(props.config?.status || "primary");
 const role = ref(props.config?.role || "primary");
 const primaryNodeIp = ref(props.config?.primary_node_ip || "");
 const backupNodeIp = ref(props.config?.backup_node_ip || "");
@@ -58,10 +59,6 @@ function validate() {
   }
   if (!wanGateway.value || wanGateway.value.length > 128)
     errorBag.value.wanGateway = "WAN Gateway required (max 128 chars)";
-  if (!pubbkey.value || pubbkey.value.length > 128)
-    errorBag.value.pubbkey = "Pubbkey required (max 128 chars)";
-  if (!password.value || password.value.length > 32)
-    errorBag.value.password = "Password required (max 32 chars)";
   if (!sshPassword.value || sshPassword.value.length > 32)
     errorBag.value.sshPassword = "SSH Password required (max 32 chars)";
   return Object.keys(errorBag.value).length === 0;
@@ -71,6 +68,7 @@ async function saveConfig() {
   if (!validate()) return;
   const payload = {
     service: service.value,
+    status: status.value,
     role: role.value,
     primary_node_ip: primaryNodeIp.value,
     backup_node_ip: backupNodeIp.value,
@@ -104,6 +102,14 @@ async function saveConfig() {
         ]"
         label="Service"
       />
+
+      <p>
+        <strong>Status :</strong>
+        <span :class="status === 'primary' ? 'text-green-500' : 'text-red-500'">
+          {{ status.toUpperCase() }}
+        </span>
+      </p>
+
       <NeCombobox
         v-model="role"
         :options="[{ label: 'Primary', id: 'primary' }]"
@@ -143,19 +149,8 @@ async function saveConfig() {
         :invalidMessage="errorBag.wanGateway"
       />
       <NeTextInput
-        v-model.trim="pubbkey"
-        label="Pubbkey"
-        :invalidMessage="errorBag.pubbkey"
-      />
-      <NeTextInput
-        v-model.trim="password"
-        label="Password"
-        :type="'password'"
-        :invalidMessage="errorBag.password"
-      />
-      <NeTextInput
         v-model.trim="sshPassword"
-        label="SSH Password"
+        label="Backup Password"
         :type="'password'"
         :invalidMessage="errorBag.sshPassword"
       />
