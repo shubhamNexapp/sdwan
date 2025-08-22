@@ -23,13 +23,12 @@ const notificationsStore = useNotificationsStore();
 
 const loading = ref(false);
 const saving = ref(false);
-
 const error = ref({ title: "", description: "" });
 
 // form fields
 const service = ref(false);
 const status = ref("");
-const role = ref("");
+const role = ref("primary"); // default role
 const primaryNodeIp = ref("");
 const backupNodeIp = ref("");
 const virtualIp = ref("");
@@ -38,7 +37,7 @@ const wanVirtualIp = ref("");
 const wanGateway = ref("");
 const backupPassword = ref("");
 
-// fetch existing config
+// fetch config
 onMounted(() => {
   fetchConfiguration();
 });
@@ -78,18 +77,22 @@ async function fetchConfiguration() {
 async function saveSettings() {
   try {
     saving.value = true;
-    const payload = {
+    const payload: any = {
       service: service.value ? "enable" : "disable",
       status: status.value,
       role: role.value,
-      primary_node_ip: primaryNodeIp.value,
-      backup_node_ip: backupNodeIp.value,
-      virtual_ip: virtualIp.value,
-      wan_ifname: wanIfname.value,
-      wan_virtual_ip: wanVirtualIp.value,
-      wan_gateway: wanGateway.value,
-      backup_password: backupPassword.value,
     };
+
+    if (role.value === "primary") {
+      // include all fields only if primary
+      payload.primary_node_ip = primaryNodeIp.value;
+      payload.backup_node_ip = backupNodeIp.value;
+      payload.virtual_ip = virtualIp.value;
+      payload.wan_ifname = wanIfname.value;
+      payload.wan_virtual_ip = wanVirtualIp.value;
+      payload.wan_gateway = wanGateway.value;
+      payload.backup_password = backupPassword.value;
+    }
 
     const response = await axios.post(`${getSDControllerApiEndpoint()}/ns_ha`, {
       method: "set-config",
@@ -139,7 +142,19 @@ async function saveSettings() {
       :label="service ? 'Enable' : 'Disable'"
     />
 
-    <div v-if="service" class="mt-4 flex flex-col gap-y-3">
+    <!-- Role Dropdown -->
+    <NeCombobox
+      v-model="role"
+      :options="[
+        { label: 'Primary', id: 'primary' },
+        { label: 'Backup', id: 'backup' },
+      ]"
+      :label="t('Role')"
+      class="mt-4"
+    />
+
+    <!-- Common fields (always visible) -->
+    <!-- <div class="mt-4">
       <p>
         <strong>Status :</strong>
         <span :class="status === 'primary' ? 'text-green-500' : 'text-red-500'">
@@ -147,7 +162,10 @@ async function saveSettings() {
         </span>
       </p>
       <p><strong>Role :</strong> {{ role }}</p>
+    </div> -->
 
+    <!-- Extra fields only when role = primary -->
+    <div v-if="role === 'primary'" class="mt-4 flex flex-col gap-y-3">
       <NeTextInput
         v-model="primaryNodeIp"
         :label="t('Primary Node IP')"
@@ -172,16 +190,11 @@ async function saveSettings() {
         </template>
       </NeTextInput>
 
-      <NeCombobox
+      <NeTextInput
         v-model="wanIfname"
-        :options="[
-          { label: 'eth0', id: 'eth0' },
-          { label: 'eth1', id: 'eth1' },
-        ]"
-        :label="t('WAN Interface')"
-        class="grow"
+        :label="t('WAN Interface Name')"
+        placeholder="eth1"
       />
-
       <NeTextInput
         v-model="wanVirtualIp"
         :label="t('WAN Virtual IP')"
@@ -200,6 +213,7 @@ async function saveSettings() {
       />
     </div>
 
+    <!-- Save Button -->
     <NeButton
       class="ml-1 mt-5"
       :disabled="saving"
