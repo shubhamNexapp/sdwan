@@ -192,10 +192,10 @@ const navigation: Ref<MenuItem[]> = ref([
         name: "VRF",
         to: "network/vrf",
       },
-      {
-        name: "NSHA",
-        to: "network/ns-ha",
-      },
+      // {
+      //   name: "NSHA",
+      //   to: "network/ns-ha",
+      // },
       // {
       //   name: 'Speed Test',
       //   to: 'network/speed-test'

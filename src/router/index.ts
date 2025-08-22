@@ -175,11 +175,11 @@ const standaloneRoutes = [
     name: 'VRF',
     component: () => import('../views/standalone/network/vrf.vue')
   },
-    {
-    path: 'network/ns-ha',
-    name: 'NS HA',
-    component: () => import('../views/standalone/network/NSHAView.vue')
-  },
+  //   {
+  //   path: 'network/ns-ha',
+  //   name: 'NS HA',
+  //   component: () => import('../views/standalone/network/NSHAView.vue')
+  // },
   // {
   //   path: 'network/speed-test',
   //   name: 'Speed Test',
