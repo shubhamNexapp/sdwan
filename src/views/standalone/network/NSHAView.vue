@@ -142,76 +142,82 @@ async function saveSettings() {
       :label="service ? 'Enable' : 'Disable'"
     />
 
-    <!-- Role Dropdown -->
-    <NeCombobox
-      v-model="role"
-      :options="[
-        { label: 'Primary', id: 'primary' },
-        { label: 'Backup', id: 'backup' },
-      ]"
-      :label="t('Role')"
-      class="mt-4"
-    />
+    <template v-if="service">
+      <div class="mt-4">
+        <p>
+          <strong class="mr-2">Status :</strong>
+          <span
+            :class="status === 'primary' ? 'text-green-500' : 'text-red-500'"
+          >
+            {{ status }}
+          </span>
+        </p>
+      </div>
 
-    <!-- Common fields (always visible) -->
-    <!-- <div class="mt-4">
-      <p>
-        <strong>Status :</strong>
-        <span :class="status === 'primary' ? 'text-green-500' : 'text-red-500'">
-          {{ status }}
-        </span>
-      </p>
-      <p><strong>Role :</strong> {{ role }}</p>
-    </div> -->
+      <!-- Role Dropdown -->
+      <NeCombobox
+        v-model="role"
+        :options="[
+          { label: 'Primary', id: 'primary' },
+          { label: 'Backup', id: 'backup' },
+        ]"
+        :label="t('Role')"
+        class="mt-4"
+      />
 
-    <!-- Extra fields only when role = primary -->
-    <div v-if="role === 'primary'" class="mt-4 flex flex-col gap-y-3">
-      <NeTextInput
-        v-model="primaryNodeIp"
-        :label="t('Primary Node IP')"
-        placeholder="192.168.1.1"
-      />
-      <NeTextInput
-        v-model="backupNodeIp"
-        :label="t('Backup Node IP')"
-        placeholder="192.168.1.2"
-      />
-      <NeTextInput
-        v-model="virtualIp"
-        :label="t('Virtual IP')"
-        placeholder="192.168.1.4/24"
-      >
-        <template>
-          <NeTooltip>
-            <template>
-              {{ t("Enter the virtual IP with subnet (e.g. 192.168.1.4/24)") }}
-            </template>
-          </NeTooltip>
-        </template>
-      </NeTextInput>
+      <!-- Common fields (always visible) -->
 
-      <NeTextInput
-        v-model="wanIfname"
-        :label="t('WAN Interface Name')"
-        placeholder="eth1"
-      />
-      <NeTextInput
-        v-model="wanVirtualIp"
-        :label="t('WAN Virtual IP')"
-        placeholder="192.168.40.1/24"
-      />
-      <NeTextInput
-        v-model="wanGateway"
-        :label="t('WAN Gateway')"
-        placeholder="192.168.40.1"
-      />
-      <NeTextInput
-        type="password"
-        v-model="backupPassword"
-        :label="t('Backup Password')"
-        placeholder="Enter Backup Password"
-      />
-    </div>
+      <!-- Extra fields only when role = primary -->
+      <div v-if="role === 'primary'" class="mt-4 flex flex-col gap-y-3">
+        <NeTextInput
+          v-model="primaryNodeIp"
+          :label="t('Primary Node IP')"
+          placeholder="192.168.1.1"
+        />
+        <NeTextInput
+          v-model="backupNodeIp"
+          :label="t('Backup Node IP')"
+          placeholder="192.168.1.2"
+        />
+        <NeTextInput
+          v-model="virtualIp"
+          :label="t('Virtual IP')"
+          placeholder="192.168.1.4/24"
+        >
+          <template>
+            <NeTooltip>
+              <template>
+                {{
+                  t("Enter the virtual IP with subnet (e.g. 192.168.1.4/24)")
+                }}
+              </template>
+            </NeTooltip>
+          </template>
+        </NeTextInput>
+
+        <NeTextInput
+          v-model="wanIfname"
+          :label="t('WAN Interface Name')"
+          placeholder="eth1"
+        />
+        <NeTextInput
+          v-model="wanVirtualIp"
+          :label="t('WAN Virtual IP')"
+          placeholder="192.168.40.1/24"
+        />
+        <NeTextInput
+          v-model="wanGateway"
+          :label="t('WAN Gateway')"
+          placeholder="192.168.40.1"
+        />
+        <NeTextInput
+          type="password"
+          v-model="backupPassword"
+          :label="t('Backup Password')"
+          placeholder="Enter Backup Password"
+        />
+      </div>
+    </template>
 
     <!-- Save Button -->
     <NeButton
