@@ -20,6 +20,7 @@ const props = defineProps<{
 const emit = defineEmits(["close", "tunnel-deleted"]);
 
 const { visible, itemToDelete } = toRefs(props);
+
 const error = ref({
   notificationDescription: "",
   notificationDetails: "",
@@ -27,22 +28,25 @@ const error = ref({
 const isDeleting = ref(false);
 
 async function deleteTunnel() {
-  try {
-    const response = await axios.post(
-      `${getSDControllerApiEndpoint()}/wireguard`,
-      {
-        method: "delete-config",
-        payload: {},
-      }
-    );
 
-    if (response.data.code === 200) {
-      close();
-      emit("tunnel-deleted");
-    } else {
-      throw new Error("Failed to delete configuration.");
-    }
-  } catch (err) {}
+  if (props.itemToDelete) {
+    try {
+      const response = await axios.post(
+        `${getSDControllerApiEndpoint()}/wireguard_server`,
+        {
+          method: "delete-peer",
+          payload: { name: props.itemToDelete },
+        }
+      );
+
+      if (response.data.code === 200) {
+        close();
+        emit("tunnel-deleted");
+      } else {
+        throw new Error("Failed to delete configuration.");
+      }
+    } catch (err) {}
+  }
 }
 
 function close() {
