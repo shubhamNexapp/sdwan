@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from "vue";
+import { ref, watch } from "vue";
 import axios from "axios";
 import { getSDControllerApiEndpoint } from "@/lib/config";
 import {
@@ -13,45 +13,47 @@ import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
 
-const props = defineProps<{
-  modelValue: any; // v-model for form data
-}>();
+const props = defineProps<{ modelValue: any }>();
 const emits = defineEmits(["update:modelValue"]);
 
-// Local form state mirrors props.modelValue
 const form = ref({ ...props.modelValue });
 
-// Sync external changes → local form
+// keep parent sync
 watch(
   () => props.modelValue,
-  (newVal) => {
-    form.value = { ...newVal };
+  (val) => {
+    form.value = { ...val };
   },
   { deep: true }
 );
 
-// Sync local → parent
 watch(
   form,
-  (newVal) => {
-    emits("update:modelValue", newVal);
+  (val) => {
+    emits("update:modelValue", val);
   },
   { deep: true }
 );
 
-// --- Dynamic options
-const dynamicApplicationOptions = ref<{ name: string; enabled: boolean }[]>([]);
-const dynamicProtocolOptions = ref<{ name: string; enabled: boolean }[]>([]);
-const dynamicSingleOptions = ref<{ name: string; enabled: boolean }[]>([]);
-const singleSearch = ref("");
-
-// Action dropdown options
+// dropdown options
 const actionOptions = [
   { id: "block", label: "Block" },
   { id: "accept", label: "Accept" },
 ];
 
-// --- API calls
+const typeOptions = [
+  { id: "application", label: "Application" },
+  { id: "protocol", label: "Protocol" },
+  { id: "single", label: "Single" },
+];
+
+// dynamic lists
+const dynamicApplicationOptions = ref<{ name: string; enabled: boolean }[]>([]);
+const dynamicProtocolOptions = ref<{ name: string; enabled: boolean }[]>([]);
+const dynamicSingleOptions = ref<{ name: string; enabled: boolean }[]>([]);
+const singleSearch = ref("");
+
+// --- API
 const fetchApplicationOptions = async () => {
   try {
     const res = await axios.post(`${getSDControllerApiEndpoint()}/dpi`, {
@@ -62,8 +64,8 @@ const fetchApplicationOptions = async () => {
       name: item.name,
       enabled: form.value.app_name?.includes(item.name) || false,
     }));
-  } catch (err) {
-    console.error("Fetch application error:", getAxiosErrorMessage(err));
+  } catch (e) {
+    console.error("app fetch error:", getAxiosErrorMessage(e));
   }
 };
 
@@ -77,16 +79,13 @@ const fetchProtocolOptions = async () => {
       name: item.name,
       enabled: form.value.app_name?.includes(item.name) || false,
     }));
-  } catch (err) {
-    console.error("Fetch protocol error:", getAxiosErrorMessage(err));
+  } catch (e) {
+    console.error("protocol fetch error:", getAxiosErrorMessage(e));
   }
 };
 
 const fetchSingleOptions = async (query: string) => {
-  if (!query) {
-    dynamicSingleOptions.value = [];
-    return;
-  }
+  if (!query) return (dynamicSingleOptions.value = []);
   try {
     const res = await axios.post(`${getSDControllerApiEndpoint()}/dpi`, {
       method: "search-field",
@@ -97,12 +96,12 @@ const fetchSingleOptions = async (query: string) => {
       name: item.name,
       enabled: form.value.app_name?.includes(item.name) || false,
     }));
-  } catch (err) {
-    console.error("Fetch single error:", getAxiosErrorMessage(err));
+  } catch (e) {
+    console.error("single fetch error:", getAxiosErrorMessage(e));
   }
 };
 
-// Watch type change
+// watch type change
 watch(
   () => form.value.type,
   (newVal) => {
@@ -124,31 +123,33 @@ watch(
   { immediate: true }
 );
 
-// Debounce for single search
+// debounce search
 let searchTimeout: any;
 watch(singleSearch, (newVal) => {
   clearTimeout(searchTimeout);
-  searchTimeout = setTimeout(() => {
-    fetchSingleOptions(newVal);
-  }, 500);
+  searchTimeout = setTimeout(() => fetchSingleOptions(newVal), 500);
 });
+
+// toggle handler (fix: keep array stable)
+const toggleApp = (name: string, enabled: boolean) => {
+  if (enabled) {
+    if (!form.value.app_name.includes(name)) {
+      form.value.app_name = [...form.value.app_name, name];
+    }
+  } else {
+    form.value.app_name = form.value.app_name.filter((n: string) => n !== name);
+  }
+};
 </script>
 
 <template>
   <div class="space-y-4">
+    <!-- ✅ RULE NAME stays what user types -->
     <NeTextInput v-model="form.rule_name" label="Rule Name" />
 
     <NeCombobox v-model="form.action" :options="actionOptions" label="Action" />
 
-    <NeCombobox
-      v-model="form.type"
-      :options="[
-        { label: 'Application', id: 'application' },
-        { label: 'Protocol', id: 'protocol' },
-        { label: 'Single', id: 'single' },
-      ]"
-      :label="t('Type')"
-    />
+    <NeCombobox v-model="form.type" :options="typeOptions" :label="t('Type')" />
 
     <NeTextInput
       v-model="form.src_ip_string"
@@ -161,7 +162,7 @@ watch(singleSearch, (newVal) => {
       <NeTextInput v-model="singleSearch" label="Apps Search" />
     </div>
 
-    <!-- Lists -->
+    <!-- Application list -->
     <NeCard
       v-if="form.type === 'application' && dynamicApplicationOptions.length"
     >
@@ -173,17 +174,14 @@ watch(singleSearch, (newVal) => {
         <p>{{ item.name }}</p>
         <NeToggle
           v-model="dynamicApplicationOptions[index].enabled"
-          @change="() => {
-            if (dynamicApplicationOptions[index].enabled) {
-              form.app_name.push(item.name);
-            } else {
-              form.app_name = form.app_name.filter((n: string) => n !== item.name);
-            }
-          }"
+          @change="
+            toggleApp(item.name, dynamicApplicationOptions[index].enabled)
+          "
         />
       </div>
     </NeCard>
 
+    <!-- Protocol list -->
     <NeCard v-if="form.type === 'protocol' && dynamicProtocolOptions.length">
       <div
         v-for="(item, index) in dynamicProtocolOptions"
@@ -193,17 +191,12 @@ watch(singleSearch, (newVal) => {
         <p>{{ item.name }}</p>
         <NeToggle
           v-model="dynamicProtocolOptions[index].enabled"
-          @change="() => {
-            if (dynamicProtocolOptions[index].enabled) {
-              form.app_name.push(item.name);
-            } else {
-              form.app_name = form.app_name.filter((n: string) => n !== item.name);
-            }
-          }"
+          @change="toggleApp(item.name, dynamicProtocolOptions[index].enabled)"
         />
       </div>
     </NeCard>
 
+    <!-- Single list -->
     <NeCard v-if="form.type === 'single' && dynamicSingleOptions.length">
       <div
         v-for="(item, index) in dynamicSingleOptions"
@@ -213,13 +206,7 @@ watch(singleSearch, (newVal) => {
         <p>{{ item.name }}</p>
         <NeToggle
           v-model="dynamicSingleOptions[index].enabled"
-          @change="() => {
-            if (dynamicSingleOptions[index].enabled) {
-              form.app_name.push(item.name);
-            } else {
-              form.app_name = form.app_name.filter((n: string) => n !== item.name);
-            }
-          }"
+          @change="toggleApp(item.name, dynamicSingleOptions[index].enabled)"
         />
       </div>
     </NeCard>

@@ -11,7 +11,7 @@ const props = defineProps<{
     src_ip: string[];
     app_name: string[];
     type: string;
-    describe: string;
+    describe: string; 
   };
 }>();
 
@@ -36,7 +36,7 @@ const { t } = useI18n();
     <!-- Title -->
     <template #title>
       <div :class="{ 'opacity-50': !rule.enabled }">
-        <!-- <span class="font-semibold">{{ rule.rule_name }}</span> -->
+        <span class="font-semibold">{{ rule.rule_name }}</span>
       </div>
     </template>
 
