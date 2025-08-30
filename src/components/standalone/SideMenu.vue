@@ -193,7 +193,7 @@ const navigation: Ref<MenuItem[]> = ref([
         to: "network/vrf",
       },
       {
-        name: "NS-HA",
+        name: "High Availability",
         to: "network/ns-ha",
       },
       // {

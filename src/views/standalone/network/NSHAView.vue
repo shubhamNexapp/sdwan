@@ -122,10 +122,10 @@ async function saveSettings() {
 </script>
 
 <template>
-  <NeHeading tag="h3" class="mb-4">{{ t("NS-HA Configuration") }}</NeHeading>
+  <NeHeading tag="h3" class="mb-4">{{ t("High Availability Configuration") }}</NeHeading>
 
   <FormLayout
-    :description="t('Enable or disable NS-HA and adjust its settings.')"
+    :description="t('Enable or disable High Availability and adjust its settings.')"
   >
     <NeInlineNotification
       v-if="error.title"
