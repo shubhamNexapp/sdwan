@@ -98,7 +98,7 @@ function goTo(path: string) {
     <!-- IPS -->
     <IpsServiceCard />
         <!-- Wire Guard -->
-        <WireGuard />
+        <!-- <WireGuard /> -->
     <!-- threat shield dns -->
     <ServiceCard serviceName="threat_shield_dns" hasStatus :icon="['fas', 'shield']">
       <template #title>
