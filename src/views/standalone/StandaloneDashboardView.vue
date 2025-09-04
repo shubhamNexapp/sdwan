@@ -16,6 +16,8 @@ import ThreatShieldIpCard from '@/components/standalone/dashboard/ThreatShieldIp
 import IpsServiceCard from '@/components/standalone/dashboard/IpsServiceCard.vue'
 import WireGuard from '@/components/standalone/dashboard/WireGuard.vue'
 import MacBindingStatusCard from '@/components/standalone/dashboard/MacBindingStatusCard.vue'
+import HAStatusCard from '@/components/standalone/dashboard/HAStatusCard.vue'
+import SDControllerCard from '@/components/standalone/dashboard/SDControllerCard.vue'
 const { t } = useI18n()
 const route = useRoute()
 
@@ -97,6 +99,8 @@ function goTo(path: string) {
         <MacBindingStatusCard />
     <!-- IPS -->
     <IpsServiceCard />
+    <HAStatusCard />
+    <SDControllerCard />
         <!-- Wire Guard -->
         <!-- <WireGuard /> -->
     <!-- threat shield dns -->

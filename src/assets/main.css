@@ -116,13 +116,13 @@ hr {
   display: block;
 }
 .side-bar{
-  background-color: #4a555f !important;
+  background-color: (249 250 251 / var(--tw-bg-opacity, 1))
 }
 .side-bar-grey{
-  color: white !important;
+  color: (249 250 251 / var(--tw-bg-opacity, 1))
  }
 .side-bar img{
-  width: 90% !important;
+  width: 100% !important;
   height: auto !important;
 }
 

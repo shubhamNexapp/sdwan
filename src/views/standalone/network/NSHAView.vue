@@ -74,8 +74,42 @@ async function fetchConfiguration() {
   }
 }
 
+const sshPassword = ref("");
+
+const errorBag = ref<{ [key: string]: string }>({});
+
+// regex to validate CIDR (ip/mask)
+const cidrRegex =
+  /^(25[0-5]|2[0-4]\d|1?\d?\d)(\.(25[0-5]|2[0-4]\d|1?\d?\d)){3}\/(3[0-2]|[12]?\d)$/;
+
+function validate() {
+  errorBag.value = {};
+
+  if (role.value === "primary") {
+    if (!primaryNodeIp.value || primaryNodeIp.value.length > 128)
+      errorBag.value.primaryNodeIp = "Primary Node IP required (max 128 chars)";
+    if (!backupNodeIp.value || backupNodeIp.value.length > 128)
+      errorBag.value.backupNodeIp = "Backup Node IP required (max 128 chars)";
+    if (!virtualIp.value || virtualIp.value.length > 128)
+      errorBag.value.virtualIp = "Virtual IP required (max 128 chars)";
+    if (!wanIfname.value || wanIfname.value.length > 16)
+      errorBag.value.wanIfname = "WAN Interface Name required (max 16 chars)";
+    if (!wanVirtualIp.value) {
+      errorBag.value.wanVirtualIp = "WAN Virtual IP is required";
+    } else if (!cidrRegex.test(wanVirtualIp.value)) {
+      errorBag.value.wanVirtualIp = "Must be in format 192.168.40.100/24";
+    }
+    if (!wanGateway.value || wanGateway.value.length > 128)
+      errorBag.value.wanGateway = "WAN Gateway required (max 128 chars)";
+    if (!backupPassword.value || backupPassword.value.length > 32)
+      errorBag.value.backupPassword = "Password required (max 32 chars)";
+  }
+  return Object.keys(errorBag.value).length === 0;
+}
+
 async function saveSettings() {
   try {
+    if (!validate()) return;
     saving.value = true;
     const payload: any = {
       service: service.value ? "enable" : "disable",
@@ -122,10 +156,14 @@ async function saveSettings() {
 </script>
 
 <template>
-  <NeHeading tag="h3" class="mb-4">{{ t("High Availability Configuration") }}</NeHeading>
+  <NeHeading tag="h3" class="mb-4">{{
+    t("High Availability Configuration")
+  }}</NeHeading>
 
   <FormLayout
-    :description="t('Enable or disable High Availability and adjust its settings.')"
+    :description="
+      t('Enable or disable High Availability and adjust its settings.')
+    "
   >
     <NeInlineNotification
       v-if="error.title"
@@ -173,16 +211,19 @@ async function saveSettings() {
           v-model="primaryNodeIp"
           :label="t('Primary Node IP')"
           placeholder="192.168.1.1"
+          :invalidMessage="errorBag.primaryNodeIp"
         />
         <NeTextInput
           v-model="backupNodeIp"
           :label="t('Backup Node IP')"
           placeholder="192.168.1.2"
+          :invalidMessage="errorBag.backupNodeIp"
         />
         <NeTextInput
           v-model="virtualIp"
           :label="t('Virtual IP')"
           placeholder="192.168.1.4/24"
+          :invalidMessage="errorBag.virtualIp"
         >
           <template>
             <NeTooltip>
@@ -199,22 +240,26 @@ async function saveSettings() {
           v-model="wanIfname"
           :label="t('WAN Interface Name')"
           placeholder="eth1"
+          :invalidMessage="errorBag.wanIfname"
         />
         <NeTextInput
           v-model="wanVirtualIp"
           :label="t('WAN Virtual IP')"
           placeholder="192.168.40.1/24"
+          :invalidMessage="errorBag.wanVirtualIp"
         />
         <NeTextInput
           v-model="wanGateway"
           :label="t('WAN Gateway')"
           placeholder="192.168.40.1"
+          :invalidMessage="errorBag.wanGateway"
         />
         <NeTextInput
           type="password"
           v-model="backupPassword"
           :label="t('Backup Password')"
           placeholder="Enter Backup Password"
+          :invalidMessage="errorBag.backupPassword"
         />
       </div>
     </template>
