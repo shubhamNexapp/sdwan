@@ -1,5 +1,3 @@
-//  Copyright (C) 2024 Nethesis S.r.l.
-//  SPDX-License-Identifier: GPL-3.0-or-later
 
 import './assets/main.css'
 import 'tippy.js/dist/tippy.css'

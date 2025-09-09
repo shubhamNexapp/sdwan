@@ -1,5 +1,5 @@
-//  Copyright (C) 2024 Nethesis S.r.l.
-//  SPDX-License-Identifier: GPL-3.0-or-later
+//  Copyright © 2024-2026 Nexapp Technologies Pvt Ltd. All rights reserved.
+
 
 import type { Tab } from '@nethesis/vue-components'
 import { ref, watch } from 'vue'

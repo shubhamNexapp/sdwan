@@ -1,6 +1,5 @@
 /*
-  Copyright (C) 2024 Nethesis S.r.l.
-  SPDX-License-Identifier: GPL-3.0-or-later
+  Copyright © 2024-2026 Nexapp Technologies Pvt Ltd. All rights reserved.
  */
 
 @import '@xterm/xterm/css/xterm.css';
@@ -116,7 +115,7 @@ hr {
   display: block;
 }
 .side-bar{
-  background-color: (249 250 251 / var(--tw-bg-opacity, 1))
+  background-color: #4a555f 
 }
 .side-bar-grey{
   color: (249 250 251 / var(--tw-bg-opacity, 1))
@@ -157,6 +156,11 @@ hr {
 .text-primary-900{
   --tw-text-opacity: 1;
   color: rgb(0, 165, 255);
+}
+
+.text-white-900{
+  --tw-text-opacity: 1;
+  color: rgb(244, 247, 248);
 }
 
 /* Shubham CSS End */
