@@ -78,7 +78,7 @@ onMounted(() => {
 });
 
 // Handle save from drawer
-const handleSave = (rule: Rule, isEdit: boolean) => {
+const handleSave = async (rule: Rule, isEdit: boolean) => {
   if (isEdit) {
     // Update locally
     const idx = rules.value.findIndex((r) => r.rule_name === rule.rule_name);
@@ -88,6 +88,7 @@ const handleSave = (rule: Rule, isEdit: boolean) => {
     rules.value.push(rule);
   }
   drawerVisible.value = false;
+  await getRules();
 };
 
 const confirmDelete = async () => {
