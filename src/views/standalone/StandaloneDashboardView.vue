@@ -3,38 +3,45 @@
 -->
 
 <script setup lang="ts">
-import { NeLink, NeHeading } from '@nethesis/vue-components'
-import { useI18n } from 'vue-i18n'
-import SystemInfoCard from '@/components/standalone/dashboard/SystemInfoCard.vue'
-import ServiceCard from '@/components/standalone/dashboard/ServiceCard.vue'
-import { getStandaloneRoutePrefix } from '@/lib/router'
-import router from '@/router'
-import { useRoute } from 'vue-router'
-import OpenVpnTunnelOrIpsecCard from '@/components/standalone/dashboard/OpenVpnTunnelOrIpsecCard.vue'
-import InternetConnectionCard from '@/components/standalone/dashboard/InternetConnectionCard.vue'
-import ThreatShieldIpCard from '@/components/standalone/dashboard/ThreatShieldIpCard.vue'
-import IpsServiceCard from '@/components/standalone/dashboard/IpsServiceCard.vue'
-import WireGuard from '@/components/standalone/dashboard/WireGuard.vue'
-import MacBindingStatusCard from '@/components/standalone/dashboard/MacBindingStatusCard.vue'
-import HAStatusCard from '@/components/standalone/dashboard/HAStatusCard.vue'
-import SDControllerCard from '@/components/standalone/dashboard/SDControllerCard.vue'
-const { t } = useI18n()
-const route = useRoute()
+import { NeLink, NeHeading } from "@nethesis/vue-components";
+import { useI18n } from "vue-i18n";
+import SystemInfoCard from "@/components/standalone/dashboard/SystemInfoCard.vue";
+import ServiceCard from "@/components/standalone/dashboard/ServiceCard.vue";
+import { getStandaloneRoutePrefix } from "@/lib/router";
+import router from "@/router";
+import { useRoute } from "vue-router";
+import OpenVpnTunnelOrIpsecCard from "@/components/standalone/dashboard/OpenVpnTunnelOrIpsecCard.vue";
+import InternetConnectionCard from "@/components/standalone/dashboard/InternetConnectionCard.vue";
+import ThreatShieldIpCard from "@/components/standalone/dashboard/ThreatShieldIpCard.vue";
+import IpsServiceCard from "@/components/standalone/dashboard/IpsServiceCard.vue";
+import WireGuard from "@/components/standalone/dashboard/WireGuard.vue";
+import MacBindingStatusCard from "@/components/standalone/dashboard/MacBindingStatusCard.vue";
+import HAStatusCard from "@/components/standalone/dashboard/HAStatusCard.vue";
+import SDControllerCard from "@/components/standalone/dashboard/SDControllerCard.vue";
+import SNMPCard from "@/components/standalone/dashboard/SNMPCard.vue";
+import ZeroTierCard from "@/components/standalone/dashboard/ZeroTierCard.vue";
+import AntiVirusCard from "@/components/standalone/dashboard/AntiVirusCard.vue";
+const { t } = useI18n();
+const route = useRoute();
 
 function goTo(path: string) {
-  router.push(`${getStandaloneRoutePrefix(route)}${path}`)
+  router.push(`${getStandaloneRoutePrefix(route)}${path}`);
 }
 </script>
 
 <template>
   <div class="flex flex-col justify-between md:flex-row md:items-center">
-    <NeHeading tag="h3" class="mb-7">{{ t('standalone.dashboard.title') }}</NeHeading>
+    <NeHeading tag="h3" class="mb-7">{{
+      t("standalone.dashboard.title")
+    }}</NeHeading>
     <div class="mb-6 text-sm text-gray-500 dark:text-gray-400">
-      {{ t('common.data_updated_every_seconds', { seconds: 20 }) }}
+      {{ t("common.data_updated_every_seconds", { seconds: 20 }) }}
     </div>
   </div>
 
-  <div class="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2 xl:grid-cols-4 3xl:grid-cols-6">
+  <div
+    class="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2 xl:grid-cols-4 3xl:grid-cols-6"
+  >
     <!-- system -->
     <SystemInfoCard class="sm:col-span-2 xl:row-span-3" />
     <!-- internet connection -->
@@ -42,8 +49,8 @@ function goTo(path: string) {
     <!-- multiwan -->
     <ServiceCard serviceName="mwan" hasStatus :icon="['fas', 'earth-americas']">
       <template #title>
-        <NeLink @click="goTo('/network/multi-wan')" class="text-primary-900" >
-          {{ t('standalone.dashboard.multiwan') }}
+        <NeLink @click="goTo('/network/multi-wan')" class="text-primary-900">
+          {{ t("standalone.dashboard.multiwan") }}
         </NeLink>
       </template>
     </ServiceCard>
@@ -60,28 +67,28 @@ function goTo(path: string) {
       hasStatus
       :counter="{
         name: 'openvpn_rw',
-        label: t('standalone.dashboard.clients_connected')
+        label: t('standalone.dashboard.clients_connected'),
       }"
       :icon="['fas', 'globe']"
     >
       <template #title>
         <NeLink @click="goTo('/vpn/openvpn-rw')" class="text-primary-900">
-          {{ t('standalone.dashboard.openvpn_rw') }}
+          {{ t("standalone.dashboard.openvpn_rw") }}
         </NeLink>
       </template>
     </ServiceCard>
     <!-- ipsec tunnels -->
-    <OpenVpnTunnelOrIpsecCard method="ipsec-tunnels" >
+    <OpenVpnTunnelOrIpsecCard method="ipsec-tunnels">
       <template #title>
         <NeLink @click="goTo('/vpn/ipsec-tunnel')" class="text-primary-900">
-          {{ t('standalone.ipsec_tunnel.title') }}
+          {{ t("standalone.ipsec_tunnel.title") }}
         </NeLink>
       </template>
     </OpenVpnTunnelOrIpsecCard>
     <OpenVpnTunnelOrIpsecCard method="ipsec-tunnels">
       <template #title>
         <NeLink @click="goTo('/vpn/wire-guard')" class="text-primary-900">
-          {{ t('standalone.wire_guard.title') }}
+          {{ t("standalone.wire_guard.title") }}
         </NeLink>
       </template>
     </OpenVpnTunnelOrIpsecCard>
@@ -89,25 +96,35 @@ function goTo(path: string) {
     <OpenVpnTunnelOrIpsecCard method="ovpn-tunnels">
       <template #title>
         <NeLink @click="goTo('/vpn/openvpn-tunnel')" class="text-primary-900">
-          {{ t('standalone.openvpn_tunnel.title') }}
+          {{ t("standalone.openvpn_tunnel.title") }}
         </NeLink>
       </template>
     </OpenVpnTunnelOrIpsecCard>
     <!-- threat shield IP / banIP -->
     <ThreatShieldIpCard />
-        <!-- MAC binding -->
-        <MacBindingStatusCard />
+    <!-- MAC binding -->
+    <MacBindingStatusCard />
     <!-- IPS -->
     <IpsServiceCard />
     <HAStatusCard />
     <SDControllerCard />
-        <!-- Wire Guard -->
-        <!-- <WireGuard /> -->
+    <SNMPCard />
+    <ZeroTierCard />
+    <AntiVirusCard />
+    <!-- Wire Guard -->
+    <!-- <WireGuard /> -->
     <!-- threat shield dns -->
-    <ServiceCard serviceName="threat_shield_dns" hasStatus :icon="['fas', 'shield']">
+    <ServiceCard
+      serviceName="threat_shield_dns"
+      hasStatus
+      :icon="['fas', 'shield']"
+    >
       <template #title>
-        <NeLink @click="goTo('/security/insta-shield-dns')" class="text-primary-900" >
-          {{ t('standalone.threat_shield_dns.title') }}
+        <NeLink
+          @click="goTo('/security/insta-shield-dns')"
+          class="text-primary-900"
+        >
+          {{ t("standalone.threat_shield_dns.title") }}
         </NeLink>
       </template>
     </ServiceCard>
@@ -115,7 +132,7 @@ function goTo(path: string) {
     <ServiceCard serviceName="dedalo" hasStatus :icon="['fas', 'wifi']">
       <template #title>
         <NeLink @click="goTo('/network/hotspot')" class="text-primary-900">
-          {{ t('standalone.dashboard.hotspot') }}
+          {{ t("standalone.dashboard.hotspot") }}
         </NeLink>
       </template>
     </ServiceCard>
@@ -124,7 +141,7 @@ function goTo(path: string) {
       serviceName="hosts"
       :counter="{
         name: 'hosts',
-        label: ''
+        label: '',
       }"
       :title="t('standalone.dashboard.known_hosts')"
       :icon="['fas', 'circle-info']"

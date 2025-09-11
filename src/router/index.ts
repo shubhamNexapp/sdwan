@@ -180,6 +180,11 @@ const standaloneRoutes = [
     name: 'NS HA',
     component: () => import('../views/standalone/network/NSHAView.vue')
   },
+  {
+    path: 'network/application-aware-routing',
+    name: 'Application Aware Routing',
+    component: () => import('../views/standalone/network/ApplicationAwareRouting.vue')
+  },
   // {
   //   path: 'network/speed-test',
   //   name: 'Speed Test',

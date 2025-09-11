@@ -193,6 +193,10 @@ const navigation: Ref<MenuItem[]> = ref([
         to: "network/vrf",
       },
       {
+        name: "Application Aware Routing",
+        to: "network/application-aware-routing",
+      },
+      {
         name: "High Availability",
         to: "network/ns-ha",
       },
