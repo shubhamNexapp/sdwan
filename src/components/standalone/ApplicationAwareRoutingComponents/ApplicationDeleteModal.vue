@@ -38,7 +38,7 @@ async function deleteTunnel() {
   if (itemToDelete.value) {
     try {
       const payload = {
-        name: itemToDelete.value,
+        rule_name: itemToDelete.value,
       };
 
       const response = await axios.post(`${getSDControllerApiEndpoint()}/ptl_route`, {

@@ -25,6 +25,7 @@ export type VRFRule = {
   app_name: string;
   interface: string;
   status: string;
+  gateway: string
 };
 
 const { t } = useI18n();
@@ -133,6 +134,7 @@ const getLists = async () => {
             <NeTableHeadCell>Rule Name</NeTableHeadCell>
             <NeTableHeadCell>App Name</NeTableHeadCell>
             <NeTableHeadCell>Interface</NeTableHeadCell>
+             <NeTableHeadCell>Gateway</NeTableHeadCell>
             <NeTableHeadCell>Status</NeTableHeadCell>
             <NeTableHeadCell>Service</NeTableHeadCell>
             <NeTableHeadCell>{{ t("common.actions") }}</NeTableHeadCell>
@@ -143,6 +145,7 @@ const getLists = async () => {
               <NeTableCell>{{ item.rule_name }}</NeTableCell>
               <NeTableCell>{{ item.app_name }}</NeTableCell>
               <NeTableCell>{{ item.interface }}</NeTableCell>
+              <NeTableCell>{{ item.gateway }}</NeTableCell>
               <NeTableCell>{{ item.status }}</NeTableCell>
               <NeTableCell>{{ item.service }}</NeTableCell>
               <NeTableCell>

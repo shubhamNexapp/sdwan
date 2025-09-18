@@ -22,6 +22,7 @@ export type VRFRule = {
   app_name: string;
   interface: string;
   status: string;
+  gateway: string
 };
 
 const props = defineProps({
@@ -40,6 +41,8 @@ const service = ref(false);
 const ruleName = ref("");
 const sourceInterface = ref("");
 const appName = ref("");
+const gateway = ref("");
+
 
 const errorBag = ref<{ [key: string]: string }>({});
 const appOptions = ref<{ id: number; name: string; category: string }[]>([]);
@@ -54,11 +57,13 @@ watch(
       ruleName.value = newVal.rule_name || "";
       sourceInterface.value = newVal.interface || "";
       appName.value = newVal.app_name || "";
+      gateway.value = newVal.gateway || "";
     } else {
       service.value = false;
       ruleName.value = "";
       sourceInterface.value = "";
       appName.value = "";
+      gateway.value = ""
     }
   },
   { immediate: true }
@@ -126,6 +131,7 @@ const saveRule = async () => {
     rule_name: ruleName.value,
     interface: sourceInterface.value,
     app_name: appName.value,
+    gateway: gateway.value,
   };
 
   try {
@@ -161,51 +167,27 @@ const closeDrawer = () => emit("close");
 </script>
 
 <template>
-  <NeSideDrawer
-    :isShown="isShown"
-    :title="props.itemToEdit ? 'Edit Application' : 'Add Application'"
-    closeAriaLabel="Close"
-    @close="closeDrawer"
-  >
+  <NeSideDrawer :isShown="isShown" :title="props.itemToEdit ? 'Edit Application' : 'Add Application'"
+    closeAriaLabel="Close" @close="closeDrawer">
     <form @submit.prevent="saveRule">
       <div class="space-y-6">
         <!-- Service Toggle -->
-        <NeToggle
-          v-model="service"
-          :label="service ? 'Enable' : 'Disable'"
-          :topLabel="'Service'"
-        />
+        <NeToggle v-model="service" :label="service ? 'Enable' : 'Disable'" :topLabel="'Service'" />
 
         <!-- Rule Name -->
-        <NeTextInput
-          v-model.trim="ruleName"
-          :label="t('Rule Name')"
-          placeholder="Enter Rule Name"
-          :invalidMessage="errorBag.ruleName"
-          :readonly="!!props.itemToEdit"
-        />
+        <NeTextInput v-model.trim="ruleName" :label="t('Rule Name')" placeholder="Enter Rule Name"
+          :invalidMessage="errorBag.ruleName" :readonly="!!props.itemToEdit" />
 
         <!-- App Name with Suggestions -->
         <div class="relative">
-          <NeTextInput
-            v-model.trim="appName"
-            :label="t('App Name')"
-            placeholder="Search App..."
-            :invalidMessage="errorBag.appName"
-            @focus="showDropdown = appOptions.length > 0"
-          />
+          <NeTextInput v-model.trim="appName" :label="t('App Name')" placeholder="Search App..."
+            :invalidMessage="errorBag.appName" @focus="showDropdown = appOptions.length > 0" />
 
           <!-- Dropdown -->
-          <ul
-            v-if="showDropdown"
-            class="absolute z-10 max-h-60 w-full overflow-y-auto rounded border border-gray-300 bg-white shadow"
-          >
-            <li
-              v-for="option in appOptions"
-              :key="option.id"
-              @click="selectApp(option)"
-              class="cursor-pointer px-4 py-2 hover:bg-gray-100"
-            >
+          <ul v-if="showDropdown"
+            class="absolute z-10 max-h-60 w-full overflow-y-auto rounded border border-gray-300 bg-white shadow">
+            <li v-for="option in appOptions" :key="option.id" @click="selectApp(option)"
+              class="cursor-pointer px-4 py-2 hover:bg-gray-100">
               <div class="font-medium">{{ option.name }}</div>
               <div class="text-xs text-gray-500">
                 Category: {{ option.category }}
@@ -215,30 +197,24 @@ const closeDrawer = () => emit("close");
         </div>
 
         <!-- Interface -->
-        <NeCombobox
-          v-model="sourceInterface"
-          :options="props.sourceInterfaces"
-          :label="t('Interface Name')"
-          class="grow"
-        />
+        <NeCombobox v-model="sourceInterface" :options="props.sourceInterfaces" :label="t('Interface Name')"
+          class="grow" />
         <span v-if="errorBag.sourceInterface" class="text-sm text-red-600">
           {{ errorBag.sourceInterface }}
         </span>
       </div>
+
+      <!-- Gateway -->
+      <NeTextInput v-model.trim="gateway" :label="t('Gateway')" placeholder="Enter Gateway"
+        :invalidMessage="errorBag.gateway"  />
 
       <!-- Buttons -->
       <div class="mt-6 flex justify-end">
         <NeButton kind="tertiary" @click.prevent="closeDrawer" class="mr-3">
           Cancel
         </NeButton>
-        <NeButton
-          class="ml-1"
-          :disabled="loading.saveRule"
-          :loading="loading.saveRule"
-          kind="primary"
-          size="lg"
-          @click.prevent="saveRule"
-        >
+        <NeButton class="ml-1" :disabled="loading.saveRule" :loading="loading.saveRule" kind="primary" size="lg"
+          @click.prevent="saveRule">
           {{ t("common.save") }}
         </NeButton>
       </div>
