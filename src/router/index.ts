@@ -266,6 +266,11 @@ const standaloneRoutes = [
     component: () => import('../views/standalone/vpn/ICMPCheckView.vue')
   },
   {
+    path: 'system/topology',
+    name: 'Topology',
+    component: () => import('../views/standalone/system/Topology.vue')
+  },
+  {
     path: 'vpn/open-vpn',
     name: 'Open VPN',
     component: () => import('../views/standalone/vpn/PPTPView.vue')

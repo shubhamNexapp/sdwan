@@ -85,7 +85,7 @@ const closeDrawer = () => emit("close");
 </script>
 
 <template>
-  <NeSideDrawer :isShown="isShown" :title="'Add Topology'"
+  <NeSideDrawer :isShown="false" :title="'Add Topology'"
     closeAriaLabel="Close" @close="closeDrawer">
     <NeToggle v-model="service" :label="service ? 'Enable' : 'Disable'" :topLabel="'Service'" />
     <div v-if="service" class="mt-4 flex flex-col gap-y-3">
