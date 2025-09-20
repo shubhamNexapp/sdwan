@@ -112,6 +112,11 @@ const navigation: Ref<MenuItem[]> = ref([
         name: "ICMP Check",
         to: "system/icmp-check",
       },
+       {
+        name: "Topology",
+        to: "system/topology",
+        // to: 'vpn/openvpn-road-warrior'
+      },
       {
         name: "Schedule",
         to: "system/schedule",
