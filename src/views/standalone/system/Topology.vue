@@ -23,6 +23,8 @@ export type TopologyRule = {
   service: string;
   name: string;
   topology_type: string;
+  uuid: string;
+  key: string;
 };
 
 const { t } = useI18n();
@@ -67,7 +69,7 @@ const getLists = async () => {
     loading.value = true;
     const response = await axios.post(`${getSDControllerApiEndpoint()}/topology`, {
       method: "get-config",
-      payload : {}
+      payload: {}
     });
 
     if (response.data.code === 200) {
@@ -95,12 +97,8 @@ const getLists = async () => {
     </p>
 
     <div class="space-y-6">
-      <NeInlineNotification
-        kind="error"
-        :title="error.notificationTitle"
-        :description="error.notificationDescription"
-        v-if="error.notificationTitle"
-      >
+      <NeInlineNotification kind="error" :title="error.notificationTitle" :description="error.notificationDescription"
+        v-if="error.notificationTitle">
         <template v-if="error.notificationDetails">
           {{ error.notificationDetails }}
         </template>
@@ -119,6 +117,8 @@ const getLists = async () => {
             <NeTableHeadCell>Name</NeTableHeadCell>
             <NeTableHeadCell>Service</NeTableHeadCell>
             <NeTableHeadCell>Topl Type</NeTableHeadCell>
+            <NeTableHeadCell>UUID</NeTableHeadCell>
+            <NeTableHeadCell>Key</NeTableHeadCell>
             <NeTableHeadCell>{{ t("common.actions") }}</NeTableHeadCell>
           </NeTableHead>
           <NeTableBody>
@@ -127,13 +127,11 @@ const getLists = async () => {
               <NeTableCell>{{ item.name }}</NeTableCell>
               <NeTableCell>{{ item.service }}</NeTableCell>
               <NeTableCell>{{ item.topology_type }}</NeTableCell>
+              <NeTableCell>{{ item.uuid }}</NeTableCell>
+              <NeTableCell>{{ item.key }}</NeTableCell>
               <NeTableCell>
                 <div class="flex gap-2">
-                  <NeButton
-                    kind="tertiary"
-                    size="lg"
-                    @click="openDeleteModal(item.name)"
-                  >
+                  <NeButton kind="tertiary" size="lg" @click="openDeleteModal(item.name)">
                     <font-awesome-icon :icon="['fas', 'trash']" class="h-4 w-4 mr-1" />
                     {{ t("common.delete") }}
                   </NeButton>
@@ -146,19 +144,10 @@ const getLists = async () => {
     </div>
   </div>
 
-  <DeleteTunnelModal
-    :visible="showDeleteModal"
-    :itemToDelete="selectedRuleName"
-    @close="showDeleteModal = false"
-    @tunnel-deleted="getLists"
-  />
+  <DeleteTunnelModal :visible="showDeleteModal" :itemToDelete="selectedRuleName" @close="showDeleteModal = false"
+    @tunnel-deleted="getLists" />
 
   <!-- ✅ Pass deduplicated upInterfaces -->
-  <TopologyDrawer
-    :is-shown="showDrawer"
-    :item-to-edit="selectedRule"
-    :source-interfaces="upInterfaces"
-    @close="closeModalsAndDrawers"
-    @tunnel-added="getLists"
-  />
+  <TopologyDrawer :is-shown="showDrawer" :item-to-edit="selectedRule" :source-interfaces="upInterfaces"
+    @close="closeModalsAndDrawers" @tunnel-added="getLists" />
 </template>
