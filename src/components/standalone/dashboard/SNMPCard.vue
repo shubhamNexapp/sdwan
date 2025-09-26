@@ -1,60 +1,33 @@
 <script lang="ts" setup>
-import { useIpsStatusStore } from "@/stores/standalone/ipsStatus";
-import {
-  getAxiosErrorMessage,
-  NeCard,
-  NeLink,
-  NeSkeleton,
-  NeBadge,
-} from "@nethesis/vue-components";
-import { computed, onMounted, onUnmounted, ref, watch } from "vue";
-import { getStandaloneRoutePrefix } from "@/lib/router";
+import { ref, onMounted, onUnmounted, computed } from "vue";
+import { NeCard, NeLink, NeSkeleton, NeBadge, getAxiosErrorMessage } from "@nethesis/vue-components";
 import { useI18n } from "vue-i18n";
-import {
-  faCheck,
-  faXmark,
-  faQuestion,
-} from "@fortawesome/free-solid-svg-icons";
-import axios from "axios";
+import { getStandaloneRoutePrefix } from "@/lib/router";
 import { getSDControllerApiEndpoint } from "@/lib/config";
+import axios from "axios";
+import { faCheck, faXmark } from "@fortawesome/free-solid-svg-icons";
 
-const REFRESH_INTERVAL = 20000 + Math.random() * 10 * 1000;
-const ips = useIpsStatusStore();
-const intervalId = ref(0);
+// Randomized refresh interval: 20-30 seconds
+const REFRESH_INTERVAL = 20000 + Math.random() * 10000;
+
 const { t } = useI18n();
+const intervalId = ref<number | null>(null);
+
+// State variables
+const status = ref<string>("disconnect"); // "connected" | "disconnect" | "loading"
+const loading = ref<boolean>(true);
 const errorTitle = ref<string>();
 const errorDescription = ref<string>();
 
-// default status
-const status = ref<string>("loading");
+// Computed properties for badge
+const badgeKind = computed(() => (status.value === "connected" ? "success" : "secondary"));
+const badgeText = computed(() => (status.value === "connected" ? t("Active") : t("Inactive")));
+const badgeIcon = computed(() => (status.value === "connected" ? faCheck : faXmark));
+const hasStatus = computed(() => !!status.value && status.value !== "loading");
 
-onMounted(() => {
-  ips.fetchStatus();
-  intervalId.value = setInterval(ips.fetchStatus, REFRESH_INTERVAL);
-
-  // fetch SNMP configuration
-  fetchConfiguration();
-});
-
-onUnmounted(() => {
-  if (intervalId.value) clearInterval(intervalId.value);
-});
-
-watch(
-  () => ips.error,
-  (error) => {
-    if (error) {
-      errorTitle.value = t("standalone.ips.failed_to_fetch_info");
-      errorDescription.value = t(getAxiosErrorMessage(error));
-    } else {
-      errorTitle.value = "";
-      errorDescription.value = "";
-    }
-  }
-);
-
-// 🔹 Fetch SNMP configuration and set status
-async function fetchConfiguration() {
+// Fetch SNMP configuration
+async function fetchSNMPStatus() {
+  loading.value = true;
   try {
     const response = await axios.post(`${getSDControllerApiEndpoint()}/snmp`, {
       method: "get-config",
@@ -67,56 +40,37 @@ async function fetchConfiguration() {
     } else {
       status.value = "disconnect";
     }
-  } catch (err) {
+
+    loading.value = false;
+    errorTitle.value = "";
+    errorDescription.value = "";
+  } catch (err: any) {
     console.error("Failed to fetch SNMP config:", err);
     status.value = "disconnect";
+    loading.value = false;
+    errorTitle.value = t("standalone.snmp.failed_to_fetch_info");
+    errorDescription.value = t(getAxiosErrorMessage(err));
   }
 }
 
-// ✅ Badge mapping functions
-function getBadgeKind(status: string) {
-  switch (status) {
-    case "connected":
-      return "success";
-    case "disconnect":
-      return "error";
-    default:
-      return "warning";
-  }
-}
+// Lifecycle hooks
+onMounted(() => {
+  fetchSNMPStatus();
+  intervalId.value = window.setInterval(fetchSNMPStatus, REFRESH_INTERVAL);
+});
 
-function getBadgeText(status: string) {
-  switch (status) {
-    case "connected":
-      return "Enabled";
-    case "disconnect":
-      return "Disabled";
-    default:
-      return "Unknown";
-  }
-}
-
-function getBadgeIcon(status: string) {
-  switch (status) {
-    case "connected":
-      return faCheck;
-    case "disconnect":
-      return faXmark;
-    default:
-      return faQuestion;
-  }
-}
-
-const hasStatus = computed(() => !!status.value && status.value !== "loading");
+onUnmounted(() => {
+  if (intervalId.value) clearInterval(intervalId.value);
+});
 </script>
 
 <template>
   <NeCard
-    :error-description="errorDescription"
     :error-title="errorTitle"
-    :icon="['fas', 'server']"
-    :loading="ips.loading"
+    :error-description="errorDescription"
+    :loading="loading"
     :skeleton-lines="2"
+    :icon="['fas', 'server']"
   >
     <template #title>
       <NeLink
@@ -127,16 +81,10 @@ const hasStatus = computed(() => !!status.value && status.value !== "loading");
       </NeLink>
     </template>
 
-    <NeSkeleton v-if="ips.loading" />
+    <NeSkeleton v-if="loading" />
 
-    <div class="space-y-3" v-else>
-      <!-- ✅ Dynamic NeBadge -->
-      <NeBadge
-        v-if="hasStatus"
-        :kind="getBadgeKind(status)"
-        :text="getBadgeText(status)"
-        :icon="getBadgeIcon(status)"
-      />
+    <div v-else class="space-y-3">
+      <NeBadge v-if="hasStatus" :icon="badgeIcon" :text="badgeText" :kind="badgeKind" />
     </div>
   </NeCard>
 </template>

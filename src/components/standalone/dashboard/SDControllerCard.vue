@@ -1,146 +1,89 @@
 <script lang="ts" setup>
-import { useIpsStatusStore } from "@/stores/standalone/ipsStatus";
-import {
-  getAxiosErrorMessage,
-  NeCard,
-  NeLink,
-  NeSkeleton,
-  NeBadge,
-} from "@nethesis/vue-components";
-import { computed, onMounted, onUnmounted, ref, watch } from "vue";
-import { getStandaloneRoutePrefix } from "@/lib/router";
+import { ref, onMounted, onUnmounted, computed } from "vue";
+import { NeCard, NeLink, NeSkeleton, NeBadge, getAxiosErrorMessage } from "@nethesis/vue-components";
 import { useI18n } from "vue-i18n";
-import IpsEnabledBadge from "@/components/standalone/security/ips/IpsEnabledBadge.vue";
+import { getStandaloneRoutePrefix } from "@/lib/router";
+import { getSDControllerApiEndpoint } from "@/lib/config";
+import axios from "axios";
 
 // FontAwesome icons
-import {
-  faCheck,
-  faTriangleExclamation,
-  faXmark,
-  faQuestion,
-} from "@fortawesome/free-solid-svg-icons";
-import axios from "axios";
-import { getSDControllerApiEndpoint } from "@/lib/config";
+import { faCheck, faXmark } from "@fortawesome/free-solid-svg-icons";
 
-const REFRESH_INTERVAL = 20000 + Math.random() * 10 * 1000;
-const ips = useIpsStatusStore();
-const intervalId = ref(0);
+// Refresh interval
+const REFRESH_INTERVAL = 20000 + Math.random() * 10000;
+
 const { t } = useI18n();
+const intervalId = ref<number | null>(null);
+
+// State
+const loading = ref(true);
 const errorTitle = ref<string>();
 const errorDescription = ref<string>();
+const status = ref<string>("disconnect"); // default: disconnected
 
-const status = ref<string>("disconnect"); // default state
+// Fetch SD Controller status
+async function fetchStatus() {
+  loading.value = true;
+  try {
+    const response = await axios.post(`${getSDControllerApiEndpoint()}/sd_controller`, {
+      method: "get-config",
+      payload: {},
+    });
 
+    status.value = response.data?.data?.status || "disconnect";
+    loading.value = false;
+  } catch (err: any) {
+    console.error("Failed to fetch SD Controller status:", err);
+    status.value = "disconnect";
+    loading.value = false;
+    errorTitle.value = t("standalone.ips.failed_to_fetch_info");
+    errorDescription.value = t(getAxiosErrorMessage(err));
+  }
+}
+
+// Badge helpers
+const badgeKind = computed(() => (status.value === "connected" ? "success" : "error"));
+const badgeText = computed(() => (status.value === "connected" ? t("Active") : t("Inactive")));
+const badgeIcon = computed(() => (status.value === "connected" ? faCheck : faXmark));
+const hasStatus = computed(() => !!status.value && status.value !== "loading");
+
+// Lifecycle hooks
 onMounted(() => {
-  ips.fetchStatus();
-  intervalId.value = setInterval(ips.fetchStatus, REFRESH_INTERVAL);
-
-  // fetch HA configuration
-  fetchConfiguration();
+  fetchStatus();
+  intervalId.value = window.setInterval(fetchStatus, REFRESH_INTERVAL);
 });
 
 onUnmounted(() => {
-  if (intervalId.value) {
-    clearInterval(intervalId.value);
-  }
+  if (intervalId.value) clearInterval(intervalId.value);
 });
-
-watch(
-  () => ips.error,
-  (error) => {
-    if (error) {
-      errorTitle.value = t("standalone.ips.failed_to_fetch_info");
-      errorDescription.value = t(getAxiosErrorMessage(error));
-    } else {
-      errorTitle.value = "";
-      errorDescription.value = "";
-    }
-  }
-);
-
-// API call for HA status
-async function fetchConfiguration() {
-  try {
-    const response = await axios.post(
-      `${getSDControllerApiEndpoint()}/sd_controller`,
-      {
-        method: "get-config",
-        payload: {},
-      }
-    );
-
-    status.value = response.data.data.status || "disconnect";
-  } catch (err) {
-    console.error("Failed to fetch HA config:", err);
-    status.value = "disconnect";
-  }
-}
-
-// ✅ Badge mapping functions
-function getBadgeKind(status: string) {
-  switch (status) {
-    case "connected":
-      return "success";
-    case "disconnect":
-      return "error";
-    default:
-      return "error";
-  }
-}
-
-function getBadgeText(status: string) {
-  switch (status) {
-    case "connected":
-      return status;
-    case "disconnect":
-      return status;
-    default:
-      return status;
-  }
-}
-
-function getBadgeIcon(status: string) {
-  switch (status) {
-    case "connected":
-      return faCheck;
-    case "disconnect":
-      return faXmark;
-    default:
-      return faQuestion;
-  }
-}
-
-const hasStatus = computed(() => !!status.value && status.value !== "loading");
 </script>
 
 <template>
   <NeCard
-    :error-description="errorDescription"
     :error-title="errorTitle"
-    :icon="['fas', 'server']"
-    :loading="ips.loading"
+    :error-description="errorDescription"
+    :loading="loading"
     :skeleton-lines="2"
+    :icon="['fas', 'server']"
   >
     <template #title>
       <NeLink
-        @click="
-          $router.push(
-            `${getStandaloneRoutePrefix($route)}/system/sd-controller`
-          )
-        "
+        @click="$router.push(`${getStandaloneRoutePrefix($route)}/system/sd-controller`)"
         class="text-primary-900"
       >
         {{ t("SD Controller") }}
       </NeLink>
     </template>
-    <NeSkeleton v-if="ips.loading" />
+
+    <NeSkeleton v-if="loading" />
+
     <div class="space-y-3" v-else>
-      <!-- ✅ Dynamic NeBadge -->
+      <!-- Dynamic Badge -->
       <NeBadge
         v-if="hasStatus"
-        :kind="getBadgeKind(status)"
-        :text="getBadgeText(status)"
-        :icon="getBadgeIcon(status)"
+        :kind="badgeKind"
+        :text="badgeText"
+        :icon="badgeIcon"
       />
     </div>
   </NeCard>

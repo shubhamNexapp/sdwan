@@ -138,14 +138,14 @@ function openNotificationsDrawer() {
 
       <!-- unsaved changes button -->
       <div class="flex items-center gap-x-4 lg:gap-x-6">
-        <NeButton  kind="secondary" size="md" @click="showTerminal = true">
+        <!-- <NeButton  kind="secondary" size="md" @click="showTerminal = true">
           <template #prefix>
             <font-awesome-icon :icon="['fas', 'terminal']" />
           </template>
           <div class="text-primary-900">
             Terminal
           </div>
-        </NeButton>
+        </NeButton> -->
 
         <!-- Terminal Modal Overlay -->
         <!-- Terminal Modal (teleported to body) -->

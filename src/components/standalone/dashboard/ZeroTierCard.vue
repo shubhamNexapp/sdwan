@@ -1,149 +1,84 @@
 <script lang="ts" setup>
-import { useIpsStatusStore } from "@/stores/standalone/ipsStatus";
-import {
-  getAxiosErrorMessage,
-  NeCard,
-  NeLink,
-  NeSkeleton,
-  NeBadge,
-} from "@nethesis/vue-components";
-import { computed, onMounted, onUnmounted, ref, watch } from "vue";
-import { getStandaloneRoutePrefix } from "@/lib/router";
+import { ref, onMounted, onUnmounted, computed } from "vue";
+import { NeCard, NeLink, NeSkeleton, NeBadge, getAxiosErrorMessage } from "@nethesis/vue-components";
 import { useI18n } from "vue-i18n";
-
-// FontAwesome icons
-import {
-  faCheck,
-  faXmark,
-  faQuestion,
-} from "@fortawesome/free-solid-svg-icons";
-import axios from "axios";
+import { getStandaloneRoutePrefix } from "@/lib/router";
 import { getSDControllerApiEndpoint } from "@/lib/config";
+import axios from "axios";
+import { faCheck, faXmark } from "@fortawesome/free-solid-svg-icons";
 
-const REFRESH_INTERVAL = 20000 + Math.random() * 10 * 1000;
-const ips = useIpsStatusStore();
-const intervalId = ref(0);
+// Random refresh interval 20-30 seconds
+const REFRESH_INTERVAL = 20000 + Math.random() * 10000;
+
 const { t } = useI18n();
+const intervalId = ref<number | null>(null);
+
+const loading = ref(true);
+const status = ref<string>("loading"); // "connected" or "disconnect"
 const errorTitle = ref<string>();
 const errorDescription = ref<string>();
 
-// default status
-const status = ref<string>("loading");
+// Fetch ZeroTier status
+async function fetchZeroTierStatus() {
+  loading.value = true;
+  try {
+    const response = await axios.post(`${getSDControllerApiEndpoint()}/zerotier`, {
+      method: "get-config",
+      payload: {},
+    });
 
+    const data = response.data?.data;
+    status.value = data?.status || "disconnect";
+    errorTitle.value = "";
+    errorDescription.value = "";
+  } catch (err: any) {
+    console.error("Failed to fetch ZeroTier config:", err);
+    status.value = "disconnect";
+    errorTitle.value = t("standalone.zerotier.failed_to_fetch_info");
+    errorDescription.value = t(getAxiosErrorMessage(err));
+  } finally {
+    loading.value = false;
+  }
+}
+
+// Computed badge
+const hasStatus = computed(() => !!status.value && status.value !== "loading");
+const badgeKind = computed(() => (status.value === "connected" ? "success" : "secondary"));
+const badgeText = computed(() => (status.value === "connected" ? t("Active") : t("Inactive")));
+const badgeIcon = computed(() => (status.value === "connected" ? faCheck : faXmark));
+
+// Lifecycle
 onMounted(() => {
-  ips.fetchStatus();
-  intervalId.value = setInterval(ips.fetchStatus, REFRESH_INTERVAL);
-
-  // fetch ZeroTier configuration
-  fetchConfiguration();
+  fetchZeroTierStatus();
+  intervalId.value = window.setInterval(fetchZeroTierStatus, REFRESH_INTERVAL);
 });
 
 onUnmounted(() => {
   if (intervalId.value) clearInterval(intervalId.value);
 });
-
-watch(
-  () => ips.error,
-  (error) => {
-    if (error) {
-      errorTitle.value = t("standalone.ips.failed_to_fetch_info");
-      errorDescription.value = t(getAxiosErrorMessage(error));
-    } else {
-      errorTitle.value = "";
-      errorDescription.value = "";
-    }
-  }
-);
-
-// 🔹 Fetch ZeroTier configuration
-async function fetchConfiguration() {
-  try {
-    const response = await axios.post(
-      `${getSDControllerApiEndpoint()}/zerotier`,
-      {
-        method: "get-config",
-        payload: {},
-      }
-    );
-
-    const zeroData = response.data?.data;
-    if (zeroData && zeroData.status) {
-      status.value = zeroData.status; // directly "connected" or "disconnect"
-    } else {
-      status.value = "disconnect";
-    }
-  } catch (err) {
-    console.error("Failed to fetch ZeroTier config:", err);
-    status.value = "disconnect";
-  }
-}
-
-// ✅ Badge mapping functions
-function getBadgeKind(status: string) {
-  switch (status) {
-    case "connected":
-      return "success";
-    case "disconnect":
-      return "error";
-    default:
-      return "warning";
-  }
-}
-
-function getBadgeText(status: string) {
-  switch (status) {
-    case "connected":
-      return "Connected";
-    case "disconnect":
-      return "Disconnected";
-    default:
-      return "Unknown";
-  }
-}
-
-function getBadgeIcon(status: string) {
-  switch (status) {
-    case "connected":
-      return faCheck;
-    case "disconnect":
-      return faXmark;
-    default:
-      return faQuestion;
-  }
-}
-
-const hasStatus = computed(() => !!status.value && status.value !== "loading");
 </script>
 
 <template>
   <NeCard
-    :error-description="errorDescription"
     :error-title="errorTitle"
-    :icon="['fas', 'server']"
-    :loading="ips.loading"
+    :error-description="errorDescription"
+    :loading="loading"
     :skeleton-lines="2"
+    :icon="['fas', 'server']"
   >
     <template #title>
       <NeLink
-        @click="
-          $router.push(`${getStandaloneRoutePrefix($route)}/vpn/zero-tier`)
-        "
         class="text-primary-900"
+        @click="$router.push(`${getStandaloneRoutePrefix($route)}/vpn/zero-tier`)"
       >
         {{ t("Zero Tier") }}
       </NeLink>
     </template>
 
-    <NeSkeleton v-if="ips.loading" />
+    <NeSkeleton v-if="loading" />
 
-    <div class="space-y-3" v-else>
-      <!-- ✅ Dynamic NeBadge -->
-      <NeBadge
-        v-if="hasStatus"
-        :kind="getBadgeKind(status)"
-        :text="getBadgeText(status)"
-        :icon="getBadgeIcon(status)"
-      />
+    <div v-else class="space-y-3">
+      <NeBadge v-if="hasStatus" :kind="badgeKind" :text="badgeText" :icon="badgeIcon" />
     </div>
   </NeCard>
 </template>
