@@ -107,7 +107,7 @@ onMounted(() => {
   <div class="flex flex-col gap-y-6">
     <div class="flex flex-row items-center justify-between">
       <p class="max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
-        {{ t('standalone.qos.description') }}
+        {{ t('standalone.qos.s') }}
       </p>
       <NeButton
         kind="secondary"

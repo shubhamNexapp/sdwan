@@ -173,7 +173,7 @@ const getLists = async () => {
 
                 <NeButton kind="primary" @click="openCreateEditDrawer(null)">
                     <template #prefix>
-                        <font-awesome-icon :icon="['fas', 'circle-plus']" class="h-4 w-4" aria-hidden="true" />
+                        <font-awesome-icon :icon="['fas', 'circle-plus']" class="h-4 w-4 mt-1" aria-hidden="true" />
                     </template>
                     {{ t('standalone.openvpn_warrior.add') }}
                 </NeButton>

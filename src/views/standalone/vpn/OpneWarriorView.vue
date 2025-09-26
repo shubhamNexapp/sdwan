@@ -176,7 +176,7 @@ function handleTunnelDeleted() {
 
         <NeButton kind="primary" @click="openCreateEditDrawer(null)">
           <template #prefix>
-            <font-awesome-icon :icon="['fas', 'circle-plus']" class="w-4 h-4" aria-hidden="true" />
+            <font-awesome-icon :icon="['fas', 'circle-plus']" class="w-4 h-4 mt-1" aria-hidden="true" />
           </template>
           {{ t('standalone.openvpn_warrior.add') }}
         </NeButton>

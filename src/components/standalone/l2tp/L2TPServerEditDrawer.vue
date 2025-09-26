@@ -24,6 +24,7 @@ import { getSDControllerApiEndpoint } from '@/lib/config';
 import axios from 'axios';
 import { useNotificationsStore } from '../../../stores/notifications'
 import { faSave } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
 
 const notificationsStore = useNotificationsStore()
@@ -310,15 +311,12 @@ async function saveRule() {
                     :loading="loading.saveRule">
                     {{ t('standalone.wire_guard.save') }}
                 </NeButton> -->
-                <div class="flex flex-col w-[90px]">
                     <NeButton class=" ml-1" :disabled="loading.saveRule" :loading="loading.saveRule" kind="primary"
                         size="lg" @click.prevent="saveRule()">
-                        <template #prefix>
-                            <FontAwesomeIcon :icon="faSave" />
-                        </template>
+                                   <FontAwesomeIcon :icon="['fas', 'floppy-disk']" aria-hidden="true" class="mr-2" />
+
                         {{ t('common.save') }}
                     </NeButton>
-                </div>
             </div>
         </form>
     </NeSideDrawer>

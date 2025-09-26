@@ -108,6 +108,9 @@ const getLists = async () => {
 
       <template v-else>
         <NeButton kind="primary" @click="openDrawer(null)">
+          <template #prefix>
+            <font-awesome-icon :icon="['fas', 'circle-plus']" class="h-4 w-4 mt-1" aria-hidden="true" />
+          </template>
           {{ t("Add Topology") }}
         </NeButton>
 

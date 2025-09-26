@@ -124,12 +124,8 @@ function handleFectLists() {
 <template>
   <div class="flex flex-col">
     <div class="space-y-6">
-      <NeInlineNotification
-        kind="error"
-        :title="error.notificationTitle"
-        :description="error.notificationDescription"
-        v-if="error.notificationTitle"
-      >
+      <NeInlineNotification kind="error" :title="error.notificationTitle" :description="error.notificationDescription"
+        v-if="error.notificationTitle">
         <template v-if="error.notificationDetails">
           {{ error.notificationDetails }}
         </template>
@@ -141,12 +137,8 @@ function handleFectLists() {
         <!-- Show "Add WireGuard Tunnel" button if dummyData is empty -->
 
         <NeButton kind="primary" @click="openCreateEditDrawer(null)">
-          <template>
-            <font-awesome-icon
-              :icon="['fas', 'circle-plus']"
-              class="h-4 w-4"
-              aria-hidden="true"
-            />
+          <template #prefix>
+            <font-awesome-icon :icon="['fas', 'circle-plus']" class="h-4 w-4 mt-1" aria-hidden="true" />
           </template>
           {{ t("standalone.openvpn_warrior.add") }}
         </NeButton>
@@ -174,20 +166,11 @@ function handleFectLists() {
               <NeTableCell>{{ item.manual_interface }}</NeTableCell>
               <NeTableCell :data-label="t('common.actions')">
                 <div class="-ml-2.5 flex gap-2 xl:ml-0 xl:justify-end">
-                  <NeButton
-                    kind="tertiary"
-                    size="lg"
-                    :disabled="item.readonly"
-                    @click="openEditModal(item)"
-                  >
+                  <NeButton kind="tertiary" size="lg" :disabled="item.readonly" @click="openEditModal(item)">
                     {{ t("common.edit") }}
                   </NeButton>
-                  <NeButton
-                    kind="tertiary"
-                    size="lg"
-                    :disabled="item.readonly"
-                    @click="openDeleteModal(item.rule_name)"
-                  >
+                  <NeButton kind="tertiary" size="lg" :disabled="item.readonly"
+                    @click="openDeleteModal(item.rule_name)">
                     {{ t("common.delete") }}
                   </NeButton>
                 </div>
@@ -199,24 +182,9 @@ function handleFectLists() {
     </div>
   </div>
 
-  <DeleteTunnelModal
-    :visible="showDeleteModal"
-    :itemToDelete="selectedTunnelName"
-    @close="showDeleteModal = false"
-    @tunnel-deleted="handleFectLists"
-  />
-  <AddRuleDrawer
-    @tunnel-added="handleFectLists"
-    :item-to-edit="selectedTunnel"
-    @close="closeModalsAndDrawers"
-    :rule-type="'forward'"
-    :known-tags="[]"
-    @add-edit-tunnel="reloadTunnels"
-    :is-shown="showCreateEditDrawer"
-  />
-  <EditRule
-    :isShown="showEditModals"
-    :itemToEdit="selectedTunnels"
-    @close="showEditModals = false"
-  />
+  <DeleteTunnelModal :visible="showDeleteModal" :itemToDelete="selectedTunnelName" @close="showDeleteModal = false"
+    @tunnel-deleted="handleFectLists" />
+  <AddRuleDrawer @tunnel-added="handleFectLists" :item-to-edit="selectedTunnel" @close="closeModalsAndDrawers"
+    :rule-type="'forward'" :known-tags="[]" @add-edit-tunnel="reloadTunnels" :is-shown="showCreateEditDrawer" />
+  <EditRule :isShown="showEditModals" :itemToEdit="selectedTunnels" @close="showEditModals = false" />
 </template>

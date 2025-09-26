@@ -165,7 +165,7 @@ onUnmounted(() => {
           :title="t('standalone.ipsec_tunnel.no_tunnel_found')"
           :icon="['fas', 'globe']"
           ><NeButton kind="primary" @click="openCreateEditDrawer(null)"
-            ><template >
+            ><template #prefix>
               <font-awesome-icon
                 :icon="['fas', 'circle-plus']"
                 class="h-4 w-4"

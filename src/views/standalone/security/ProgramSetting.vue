@@ -12,6 +12,8 @@ import { getSDControllerApiEndpoint } from '@/lib/config'
 import { useNotificationsStore } from '@/stores/notifications'
 import { useI18n } from 'vue-i18n'
 import { Saved, Success } from '@/lib/tost'
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+
 
 const loading = ref({ saveRule: false })
 
@@ -241,6 +243,8 @@ const saveNetworkConfig = async () => {
 
             <div class="mt-4 flex justify-end">
                 <NeButton kind="primary" size="lg" @click="saveNetworkConfig" :disabled="loading.saveRule">
+                                <FontAwesomeIcon :icon="['fas', 'floppy-disk']" aria-hidden="true" class="mr-2" />
+
                     Save
                 </NeButton>
             </div>

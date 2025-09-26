@@ -197,103 +197,51 @@ const closeDrawer = () => {
 </script>
 
 <template>
-  <NeSideDrawer
-    :isShown="isShown"
-    title="Add Rule"
-    closeAriaLabel="Close"
-    @close="closeDrawer"
-  >
+  <NeSideDrawer :isShown="isShown" title="Add Rule" closeAriaLabel="Close" @close="closeDrawer">
     <form>
       <div class="space-y-6">
-        <NeToggle
-          v-model="ruleService"
-          :label="ruleService ? 'Enable' : 'Disable'"
-          :topLabel="'Service'"
-        />
+        <NeToggle v-model="ruleService" :label="ruleService ? 'Enable' : 'Disable'" :topLabel="'Service'" />
 
         <!-- Show form fields only if service is enabled -->
         <template v-if="ruleService">
-          <NeTextInput
-            @input="onlyLetters"
-            v-model="ruleName"
-            :invalidMessage="errorBag.ruleName"
-            :label="t('Name')"
-            :placeholder="t('Enter Name')"
-          >
+          <NeTextInput @input="onlyLetters" v-model="ruleName" :invalidMessage="errorBag.ruleName" :label="t('Name')"
+            :placeholder="t('Enter Name')">
           </NeTextInput>
 
-          <NeTextInput
-            v-model="ruleSource"
-            :invalidMessage="errorBag.ruleSource"
-            :label="t('Source')"
-            :placeholder="t('Enter Source')"
-          >
+          <NeTextInput v-model="ruleSource" :invalidMessage="errorBag.ruleSource" :label="t('Source')"
+            :placeholder="t('Enter Source')">
           </NeTextInput>
 
-          <NeTextInput
-            v-model="ruleDestination"
-            :invalidMessage="errorBag.ruleDestination"
-            :label="t('Destination')"
-            :placeholder="t('Enter Destination')"
-          >
+          <NeTextInput v-model="ruleDestination" :invalidMessage="errorBag.ruleDestination" :label="t('Destination')"
+            :placeholder="t('Enter Destination')">
           </NeTextInput>
 
-          <NeCombobox
-            v-model="ruleProtocol"
-            :options="[
-              { label: 'tcp', id: 'tcp' },
-              { label: 'udp', id: 'udp' },
-              { label: 'all', id: 'all' },
-            ]"
-            :label="t('Protocol')"
-            class="grow"
-            :noResultsLabel="t('ne_combobox.no_results')"
+          <NeCombobox v-model="ruleProtocol" :options="[
+            { label: 'tcp', id: 'tcp' },
+            { label: 'udp', id: 'udp' },
+            { label: 'all', id: 'all' },
+          ]" :label="t('Protocol')" class="grow" :noResultsLabel="t('ne_combobox.no_results')"
             :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
-            :noOptionsLabel="t('ne_combobox.no_options_label')"
-            :selected-label="t('ne_combobox.selected')"
-            :user-input-label="t('ne_combobox.user_input_label')"
-            :optionalLabel="t('common.optional')"
-          />
-          <span
-            v-if="errorBag.ruleProtocol"
-            style="color: rgb(190 18 60 / var(--tw-text-opacity))"
-          >
+            :noOptionsLabel="t('ne_combobox.no_options_label')" :selected-label="t('ne_combobox.selected')"
+            :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" />
+          <span v-if="errorBag.ruleProtocol" style="color: rgb(190 18 60 / var(--tw-text-opacity))">
             {{ errorBag.ruleProtocol }}
           </span>
 
-          <NeTextInput
-            @input="onlyNumbers"
-            v-model="port"
-            :invalidMessage="errorBag.port"
-            :label="t('Port')"
-            :placeholder="t('Enter port')"
-          >
+          <NeTextInput @input="onlyNumbers" v-model="port" :invalidMessage="errorBag.port" :label="t('Port')"
+            :placeholder="t('Enter port')">
           </NeTextInput>
 
           <!-- Outgoing Mode Dropdown -->
-          <NeCombobox
-            v-model="outgoingMode"
-            :options="outgoingModeOptions"
-            :label="t('Outgoing Mode')"
-            class="grow"
-            value-key="id"
-            label-key="label"
-            :noResultsLabel="t('ne_combobox.no_results')"
+          <NeCombobox v-model="outgoingMode" :options="outgoingModeOptions" :label="t('Outgoing Mode')" class="grow"
+            value-key="id" label-key="label" :noResultsLabel="t('ne_combobox.no_results')"
             :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
-            :noOptionsLabel="t('ne_combobox.no_options_label')"
-            :selected-label="t('ne_combobox.selected')"
-            :user-input-label="t('ne_combobox.user_input_label')"
-            :optionalLabel="t('common.optional')"
-          />
+            :noOptionsLabel="t('ne_combobox.no_options_label')" :selected-label="t('ne_combobox.selected')"
+            :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" />
 
           <!-- Manual Interface Input: Shown only if "manual" is selected -->
-          <NeTextInput
-            v-if="outgoingMode === 'manual'"
-            v-model="manualInterface"
-            :label="t('Manual Interface')"
-            :placeholder="t('Enter interface name')"
-            :invalidMessage="errorBag.manualInterface"
-          />
+          <NeTextInput v-if="outgoingMode === 'manual'" v-model="manualInterface" :label="t('Manual Interface')"
+            :placeholder="t('Enter interface name')" :invalidMessage="errorBag.manualInterface" />
         </template>
       </div>
 
@@ -303,21 +251,11 @@ const closeDrawer = () => {
           Cancel
         </NeButton>
         <!-- Submit button (left aligned) -->
-        <div class="flex w-[90px] flex-col">
-          <NeButton
-            class="ml-1"
-            :disabled="loading.saveRule"
-            :loading="loading.saveRule"
-            kind="primary"
-            size="lg"
-            @click.prevent="saveRule()"
-          >
-            <template>
-              <FontAwesomeIcon :icon="faSave" />
-            </template>
+          <NeButton class="ml-1" :disabled="loading.saveRule" :loading="loading.saveRule" kind="primary" size="lg"
+            @click.prevent="saveRule()">
+            <FontAwesomeIcon :icon="['fas', 'floppy-disk']" aria-hidden="true" class="mr-2" />
             {{ t("common.save") }}
           </NeButton>
-        </div>
       </div>
     </form>
   </NeSideDrawer>

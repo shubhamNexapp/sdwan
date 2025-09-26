@@ -189,7 +189,6 @@ const closeDrawer = () => {
                     Cancel
                 </NeButton>
                 <!-- Submit button (left aligned) -->
-                <div class="flex flex-col w-[90px]">
                     <NeButton class=" ml-1" :disabled="loading.saveRule" :loading="loading.saveRule" kind="primary"
                         size="lg" @click.prevent="saveRule()">
                         <template #prefix>
@@ -197,7 +196,6 @@ const closeDrawer = () => {
                         </template>
                         {{ t('common.save') }}
                     </NeButton>
-                </div>
             </div>
         </form>
     </NeSideDrawer>

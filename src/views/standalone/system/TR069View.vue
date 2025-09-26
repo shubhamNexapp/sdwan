@@ -174,7 +174,7 @@ const getLists = async () => {
 
   <FormLayout
     :description="t('Configure TR069 service settings, including ACS credentials and connection intervals for remote device management.')">
-    <NeToggle class="mb-3" v-model="service" :label="service ? 'Enable' : 'Disable'" :topLabel="'Service'" />
+    <NeToggle v-model="service" :label="service ? 'Enable' : 'Disable'" :topLabel="'Service'" />
 
     <div class="space-y-6">
 
@@ -266,16 +266,11 @@ const getLists = async () => {
       </template>
     </div>
 
-    <!-- Submit button (left aligned) -->
-    <div class="flex mt-4 flex-col w-[90px]">
-      <NeButton class=" ml-1" :disabled="loading.saveRule" :loading="loading.saveRule" kind="primary" size="lg"
-        @click.prevent="saveRule()">
-        <template #prefix>
-          <FontAwesomeIcon :icon="faSave" />
-        </template>
-        {{ t('common.save') }}
-      </NeButton>
-    </div>
+    <NeButton class="mt-5 ml-1" :disabled="loading.saveRule" :loading="loading.saveRule" kind="primary" size="lg"
+      @click.prevent="saveRule()">
+      <FontAwesomeIcon :icon="['fas', 'floppy-disk']" aria-hidden="true" class="mr-2" />
+      {{ t('common.save') }}
+    </NeButton>
   </FormLayout>
 
   <!-- <p class="mb-6 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">

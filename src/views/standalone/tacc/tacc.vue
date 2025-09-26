@@ -79,21 +79,20 @@ async function saveSettings() {
 <template>
   <NeHeading tag="h3" class="mb-4">{{ t('TACACS+ Configuration') }}</NeHeading>
 
+  <FormLayout :description="t('Enable or disable Tacacs ++ configuration and adjust its settings.')">
+    <NeToggle v-model="status" :topLabel="t('Status')" :label="status ? 'Enable' : 'Disable'" />
 
-        <FormLayout :description="t('Enable or disable Tacacs ++ configuration and adjust its settings.')">
-          <NeToggle class="mb-4" v-model="status" :topLabel="t('Status')" :label="status ? 'Enable' : 'Disable'" />
-
-          <div v-if="status" class="space-y-4">
-            <NeTextInput v-model="serverAddress" :label="t('Server Address')" :placeholder="t('Enter Server Address')">
-              <template #tooltip>
-                <NeTooltip>
-                  <template #content>
-                    {{ t('Enter the IP address or hostname of your TACACS+ server.') }}
-                  </template>
-                </NeTooltip>
-              </template>
-            </NeTextInput>
-            <!-- <NeTextInput class="mt-4" v-model="serverAddress" label="Server Address">
+    <div v-if="status" class="mt-4 flex flex-col gap-y-3">
+      <NeTextInput v-model="serverAddress" :label="t('Server Address')" :placeholder="t('Enter Server Address')">
+        <template #tooltip>
+          <NeTooltip>
+            <template #content>
+              {{ t('Enter the IP address or hostname of your TACACS+ server.') }}
+            </template>
+          </NeTooltip>
+        </template>
+      </NeTextInput>
+      <!-- <NeTextInput class="mt-4" v-model="serverAddress" label="Server Address">
               <NeTooltip>
                 <template #content>
                   {{ t('standalone.hotspot.settings.login_helper_username') }}
@@ -101,25 +100,34 @@ async function saveSettings() {
               </NeTooltip>
             </NeTextInput> -->
 
-            <NeTextInput type="password" v-model="sharedSecret" :label="t('Secret')" :placeholder="t('Enter Secret')">
-              <template #tooltip>
-                <NeTooltip>
-                  <template #content>
-                    {{ t('Enter the shared sectret key that is configured on your remote TACAS+ server.') }}
-                  </template>
-                </NeTooltip>
-              </template>
-            </NeTextInput>
-            <!-- <NeTextInput v-model="sharedSecret" label="Secret" type="password" /> -->
-          </div>
-          <NeButton class="mt-5 ml-1" :disabled="saving" :loading="saving" kind="primary" size="lg"
+      <NeTextInput type="password" v-model="sharedSecret" :label="t('Secret')" :placeholder="t('Enter Secret')">
+        <template #tooltip>
+          <NeTooltip>
+            <template #content>
+              {{ t('Enter the shared sectret key that is configured on your remote TACAS+ server.') }}
+            </template>
+          </NeTooltip>
+        </template>
+      </NeTextInput>
+      <!-- <NeTextInput v-model="sharedSecret" label="Secret" type="password" /> -->
+    </div>
+
+    <!-- <NeButton class="mt-5 ml-1" :disabled="saving" :loading="saving" kind="primary" size="lg"
             @click.prevent="saveSettings()">
             <template #prefix>
               <FontAwesomeIcon :icon="faSave" />
             </template>
             {{ t('common.save') }}
-          </NeButton>
-          <!-- <NeButton :loading="saving" kind="primary" @click="saveSettings" class="mt-5 ml-1">Save</NeButton> -->
-        </FormLayout>
-     
+          </NeButton> -->
+
+
+    <!-- Save Button -->
+    <NeButton class="mt-5 ml-1" :disabled="saving" :loading="saving" kind="primary" size="lg" 
+      @click.prevent="saveSettings()">
+      <FontAwesomeIcon :icon="['fas', 'floppy-disk']" aria-hidden="true" class="mr-2" />
+      {{ t('common.save') }}
+    </NeButton>
+    
+  </FormLayout>
+
 </template>

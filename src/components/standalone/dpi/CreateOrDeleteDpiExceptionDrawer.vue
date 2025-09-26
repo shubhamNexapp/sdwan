@@ -14,6 +14,7 @@ import {
 import { MessageBag } from "@/lib/validation";
 import axios from "axios";
 import { getSDControllerApiEndpoint } from "@/lib/config";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
 const props = defineProps<{
   isShown: boolean;
@@ -170,6 +171,8 @@ watch(
           :disabled="isSavingChanges"
           :loading="isSavingChanges"
         >
+                    <FontAwesomeIcon :icon="['fas', 'floppy-disk']" aria-hidden="true" class="mr-2" />
+
           {{ id ? t("common.save") : t("standalone.dpi.add_exception") }}
         </NeButton>
       </div>

@@ -227,9 +227,7 @@ const closeDrawer = () => emit("close");
           size="lg"
           @click.prevent="saveRule()"
         >
-          <template>
-            <FontAwesomeIcon :icon="faSave" />
-          </template>
+                      <FontAwesomeIcon :icon="['fas', 'floppy-disk']" aria-hidden="true" class="mr-2" />
           {{ t("common.save") }}
         </NeButton>
       </div>

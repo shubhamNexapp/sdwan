@@ -466,7 +466,6 @@ const validateInterfaceNew = (
     <!-- <NeButton kind="primary" size="lg" @click="saveNetworkConfig" :disabled="loading.saveRule">
       Save
     </NeButton> -->
-    <div class="flex w-[90px] flex-col">
       <NeButton
         class="ml-1"
         :disabled="loading.saveRule"
@@ -475,11 +474,9 @@ const validateInterfaceNew = (
         size="lg"
         @click.prevent="saveNetworkConfig()"
       >
-        <template>
-          <FontAwesomeIcon :icon="faSave" />
-        </template>
+                     <FontAwesomeIcon :icon="['fas', 'floppy-disk']" aria-hidden="true" class="mr-2" />
+
         {{ t("common.save") }}
       </NeButton>
-    </div>
   </div>
 </template>

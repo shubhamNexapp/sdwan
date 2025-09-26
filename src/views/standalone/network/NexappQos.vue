@@ -436,7 +436,6 @@ const deleteRule = async (itemToDelete: string) => {
 
         <div class="mt-4 flex justify-end">
             <!-- Submit button (left aligned) -->
-            <div class="flex  flex-col w-[90px]">
                 <NeButton class="ml-1" :disabled="loading.saveRule" :loading="loading.saveRule" kind="primary" size="lg"
                     @click.prevent="saveNetworkConfig()">
                     <template #prefix>
@@ -444,7 +443,6 @@ const deleteRule = async (itemToDelete: string) => {
                     </template>
                     {{ t('common.save') }}
                 </NeButton>
-            </div>
         </div>
 
         <template v-if="service">
@@ -520,7 +518,6 @@ const deleteRule = async (itemToDelete: string) => {
 
             <div class="mt-4 flex justify-end">
                 <!-- Submit button (left aligned) -->
-                <div class="flex  flex-col w-[110px]">
                     <NeButton class="ml-1" :disabled="loading.addRuleLoading" :loading="loading.addRuleLoading"
                         kind="primary" size="lg" @click.prevent="addRule()">
                         <template #prefix>
@@ -528,7 +525,6 @@ const deleteRule = async (itemToDelete: string) => {
                         </template>
                         {{ t('Add Rule') }}
                     </NeButton>
-                </div>
             </div>
         </template>
     </div>

@@ -30,6 +30,8 @@ import { useObjects, type ObjectReference } from '@/composables/useObjects'
 import { getSDControllerApiEndpoint } from '@/lib/config';
 import axios from 'axios';
 import { useNotificationsStore } from '../../../stores/notifications'
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+
 
 const notificationsStore = useNotificationsStore()
 
@@ -646,6 +648,8 @@ const saveRule = async () => {
         </NeButton>
         <NeButton kind="primary" size="lg" @click.prevent="saveRule" :disabled="loading.saveRule"
           :loading="loading.saveRule">
+                      <FontAwesomeIcon :icon="['fas', 'floppy-disk']" aria-hidden="true" class="mr-2" />
+
           {{
             isCreatingRule
               ? t('standalone.wire_guard.save')

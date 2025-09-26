@@ -213,7 +213,7 @@ console.log("Groups:====", groups);
         :icon="['fas', 'circle-info']"
       >
         <NeButton kind="primary" @click="openCreateEditDrawer(null)">
-          <font-awesome-icon :icon="['fas', 'circle-plus']" class="h-4 w-4" />
+          <font-awesome-icon :icon="['fas', 'circle-plus']" class="h-4 w-4 mr-2" />
           {{ t("standalone.dpi.add_exception") }}
         </NeButton>
       </NeEmptyState>

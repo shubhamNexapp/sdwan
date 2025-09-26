@@ -12,6 +12,8 @@ import { getSDControllerApiEndpoint } from "@/lib/config";
 import axios from "axios";
 import { useI18n } from "vue-i18n";
 import { useDebounceFn } from "@vueuse/core";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+
 
 const { t } = useI18n();
 const notificationsStore = useNotificationsStore();
@@ -215,6 +217,8 @@ const closeDrawer = () => emit("close");
         </NeButton>
         <NeButton class="ml-1" :disabled="loading.saveRule" :loading="loading.saveRule" kind="primary" size="lg"
           @click.prevent="saveRule">
+                      <FontAwesomeIcon :icon="['fas', 'floppy-disk']" aria-hidden="true" class="mr-2" />
+
           {{ t("common.save") }}
         </NeButton>
       </div>

@@ -194,7 +194,7 @@ const getLists = async () => {
           <template #prefix>
             <font-awesome-icon
               :icon="['fas', 'circle-plus']"
-              class="h-4 w-4"
+              class="h-4 w-4 mt-1"
               aria-hidden="true"
             />
           </template>

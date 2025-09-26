@@ -397,7 +397,6 @@ const closeDrawer = () => {
           Cancel
         </NeButton>
         <!-- Submit button (left aligned) -->
-        <div class="flex w-[90px] flex-col">
           <NeButton
             class="ml-1"
             :disabled="loading.saveRule"
@@ -406,12 +405,9 @@ const closeDrawer = () => {
             size="lg"
             @click.prevent="saveRule()"
           >
-            <template>
-              <FontAwesomeIcon :icon="faSave" />
-            </template>
+              <FontAwesomeIcon :icon="['fas', 'floppy-disk']" aria-hidden="true" class="mr-2" />
             {{ t("common.save") }}
           </NeButton>
-        </div>
       </div>
     </form>
   </NeSideDrawer>

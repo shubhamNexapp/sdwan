@@ -118,68 +118,34 @@ async function saveSettings() {
 </script>
 
 <template>
-  <NeInlineNotification
-    v-if="error.title"
-    class=""
-    kind="error"
-    :title="error.title"
-    :description="error.description"
-  />
+  <NeInlineNotification v-if="error.title" class="" kind="error" :title="error.title"
+    :description="error.description" />
 
   <!-- Toggle also controls form visibility -->
-  <NeToggle
-    v-model="service"
-    :topLabel="t('Service')"
-    :label="service ? 'Enable' : 'Disable'"
-  />
+  <NeToggle v-model="service" :topLabel="t('Service')" :label="service ? 'Enable' : 'Disable'" />
 
   <div v-if="service" class="mt-4 flex flex-col gap-y-3">
-    <NeTextInput
-      v-model="name"
-      :label="t('Name')"
-      :placeholder="t('Enter Name')"
-    >
+    <NeTextInput v-model="name" :label="t('Name')" :placeholder="t('Enter Name')">
     </NeTextInput>
 
-    <NeCombobox
-      multiple
-      v-model="interfaceName"
-      :options="interfaceOptions"
-      value-key="id"
-      label-key="label"
-      :label="$t('Interface Name')"
-      class="grow"
-      :noResultsLabel="$t('ne_combobox.no_results')"
+    <NeCombobox multiple v-model="interfaceName" :options="interfaceOptions" value-key="id" label-key="label"
+      :label="$t('Interface Name')" class="grow" :noResultsLabel="$t('ne_combobox.no_results')"
       :limitedOptionsLabel="$t('ne_combobox.limited_options_label')"
-      :noOptionsLabel="$t('ne_combobox.no_options_label')"
-      :selected-label="$t('ne_combobox.selected')"
-      :user-input-label="$t('ne_combobox.user_input_label')"
-      :optionalLabel="$t('common.optional')"
-    />
+      :noOptionsLabel="$t('ne_combobox.no_options_label')" :selected-label="$t('ne_combobox.selected')"
+      :user-input-label="$t('ne_combobox.user_input_label')" :optionalLabel="$t('common.optional')" />
 
     <!-- Display the selected values in a clean array -->
     <p class="mt-2 flex flex-wrap gap-2 text-gray-700">
-      <span
-        v-for="(item, index) in zoneUniqueIfnames"
-        :key="index"
-        class="me-2 rounded-full border border-blue-300 bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800"
-      >
+      <span v-for="(item, index) in zoneUniqueIfnames" :key="index"
+        class="me-2 rounded-full border border-blue-300 bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800">
         {{ typeof item === "object" ? item.label : item }}
       </span>
     </p>
   </div>
 
-  <NeButton
-    class="ml-1 mt-5"
-    :disabled="saving"
-    :loading="saving"
-    kind="primary"
-    size="lg"
-    @click.prevent="saveSettings()"
-  >
-    <template>
-      <FontAwesomeIcon :icon="faSave" />
-    </template>
+  <NeButton class="ml-1 mt-5" :disabled="saving" :loading="saving" kind="primary" size="lg"
+    @click.prevent="saveSettings()">
+    <FontAwesomeIcon :icon="['fas', 'floppy-disk']" aria-hidden="true" class="mr-2" />
     {{ t("common.save") }}
   </NeButton>
 </template>

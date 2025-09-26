@@ -162,19 +162,14 @@ async function saveSettings() {
 </script>
 
 <template>
-    <div class="flex flex-col">
-        <div class="mb-7">
-            <NeHeading tag="h3">VRRP</NeHeading>
-        </div>
-    </div>
+        
+            <NeHeading tag="h3" class="mb-4">VRRP</NeHeading>
+    
     <FormLayout :description="t('Enable or disable VRRP configuration and adjust its settings.')">
+       
+        <NeToggle  v-model="service" :topLabel="t('Service')" :label="service ? 'Enable' : 'Disable'" />
 
-        <NeInlineNotification v-if="error.title" class="my-4" kind="error" :title="error.title"
-            :description="error.description" />
-        <NeToggle v-model="service" :topLabel="t('Service')" :label="service ? 'Enable' : 'Disable'" />
-        <br />
-
-        <template v-if="service">
+        <div v-if="service" class="mt-4 " >
             <!-- <NeToggle v-model="status" :topLabel="t('Status')" :label="status ? 'Connected' : 'Disconnect'" /> -->
             <label class="mr-4">Status:</label>
             <span :class="status ? 'text-green-500' : 'text-red-500'">
@@ -293,15 +288,12 @@ async function saveSettings() {
                     :invalidMessage="errorBag.password" /> -->
             </div>
 
-        </template>
-        <div class="flex mt-4 flex-col w-[90px]">
-            <NeButton class=" ml-1" kind="primary" :loading="saving" size="lg" @click.prevent="saveSettings()">
-                <template #prefix>
-                    <FontAwesomeIcon :icon="faSave" />
-                </template>
+        </div>
+            <NeButton class="mt-5 ml-1"  kind="primary" :loading="saving" size="lg" @click.prevent="saveSettings()">
+                            <FontAwesomeIcon :icon="['fas', 'floppy-disk']" aria-hidden="true" class="mr-2" />
+
                 {{ t('Save') }}
             </NeButton>
-        </div>
         <!-- <NeButton :loading="saving" kind="primary" @click="saveSettings" class="mt-5 ml-1">Save</NeButton> -->
 
     </FormLayout>

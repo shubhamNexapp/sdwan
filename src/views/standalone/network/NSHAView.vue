@@ -273,9 +273,8 @@ async function saveSettings() {
       size="lg"
       @click.prevent="saveSettings()"
     >
-      <template>
-        <FontAwesomeIcon :icon="faSave" />
-      </template>
+                 <FontAwesomeIcon :icon="['fas', 'floppy-disk']" aria-hidden="true" class="mr-2" />
+
       {{ t("common.save") }}
     </NeButton>
   </FormLayout>

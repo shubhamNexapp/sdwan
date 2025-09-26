@@ -246,14 +246,11 @@ const validateIpNetwork = (
     <!-- <NeButton kind="primary" size="lg" @click="saveNetworkConfig" :disabled="loading.saveRule">
       Save
     </NeButton> -->
-    <div class="flex  flex-col w-[90px]">
       <NeButton class="ml-1" :disabled="loading.saveRule" :loading="loading.saveRule" kind="primary" size="lg"
         @click.prevent="saveNetworkConfig()">
-        <template #prefix>
-          <FontAwesomeIcon :icon="faSave" />
-        </template>
+                    <FontAwesomeIcon :icon="['fas', 'floppy-disk']" aria-hidden="true" class="mr-2" />
+
         {{ t('common.save') }}
       </NeButton>
-    </div>
   </div>
 </template>

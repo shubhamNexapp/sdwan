@@ -176,15 +176,12 @@ const closeDrawer = () => {
                     Cancel
                 </NeButton>
                 <!-- Submit button (left aligned) -->
-                <div class="flex  flex-col w-[130px]">
                     <NeButton class="ml-1" :disabled="loading.saveRule" :loading="loading.saveRule" kind="primary"
                         size="lg" @click.prevent="saveRule()">
-                        <template>
-                            <FontAwesomeIcon :icon="faSave" />
-                        </template>
+                                   <FontAwesomeIcon :icon="['fas', 'floppy-disk']" aria-hidden="true" class="mr-2" />
+
                         {{ t('Add Keyword') }}
                     </NeButton>
-                </div>
             </div>
         </form>
     </NeSideDrawer>

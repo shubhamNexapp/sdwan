@@ -26,6 +26,8 @@ import { NeToggle } from '@nethesis/vue-components'
 import { useI18n } from 'vue-i18n'
 import { ValidationError, ubusCall } from '@/lib/standalone/ubus'
 import type { QoSInterface } from '@/views/standalone/network/QoSView.vue'
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+
 
 const props = defineProps<{
   isShown: boolean
@@ -175,47 +177,25 @@ watch(
 </script>
 
 <template>
-  <NeSideDrawer
-    :is-shown="isShown"
-    @close="close()"
-    :closeAriaLabel="t('common.shell.close_side_drawer')"
-    :title="
-      itemToEdit ? t('standalone.qos.edit_qos_interface') : t('standalone.qos.add_qos_interface')
-    "
-  >
-    <NeInlineNotification
-      v-if="error.notificationTitle"
-      :title="error.notificationTitle"
-      :description="error.notificationDescription"
-      class="mb-6"
-      kind="error"
-      ><template v-if="error.notificationDetails" #details>
+  <NeSideDrawer :is-shown="isShown" @close="close()" :closeAriaLabel="t('common.shell.close_side_drawer')" :title="itemToEdit ? t('standalone.qos.edit_qos_interface') : t('standalone.qos.add_qos_interface')
+    ">
+    <NeInlineNotification v-if="error.notificationTitle" :title="error.notificationTitle"
+      :description="error.notificationDescription" class="mb-6" kind="error"><template v-if="error.notificationDetails"
+        #details>
         {{ error.notificationDetails }}
-      </template></NeInlineNotification
-    >
+      </template></NeInlineNotification>
     <NeSkeleton :lines="20" v-if="loading" />
     <div class="flex flex-col gap-y-6" v-else>
       <div>
         <NeFormItemLabel>{{ t('standalone.qos.status') }}</NeFormItemLabel>
         <NeToggle v-model="enabled" :label="enabled ? t('common.enabled') : t('common.disabled')" />
       </div>
-      <NeCombobox
-        :label="t('standalone.qos.interface')"
-        :disabled="Boolean(itemToEdit)"
-        :options="ifaceOptions"
-        :no-options-label="t('ne_combobox.no_options_label')"
-        :no-results-label="t('ne_combobox.no_results')"
-        :optionalLabel="t('common.optional')"
-        :placeholder="t('standalone.qos.choose_interface')"
-        v-model="iface"
-        :invalid-message="t(validationErrorBag.getFirstI18nKeyFor('name'))"
-      />
-      <NeTextInput
-        v-model="downloadSpeed"
-        type="number"
-        :label="`${t('standalone.qos.download_speed')} (Mbps)`"
-        :invalid-message="t(validationErrorBag.getFirstI18nKeyFor('download'))"
-      >
+      <NeCombobox :label="t('standalone.qos.interface')" :disabled="Boolean(itemToEdit)" :options="ifaceOptions"
+        :no-options-label="t('ne_combobox.no_options_label')" :no-results-label="t('ne_combobox.no_results')"
+        :optionalLabel="t('common.optional')" :placeholder="t('standalone.qos.choose_interface')" v-model="iface"
+        :invalid-message="t(validationErrorBag.getFirstI18nKeyFor('name'))" />
+      <NeTextInput v-model="downloadSpeed" type="number" :label="`${t('standalone.qos.download_speed')} (Mbps)`"
+        :invalid-message="t(validationErrorBag.getFirstI18nKeyFor('download'))">
         <template #tooltip>
           <NeTooltip>
             <template #content>
@@ -224,12 +204,8 @@ watch(
           </NeTooltip>
         </template>
       </NeTextInput>
-      <NeTextInput
-        v-model="uploadSpeed"
-        type="number"
-        :label="`${t('standalone.qos.upload_speed')} (Mbps)`"
-        :invalid-message="t(validationErrorBag.getFirstI18nKeyFor('upload'))"
-      >
+      <NeTextInput v-model="uploadSpeed" type="number" :label="`${t('standalone.qos.upload_speed')} (Mbps)`"
+        :invalid-message="t(validationErrorBag.getFirstI18nKeyFor('upload'))">
         <template #tooltip>
           <NeTooltip>
             <template #content>
@@ -241,16 +217,14 @@ watch(
       <hr />
       <div class="flex justify-end">
         <NeButton kind="tertiary" class="mr-4" @click="close()">{{ t('common.cancel') }}</NeButton>
-        <NeButton
-          kind="primary"
-          @click="createOrEditQosInterface()"
-          :disabled="isSavingChanges"
-          :loading="isSavingChanges"
-          >{{
+        <NeButton kind="primary" @click="createOrEditQosInterface()" :disabled="isSavingChanges"
+          :loading="isSavingChanges">
+          <FontAwesomeIcon :icon="['fas', 'floppy-disk']" aria-hidden="true" class="mr-2" />
+          {{
             Boolean(itemToEdit) ? t('common.save') : t('standalone.qos.add_interface')
-          }}</NeButton
-        >
+          }}
+        </NeButton>
       </div>
-    </div></NeSideDrawer
-  >
+    </div>
+  </NeSideDrawer>
 </template>

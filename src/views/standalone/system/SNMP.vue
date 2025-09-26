@@ -207,8 +207,6 @@ async function saveSettings() {
 
     <div v-if="service" class="mt-4 flex flex-col gap-y-3">
 
-
-
       <div class="my-4">
         <NeCombobox v-model="snmpVersion" :options="[
           { label: '2c', id: '2c' },
@@ -396,15 +394,12 @@ async function saveSettings() {
       </div> -->
 
     </div>
-    <div class="flex mt-4 flex-col w-[90px]">
-      <NeButton class=" ml-1" :disabled="loadingNew.saveRule" :loading="loadingNew.saveRule" kind="primary" size="lg"
-        @click.prevent="saveSettings()">
-        <template #prefix>
-          <FontAwesomeIcon :icon="faSave" />
-        </template>
-        {{ t('common.save') }}
-      </NeButton>
-    </div>
+
+    <NeButton class="mt-5 ml-1" :disabled="loadingNew.saveRule" :loading="loadingNew.saveRule" kind="primary" size="lg"
+      @click.prevent="saveSettings()">
+        <FontAwesomeIcon :icon="['fas', 'floppy-disk']" aria-hidden="true" class="mr-2" />
+      {{ t('common.save') }}
+    </NeButton>
   </FormLayout>
 
 </template>

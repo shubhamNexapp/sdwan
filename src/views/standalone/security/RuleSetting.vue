@@ -147,9 +147,9 @@ const blackList = computed(() => {
             <template v-else>
 
                 <NeButton class="justify-end" kind="primary" @click="openCreateEditDrawer(null)">
-                    <template>
-                        <font-awesome-icon :icon="['fas', 'circle-plus']" class="h-4 w-4" aria-hidden="true" />
-                    </template>
+                    <template #prefix>
+            <font-awesome-icon :icon="['fas', 'circle-plus']" class="h-4 w-4 mt-1" aria-hidden="true" />
+          </template>
                     {{ t('Add Rule') }}
                 </NeButton>
 
@@ -222,9 +222,9 @@ const blackList = computed(() => {
                 </NeTable>
 
                 <NeButton class="justify-end" kind="primary" @click="openKeywordDrawer(null)">
-                    <template>
-                        <font-awesome-icon :icon="['fas', 'circle-plus']" class="h-4 w-4" aria-hidden="true" />
-                    </template>
+                    <template #prefix>
+            <font-awesome-icon :icon="['fas', 'circle-plus']" class="h-4 w-4 mt-1" aria-hidden="true" />
+          </template>
                     {{ t('Add Keyword') }}
                 </NeButton>
                 <!-- Show table if apiresponse has values -->

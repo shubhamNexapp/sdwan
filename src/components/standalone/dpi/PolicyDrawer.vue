@@ -12,6 +12,8 @@ import {
   getAxiosErrorMessage,
 } from "@nethesis/vue-components";
 import { useI18n } from "vue-i18n";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+
 
 const { t } = useI18n();
 
@@ -292,6 +294,8 @@ const save = async () => {
           {{ t("common.cancel") }}
         </NeButton>
         <NeButton kind="primary" @click="save">
+                      <FontAwesomeIcon :icon="['fas', 'floppy-disk']" aria-hidden="true" class="mr-2" />
+
           {{ t("common.save") }}
         </NeButton>
       </div>

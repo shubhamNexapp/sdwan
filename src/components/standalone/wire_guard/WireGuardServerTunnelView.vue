@@ -26,6 +26,8 @@ import axios from "axios";
 import { getSDControllerApiEndpoint } from "@/lib/config";
 import { faSave } from "@fortawesome/free-solid-svg-icons";
 import { useNotificationsStore } from "@/stores/notifications";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+
 
 export type IpsecTunnel = {
   id: string;
@@ -292,19 +294,16 @@ const saveRule = async () => {
       </NeTextInput>
     </template>
 
-    <div class="flex w-[90px] flex-col">
       <NeButton
         class="ml-1"
         kind="primary"
         size="lg"
         @click.prevent="saveRule()"
       >
-        <template #prefix>
-          <FontAwesomeIcon :icon="faSave" />
-        </template>
+                   <FontAwesomeIcon :icon="['fas', 'floppy-disk']" aria-hidden="true" class="mr-2" />
+
         {{ t("common.save") }}
       </NeButton>
-    </div>
   </div>
 
   <hr />
@@ -334,7 +333,7 @@ const saveRule = async () => {
           <template #prefix>
             <font-awesome-icon
               :icon="['fas', 'circle-plus']"
-              class="h-4 w-4"
+              class="h-4 w-4 mt-1"
               aria-hidden="true"
             />
           </template>
