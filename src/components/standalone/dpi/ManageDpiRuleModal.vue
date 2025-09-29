@@ -524,7 +524,7 @@ function onChange(ev: any, app: DpiAppOrProtocol) {
         <!-- apps and protocols -->
         <NeCard>
           <!-- list popular apps error -->
-          <NeInlineNotification
+         <NeInlineNotification
             v-if="error.listPopularAppsErrorTitle"
             kind="error"
             :title="error.listPopularAppsErrorTitle"
