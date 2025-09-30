@@ -24,6 +24,7 @@ export type DpiException = {
   exemption_name: string;
   criteria: string;
   enabled: boolean;
+  description : string
 };
 
 export type DpiGroup = {
@@ -31,6 +32,14 @@ export type DpiGroup = {
   ip: { network: string }[]; // ✅ array of objects
   enabled: boolean;
 };
+
+type ListInterfacesResponse = {
+  data: {
+    [name: string]: {
+      ns_binding: number
+    }
+  }
+}
 
 const { t } = useI18n();
 const uciChangesStore = useUciPendingChangesStore();
@@ -81,6 +90,21 @@ onMounted(() => {
 
 const exceptionsAPIDATA = ref<DpiException[]>([]);
 const groupData = ref<DpiGroup[]>([]);
+async function fetchStatus() {
+  try {
+    loading.value = true;
+
+    const response = await ubusCall("ns.dpi", "list-exemptions");
+    // Response shape: response.data.values = []
+    exceptions.value = response.data.values || [];
+  } catch (err: any) {
+    error.value = err.message || "Failed to fetch exceptions";
+  } finally {
+    loading.value = false;
+  }
+}
+
+onMounted(fetchStatus);
 
 const getLists = async () => {
   try {
@@ -95,7 +119,7 @@ const getLists = async () => {
       criteria: item.criteria,
       enabled: item.enabled === "1",
     }));
-  } catch (err) {}
+  } catch (err) { }
 };
 
 const getGroupData = async () => {
@@ -111,7 +135,7 @@ const getGroupData = async () => {
       ip: item.ip,
       enabled: item.enabled === "1",
     }));
-  } catch (err) {}
+  } catch (err) { }
 };
 
 // Reload list
@@ -182,20 +206,18 @@ console.log("Groups:====", groups);
           <font-awesome-icon :icon="['fas', 'circle-plus']" class="mr-2 h-4 w-4" />
           {{ t("standalone.dpi.add_exception") }}
         </NeButton>
-        <NeButton kind="secondary" @click="openCreateEditDrawerGroup(null)">
+        <!-- <NeButton kind="secondary" @click="openCreateEditDrawerGroup(null)">
           <font-awesome-icon :icon="['fas', 'circle-plus']" class="mr-2 h-4 w-4" />
           {{ t("Add Group") }}
-        </NeButton>
+        </NeButton> -->
       </template>
+
+      
     </div>
 
     <!-- Error -->
-    <NeInlineNotification
-      v-if="error.notificationTitle"
-      kind="error"
-      :title="error.notificationTitle"
-      :description="error.notificationDescription"
-    >
+    <NeInlineNotification v-if="error.notificationTitle" kind="error" :title="error.notificationTitle"
+      :description="error.notificationDescription">
       <template v-if="error.notificationDetails">
         {{ error.notificationDetails }}
       </template>
@@ -207,11 +229,8 @@ console.log("Groups:====", groups);
     <!-- Content -->
     <template v-else-if="!error.notificationTitle">
       <!-- Empty state -->
-      <NeEmptyState
-        v-if="exceptions.length === 0"
-        :title="t('standalone.dpi.no_exception_found')"
-        :icon="['fas', 'circle-info']"
-      >
+      <NeEmptyState v-if="exceptions.length === 0" :title="t('standalone.dpi.no_exception_found')"
+        :icon="['fas', 'circle-info']">
         <NeButton kind="primary" @click="openCreateEditDrawer(null)">
           <font-awesome-icon :icon="['fas', 'circle-plus']" class="h-4 w-4 mr-2" />
           {{ t("standalone.dpi.add_exception") }}
@@ -220,21 +239,11 @@ console.log("Groups:====", groups);
 
       <!-- Cards -->
       <div v-else class="grid grid-cols-1 gap-6 sm:grid-cols-2 2xl:grid-cols-3">
-        <DpiExceptionCard
-          v-for="(exception, index) in exceptionsAPIDATA"
-          :key="index"
-          :exception="exception"
-          @delete="openDeleteModal"
-          @edit="openCreateEditDrawer"
-        />
+        <DpiExceptionCard v-for="(exception, index) in exceptions" :key="index" :exception="exception"
+          @delete="openDeleteModal" @edit="openCreateEditDrawer" />
 
-        <DpiGroupCard
-          v-for="(group, index) in groupData"
-          :key="index"
-          :group="group"
-          @edit="openCreateEditDrawerGroup"
-          @delete="deleteGroup"
-        />
+        <DpiGroupCard v-for="(group, index) in groupData" :key="index" :group="group" @edit="openCreateEditDrawerGroup"
+          @delete="deleteGroup" />
         <!-- <DpiGroupCard
           v-for="(group, index) in groupData"
           :key="index"
@@ -246,25 +255,13 @@ console.log("Groups:====", groups);
   </div>
 
   <!-- Delete Modal -->
-  <DeleteDpiExceptionModal
-    :visible="showDeleteModal"
-    :item-to-delete="selectedException"
-    @close="showDeleteModal = false"
-    @dpi-exception-deleted="reloadExceptions"
-  />
+  <DeleteDpiExceptionModal :visible="showDeleteModal" :item-to-delete="selectedException"
+    @close="showDeleteModal = false" @dpi-exception-deleted="reloadExceptions" />
 
   <!-- Add/Edit Drawer -->
-  <CreateOrDeleteDpiExceptionDrawer
-    :is-shown="showCreateEditDrawer"
-    :item-to-edit="selectedException"
-    @close="showCreateEditDrawer = false"
-    @add-edit-exception="reloadExceptions"
-  />
+  <CreateOrDeleteDpiExceptionDrawer :is-shown="showCreateEditDrawer" :item-to-edit="selectedException"
+    @close="showCreateEditDrawer = false" @add-edit-exception="reloadExceptions" />
 
-  <CreateOrEditDpiGroupDrawer
-    :is-shown="showCreateEditDrawerGroup"
-    :item-to-edit="selectedGroup"
-    @close="showCreateEditDrawerGroup = false"
-    @save="getGroupData"
-  />
+  <CreateOrEditDpiGroupDrawer :is-shown="showCreateEditDrawerGroup" :item-to-edit="selectedGroup"
+    @close="showCreateEditDrawerGroup = false" @save="getGroupData" />
 </template>

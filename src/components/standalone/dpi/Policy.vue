@@ -21,6 +21,7 @@ interface Rule {
   app_name: string[];
   type: string;       // ❌ not in API
   describe: string;
+  group : string
 }
 
 const rules = ref<Rule[]>([]);

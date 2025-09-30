@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { ref, watch, computed, onMounted } from "vue";
 import axios from "axios";
 import {
   NeModal,
@@ -14,28 +14,47 @@ import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
 
+// Props
 const props = defineProps<{
   visible: boolean;
   itemToEdit: any | null;
-  groups?: { group_name: string }[]; // 👈 optional now
 }>();
 
 const emit = defineEmits(["close", "saved"]);
 
-// state
+// State
 const isCreating = ref(true);
 const loading = ref({ addRule: false, editRule: false });
+const groups = ref<{ group_name: string }[]>([]);
 
+// Main form
 const form = ref({
   rule_name: "",
   enabled: true,
   group: "",
   action: "block",
   describe: "",
-  app_name: [] as string[],
+  app_name: [] as { name: string }[], // ✅ store apps here
 });
 
-// load form when editing
+// Fetch groups
+async function fetchGroups() {
+  try {
+    const res = await axios.post(`${getSDControllerApiEndpoint()}/dpi`, {
+      method: "get-rule",
+      payload: {},
+    });
+    groups.value = res.data?.data?.exist_group || [];
+  } catch (e) {
+    console.error("group fetch error:", getAxiosErrorMessage(e));
+  }
+}
+
+onMounted(() => {
+  fetchGroups();
+});
+
+// Load form on edit
 watch(
   () => props.itemToEdit,
   (val) => {
@@ -47,14 +66,14 @@ watch(
         group: val.group,
         action: val.action,
         describe: val.describe,
-        app_name: val.app_name.map((a: any) => a.name),
+        app_name: val.app_name || [],
       };
     } else {
       isCreating.value = true;
       form.value = {
         rule_name: "",
         enabled: true,
-        group: props.groups?.length ? props.groups[0].group_name : "",
+        group: groups.value.length ? groups.value[0].group_name : "",
         action: "block",
         describe: "",
         app_name: [],
@@ -64,19 +83,19 @@ watch(
   { immediate: true }
 );
 
-// dropdowns
+// Options
 const actionOptions = [
   { id: "block", label: "Block" },
   { id: "accept", label: "Accept" },
 ];
 
 const groupOptions = computed(() =>
-  ""
+  groups.value.map((g) => ({ id: g.group_name, label: g.group_name }))
 );
 
-// app search + results
+// --- APP SEARCH ---
 const searchQuery = ref("");
-const searchResults = ref<{ name: string; category?: string }[]>([]);
+const searchResults = ref<{ id: number; name: string; category?: string }[]>([]);
 
 let searchTimeout: any;
 watch(searchQuery, (val) => {
@@ -94,32 +113,41 @@ async function fetchApps(query: string) {
       method: "search-field",
       payload: { search: query },
     });
+
     const results = res.data?.data?.values?.data || [];
     searchResults.value = results.map((r: any) => ({
+      id: r.id,
       name: r.name,
-      category: r.category,
+      category: r.category?.name || "Unknown",
     }));
   } catch (e) {
     console.error("app search error:", getAxiosErrorMessage(e));
   }
 }
 
-function toggleApp(name: string) {
-  if (form.value.app_name.includes(name)) {
-    form.value.app_name = form.value.app_name.filter((n) => n !== name);
+// Toggle app add/remove
+function toggleApp(app: { name: string }) {
+  const exists = form.value.app_name.find((a) => a.name === app.name);
+  if (exists) {
+    form.value.app_name = form.value.app_name.filter((a) => a.name !== app.name);
   } else {
-    form.value.app_name = [...form.value.app_name, name];
+    form.value.app_name.push({ name: app.name });
   }
 }
 
-// save
+// Check if app is already selected
+function isAppSelected(appName: string) {
+  return form.value.app_name.some((a) => a.name === appName);
+}
+
+// --- SAVE RULE ---
 async function saveRule() {
   try {
-    const payload = {
-      ...form.value,
-      enabled: form.value.enabled ? "1" : "0",
-      app_name: form.value.app_name.map((n) => ({ name: n })),
-    };
+    const payload = 
+      {
+        ...form.value,
+        enabled: form.value.enabled ? "1" : "0",
+      }
 
     if (isCreating.value) {
       loading.value.addRule = true;
@@ -147,11 +175,18 @@ async function saveRule() {
 </script>
 
 <template>
-  <NeModal :visible="props.visible" size="xxl" :title="isCreating ? t('Create rule') : t('Edit rule')"
-    :primaryLabel="isCreating ? t('Create rule') : t('Save rule')" :cancelLabel="t('common.cancel')"
+  <NeModal
+    :visible="props.visible"
+    size="xxl"
+    :title="isCreating ? t('Create rule') : t('Edit rule')"
+    :primaryLabel="isCreating ? t('Create rule') : t('Save rule')"
+    :cancelLabel="t('common.cancel')"
     :primaryButtonDisabled="loading.addRule || loading.editRule"
-    :primaryButtonLoading="loading.addRule || loading.editRule" :closeAriaLabel="t('common.close')"
-    @close="emit('close')" @primaryClick="saveRule">
+    :primaryButtonLoading="loading.addRule || loading.editRule"
+    :closeAriaLabel="t('common.close')"
+    @close="emit('close')"
+    @primaryClick="saveRule"
+  >
     <div class="space-y-4">
       <!-- Enable toggle -->
       <div class="flex items-center gap-3">
@@ -159,9 +194,10 @@ async function saveRule() {
         <span>{{ t("Enable rule") }}</span>
       </div>
 
+      <!-- Rule form -->
       <div class="grid grid-cols-2 gap-4">
         <NeTextInput v-model="form.rule_name" :label="t('Rule Name')" />
-        <NeTextInput v-model="form.group" :label="t('Source Group')" />
+        <NeCombobox v-model="form.group" :options="groupOptions" :label="t('Source Group')" />
         <NeCombobox v-model="form.action" :options="actionOptions" :label="t('Action')" />
         <NeTextInput v-model="form.describe" :label="t('Describe')" />
       </div>
@@ -179,34 +215,24 @@ async function saveRule() {
         </div>
 
         <div class="grid grid-cols-1 gap-x-6 gap-y-3 md:grid-cols-2 2xl:grid-cols-3">
-          <NeCard v-for="item in searchResults" :key="item.name">
+          <NeCard v-for="item in searchResults" :key="item.id">
             <div class="flex min-w-0 grow items-center justify-between">
               <div class="flex min-w-0 items-center gap-4">
-                <font-awesome-icon :icon="['fas', 'diagram-project']" class="h-6 w-6" aria-hidden="true" />
+                <font-awesome-icon :icon="['fas', 'diagram-project']" class="h-6 w-6" />
                 <div class="flex flex-col">
                   <div class="font-medium">{{ item.name }}</div>
-                  <p class="text-xs text-gray-500">APP / {{ item.category.name }}</p>
+                  <p class="text-xs text-gray-500">APP / {{ item.category }}</p>
                 </div>
               </div>
-              <NeToggle class="relative left-3" />
+              <!-- ✅ toggle app -->
+              <NeToggle
+                class="relative left-3"
+                :modelValue="isAppSelected(item.name)"
+                @update:modelValue="() => toggleApp(item)"
+              />
             </div>
           </NeCard>
         </div>
-
-        <!-- <div class="grid grid-cols-3 gap-3">
-          <NeCard v-for="item in searchResults" :key="item.name" class="flex justify-between items-center p-3">
-            <div>
-              <font-awesome-icon :icon="['fab', 'facebook']" class="h-6 w-6" aria-hidden="true" />
-              <p class="font-medium">{{ item.name }}</p>
-              <p class="text-xs text-gray-500">APP / {{ item.category.name }}</p>
-            </div>
-            <NeToggle :modelValue="form.app_name.includes(item.name)" @change="toggleApp(item.name)" />
-          </NeCard>
-        </div> -->
-      </div>
-
-      <div v-if="form.app_name.length" class="text-sm text-gray-600">
-        {{ form.app_name.length }} {{ t("apps and protocols selected") }}
       </div>
     </div>
   </NeModal>

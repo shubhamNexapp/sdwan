@@ -1,52 +1,59 @@
 <!--
-  Copyright © 2024-2026 Nexapp Technologies Pvt Ltd. All rights reserved.
+  Copyright (C) 2024 Nethesis S.r.l.
+  SPDX-License-Identifier: GPL-3.0-or-later
 -->
 
 <script setup lang="ts">
-import {
-  NeInlineNotification,
-  getAxiosErrorMessage,
-} from "@nethesis/vue-components";
-import { NeModal } from "@nethesis/vue-components";
-import { ref } from "vue";
-import { useI18n } from "vue-i18n";
-import { ubusCall } from "@/lib/standalone/ubus";
-import type { DpiException } from "./DpiExceptions.vue";
-import axios from "axios";
-import { getSDControllerApiEndpoint } from "@/lib/config";
+import { NeInlineNotification, getAxiosErrorMessage } from '@nethesis/vue-components'
+import { NeModal } from '@nethesis/vue-components'
+import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { ubusCall } from '@/lib/standalone/ubus'
+import type { DpiException } from './DpiExceptions.vue'
 
-const { t } = useI18n();
+const { t } = useI18n()
 
 const props = defineProps<{
-  visible: boolean;
-  itemToDelete: DpiException | null;
-}>();
+  visible: boolean
+  itemToDelete: DpiException | null
+}>()
 
-const emit = defineEmits(["close", "dpi-exception-deleted"]);
+const emit = defineEmits(['close', 'dpi-exception-deleted'])
 
 const error = ref({
-  notificationDescription: "",
-  notificationDetails: "",
-});
-const isDeleting = ref(false);
+  notificationDescription: '',
+  notificationDetails: ''
+})
+const isDeleting = ref(false)
 
-const deleteModalVisible = async () => {
-  if (!props.itemToDelete) return; // <-- ✅ prevents null usage
-
-  const response = await axios.post(`${getSDControllerApiEndpoint()}/dpi`, {
-    method: "delete-exemption",
-    payload: { exemption_name: props.itemToDelete.exemption_name },
-  });
-  emit("dpi-exception-deleted");
-  emit("close");
-};
+async function deleteException() {
+  if (props.itemToDelete) {
+    try {
+      error.value = {
+        notificationDescription: '',
+        notificationDetails: ''
+      }
+      isDeleting.value = true
+      await ubusCall('ns.dpi', 'delete-exemption', {
+        'config-name': props.itemToDelete['config-name']
+      })
+      emit('dpi-exception-deleted')
+      emit('close')
+    } catch (err: any) {
+      error.value.notificationDescription = t(getAxiosErrorMessage(err))
+      error.value.notificationDetails = err.toString()
+    } finally {
+      isDeleting.value = false
+    }
+  }
+}
 
 function close() {
   error.value = {
-    notificationDescription: "",
-    notificationDetails: "",
-  };
-  emit("close");
+    notificationDescription: '',
+    notificationDetails: ''
+  }
+  emit('close')
 }
 </script>
 
@@ -55,16 +62,16 @@ function close() {
     :visible="visible"
     kind="warning"
     :title="t('standalone.dpi.delete_exception')"
-    :primaryLabel="t('common.delete')"
-    :primaryButtonDisabled="isDeleting"
-    :primaryButtonLoading="isDeleting"
+    :primary-label="t('common.delete')"
+    :primary-button-disabled="isDeleting"
+    :primary-button-loading="isDeleting"
     :close-aria-label="t('common.close')"
-    @primaryClick="deleteModalVisible()"
+    @primary-click="deleteException()"
     @close="close()"
   >
     {{
-      t("standalone.dpi.delete_exception_message", {
-        name: itemToDelete?.exemption_name ?? "",
+      t('standalone.dpi.delete_exception_message', {
+        name: itemToDelete?.description ?? ''
       })
     }}
     <NeInlineNotification
@@ -73,7 +80,7 @@ function close() {
       :title="t('error.cannot_delete_dpi_exception')"
       :description="error.notificationDescription"
       class="my-2"
-      ><template v-if="error.notificationDetails">
+      ><template v-if="error.notificationDetails" >
         {{ error.notificationDetails }}
       </template></NeInlineNotification
     >

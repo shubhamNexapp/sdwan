@@ -1,181 +1,191 @@
+<!--
+  Copyright (C) 2024 Nethesis S.r.l.
+  SPDX-License-Identifier: GPL-3.0-or-later
+-->
+
 <script setup lang="ts">
-import { ref, watch } from "vue";
-import { useI18n } from "vue-i18n";
-import type { DpiException } from "./DpiExceptions.vue";
+import { useI18n } from 'vue-i18n'
+import type { DpiException } from './DpiExceptions.vue'
+import { ref } from 'vue'
+import {
+  MessageBag,
+  validateIp4OrCidr,
+  validateRequired,
+  type validationOutput
+} from '@/lib/validation'
+import { watch } from 'vue'
+import { ValidationError, ubusCall } from '@/lib/standalone/ubus'
 import {
   NeInlineNotification,
   NeSideDrawer,
   NeButton,
   NeFormItemLabel,
   NeTextInput,
-  NeToggle,
-  getAxiosErrorMessage,
-} from "@nethesis/vue-components";
-import { MessageBag } from "@/lib/validation";
-import axios from "axios";
-import { getSDControllerApiEndpoint } from "@/lib/config";
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+  getAxiosErrorMessage
+} from '@nethesis/vue-components'
+import { NeToggle } from '@nethesis/vue-components'
 
 const props = defineProps<{
-  isShown: boolean;
-  itemToEdit: DpiException | null;
-}>();
+  isShown: boolean
+  itemToEdit: DpiException | null
+}>()
 
-const emit = defineEmits(["close", "add-edit-exception"]);
-const { t } = useI18n();
+const { t } = useI18n()
 
-const isSavingChanges = ref(false);
+const emit = defineEmits(['close', 'add-edit-exception'])
+
+const isSavingChanges = ref(false)
 const error = ref({
-  notificationTitle: "",
-  notificationDescription: "",
-  notificationDetails: "",
-});
-const validationErrorBag = ref(new MessageBag());
+  notificationTitle: '',
+  notificationDescription: '',
+  notificationDetails: ''
+})
+const validationErrorBag = ref(new MessageBag())
 
 // Form fields
-const id = ref("");
-const exemptionName = ref("");
-const criteria = ref("");
-const enabled = ref(true);
+const id = ref('')
+const enabled = ref(true)
+const ipAddress = ref('')
+const exceptionName = ref('')
 
-// Reset form values when drawer is opened
 function resetForm() {
-  id.value = props.itemToEdit?.["config-name"] ?? "";
-  exemptionName.value = props.itemToEdit?.exemption_name ?? "";
-  criteria.value = props.itemToEdit?.criteria ?? "";
-  enabled.value = props.itemToEdit?.enabled ?? true;
+  id.value = props.itemToEdit?.['config-name'] ?? ''
+  enabled.value = props.itemToEdit?.enabled ?? true
+  ipAddress.value = props.itemToEdit?.criteria ?? ''
+  exceptionName.value = props.itemToEdit?.description ?? ''
 }
 
-// Save function (Add or Edit)
-const saveRule = async () => {
-  try {
-    console.log("exemptionName.value======", exemptionName.value);
-    isSavingChanges.value = true;
-    error.value = {
-      notificationTitle: "",
-      notificationDescription: "",
-      notificationDetails: "",
-    };
-
-    // Build payload
-    const payload = {
-      exemption_name: exemptionName.value,
-      enabled: enabled.value ? "1" : "0",
-      criteria: criteria.value,
-    };
-
-    let method = "";
-    if (exemptionName.value === "") {
-      method = "add-exemption";
-    } else {
-      method = "edit-exemption";
+function runValidators(validators: validationOutput[], label: string): boolean {
+  for (const validator of validators) {
+    if (!validator.valid) {
+      validationErrorBag.value.set(label, [validator.errMessage as string])
     }
-
-    await axios.post(`${getSDControllerApiEndpoint()}/dpi`, {
-      method,
-      payload,
-    });
-
-    emit("add-edit-exception"); // refresh parent list
-    close();
-  } catch (err: any) {
-    console.error("Error saving rule:", err);
-    error.value.notificationTitle = t("error.cannot_save_dpi_exception");
-    error.value.notificationDescription = getAxiosErrorMessage(err);
-    error.value.notificationDetails = err.toString();
-  } finally {
-    isSavingChanges.value = false;
   }
-};
 
-// Close drawer and reset form
-function close() {
-  resetForm();
-  error.value = {
-    notificationTitle: "",
-    notificationDescription: "",
-    notificationDetails: "",
-  };
-  validationErrorBag.value.clear();
-  emit("close");
+  return validators.every((validator) => validator.valid)
 }
 
-// Watch drawer visibility
+function validate() {
+  validationErrorBag.value.clear()
+
+  const validators: [validationOutput[], string][] = [
+    [[validateRequired(exceptionName.value)], 'description'],
+    [[validateRequired(ipAddress.value), validateIp4OrCidr(ipAddress.value)], 'criteria']
+  ]
+
+  return validators
+    .map(([validator, label]) => runValidators(validator, label))
+    .every((result) => result)
+}
+
+async function createOrEditException() {
+  error.value.notificationTitle = ''
+  error.value.notificationDescription = ''
+  error.value.notificationDetails = ''
+  validationErrorBag.value.clear()
+
+  const isEditing = id.value != ''
+
+  try {
+    isSavingChanges.value = true
+    const requestType = isEditing ? 'edit-exemption' : 'add-exemption'
+
+    if (validate()) {
+      const payload: {
+        'config-name'?: string
+        description: string
+        criteria: string
+        enabled: boolean
+      } = {
+        criteria: ipAddress.value,
+        description: exceptionName.value,
+        enabled: enabled.value
+      }
+
+      if (isEditing) {
+        payload['config-name'] = id.value
+      }
+
+      await ubusCall('ns.dpi', requestType, payload)
+      emit('add-edit-exception')
+      close()
+    }
+  } catch (err: any) {
+    if (err instanceof ValidationError) {
+      validationErrorBag.value = err.errorBag
+    } else {
+      error.value.notificationTitle = isEditing
+        ? t('error.cannot_edit_dpi_exception')
+        : t('error.cannot_create_dpi_exception')
+      error.value.notificationDescription = t(getAxiosErrorMessage(err))
+      error.value.notificationDetails = err.toString()
+    }
+  } finally {
+    isSavingChanges.value = false
+  }
+}
+
+function close() {
+  validationErrorBag.value.clear()
+  error.value.notificationTitle = ''
+  error.value.notificationDescription = ''
+  error.value.notificationDetails = ''
+  resetForm()
+  emit('close')
+}
+
 watch(
   () => props.isShown,
-  (val) => {
-    if (val) resetForm();
+  () => {
+    resetForm()
   }
-);
+)
 </script>
 
 <template>
   <NeSideDrawer
     :is-shown="isShown"
-    @close="close"
-    :title="
-      id
-        ? t('standalone.dpi.edit_exception')
-        : t('standalone.dpi.add_exception')
-    "
+    :close-aria-label="t('common.shell.close_side_drawer')"
+    :title="id ? t('standalone.dpi.edit_exception') : t('standalone.dpi.add_exception')"
+    @close="close()"
   >
-    <!-- Error -->
     <NeInlineNotification
       v-if="error.notificationTitle"
-      kind="error"
       :title="error.notificationTitle"
       :description="error.notificationDescription"
       class="mb-6"
+      kind="error"
     >
-      <template v-if="error.notificationDetails">{{
-        error.notificationDetails
-      }}</template>
-    </NeInlineNotification>
-
-    <!-- Form -->
+      <template v-if="error.notificationDetails" >
+        {{ error.notificationDetails }}
+      </template></NeInlineNotification
+    >
     <div class="flex flex-col gap-y-6">
-      <!-- Status -->
       <div>
-        <NeFormItemLabel>{{ t("standalone.dpi.status") }}</NeFormItemLabel>
-        <NeToggle
-          v-model="enabled"
-          :label="enabled ? t('common.enabled') : t('common.disabled')"
-        />
+        <NeFormItemLabel>{{ t('standalone.dpi.status') }}</NeFormItemLabel>
+        <NeToggle v-model="enabled" :label="enabled ? t('common.enabled') : t('common.disabled')" />
       </div>
-
-      <!-- Criteria -->
       <NeTextInput
-        v-model="criteria"
+        v-model="ipAddress"
         :label="t('standalone.dpi.ip_address')"
         :invalid-message="t(validationErrorBag.getFirstI18nKeyFor('criteria'))"
       />
-
-      <!-- Name -->
       <NeTextInput
-        v-model="exemptionName"
+        v-model="exceptionName"
         :label="t('standalone.dpi.exception_name')"
-        :invalid-message="
-          t(validationErrorBag.getFirstI18nKeyFor('exemption_name'))
-        "
+        :invalid-message="t(validationErrorBag.getFirstI18nKeyFor('description'))"
       />
-
-      <!-- Actions -->
       <hr />
       <div class="flex justify-end">
-        <NeButton kind="tertiary" class="mr-4" @click="close">
-          {{ t("common.cancel") }}
-        </NeButton>
+        <NeButton kind="tertiary" class="mr-4" @click="close()">{{ t('common.cancel') }}</NeButton>
         <NeButton
           kind="primary"
-          @click="saveRule"
           :disabled="isSavingChanges"
           :loading="isSavingChanges"
+          @click="createOrEditException()"
+          >{{ id ? t('common.save') : t('standalone.dpi.add_exception') }}</NeButton
         >
-                    <FontAwesomeIcon :icon="['fas', 'floppy-disk']" aria-hidden="true" class="mr-2" />
-
-          {{ id ? t("common.save") : t("standalone.dpi.add_exception") }}
-        </NeButton>
       </div>
-    </div>
-  </NeSideDrawer>
+    </div></NeSideDrawer
+  >
 </template>
