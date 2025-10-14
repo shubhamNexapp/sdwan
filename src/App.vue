@@ -22,6 +22,8 @@ const welcomeMsg = [
 
 const themeStore = useThemeStore()
 
+console.log("check")
+
 onMounted(() => {
   console.log('%c' + welcomeMsg, 'background: #0891b2; color: white;')
   themeStore.loadTheme()
