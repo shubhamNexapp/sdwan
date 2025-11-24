@@ -8,13 +8,13 @@ import IpsecClientTunnelView from '@/components/standalone/ipsec_tunnel/IpsecCli
 const { t } = useI18n()
 
 const { tabs, selectedTab } = useTabs([
-  {
-    name: 'server-tunnel',
-    label: t('standalone.openvpn_tunnel.tabs.server_tunnel')
-  },
+  // {
+  //   name: 'server-tunnel',
+  //   label: t('standalone.openvpn_tunnel.tabs.server_tunnel')
+  // },
   {
     name: 'client-tunnel',
-    label: t('standalone.openvpn_tunnel.tabs.client_tunnel')
+    label: t('Tunnel')
   }
 ])
 </script>
@@ -35,7 +35,7 @@ const { tabs, selectedTab } = useTabs([
       class="mb-8"
       @selectTab="selectedTab = $event"
     />
-    <IpsecTunnelView :manageClientTunnels="false" v-if="selectedTab == 'server-tunnel'" />
-    <IpsecClientTunnelView :manageClientTunnels="true" v-else />
+    <!-- <IpsecTunnelView :manageClientTunnels="false" v-if="selectedTab == 'server-tunnel'" /> -->
+    <IpsecClientTunnelView :manageClientTunnels="true"  />
   </div>
 </template>
