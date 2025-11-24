@@ -282,7 +282,7 @@ async function fetchConfiguration() {
             <template #tooltip>
               <NeTooltip>
                 <template #content>
-                  {{ t('Max 64 chars. Use letters, numbers, and hyphens (not at start or end). No spaces or special characters.') }}
+                  {{ t('Name must be a valid hostname: 1–64 characters, using only letters (A–Z, a–z), digits (0–9), and hyphens (-). Spaces and other characters are not allowed, and the name cannot start or end with a hyphen.') }}
                 </template>
               </NeTooltip>
             </template>
