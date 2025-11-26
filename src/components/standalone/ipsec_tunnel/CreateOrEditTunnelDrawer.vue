@@ -57,6 +57,8 @@ type CreateEditIpsecTunnelPayload = {
   }
   ipcomp: string
   dpdaction: 'restart' | 'none'
+  dpddelay: string
+  dpdtimeout: string
   remote_subnet: string[]
   local_subnet: string[]
   ns_name: string
@@ -97,6 +99,9 @@ const localNetworks = ref<NeComboboxOption[]>([])
 const remoteNetworks = ref<string[]>([''])
 const localIdentifier = ref('')
 const remoteIdentifier = ref('')
+const dpdAction = ref('')
+const dpdDelay = ref('')
+const dpdTimeout = ref('')
 
 // Step 2 fields
 const presharedKeyMode = ref<'generate' | 'import'>('generate')
@@ -241,6 +246,9 @@ async function resetForm() {
   id.value = props.itemToEdit?.id ?? ''
   name.value = tunnelData?.ns_name ?? ''
   enabled.value = tunnelData ? tunnelData.enabled === '1' : true
+  dpdAction.value = tunnelData?.dpdaction ?? ''
+  dpdDelay.value = tunnelData?.dpddelay ?? ''
+  dpdTimeout.value = tunnelData?.dpdtimeout ?? ''
   wanIpAddress.value = tunnelData?.local_ip ?? ''
   remoteIpAddress.value = tunnelData?.gateway ?? ''
   remoteNetworks.value = tunnelData?.remote_subnet ?? ['']
@@ -415,6 +423,8 @@ async function createOrEditTunnel() {
     ipcomp: enableCompression.value ? 'true' : 'false',
     enabled: enabled.value ? '1' : '0',
     dpdaction: dpd.value ? 'restart' : 'none',
+    dpddelay: dpdDelay.value,
+    dpdtimeout: dpdTimeout.value,
     keyexchange: ikeVersion.value,
     remote_subnet: remoteNetworks.value.filter((x) => x != ''),
     local_subnet: localNetworks.value.filter((x:  any) => x.id != '').map((x :  any) => x.id),
@@ -472,6 +482,11 @@ watch(
     }
   }
 )
+
+const onlyNumbers = (event: Event) => {
+  const input = event.target as HTMLInputElement;
+  input.value = input.value.replace(/[^0-9]/g, ""); // Allow only numbers
+};
 </script>
 
 <template>
@@ -514,6 +529,23 @@ watch(
           :disabled="id != ''"
           :label="t('standalone.ipsec_tunnel.tunnel_name')"
           :invalidMessage="validationErrorBag.getFirstFor('name')"
+        />
+        <NeTextInput
+          v-model="dpdAction"
+          :label="t('DPD Action')"
+          :invalidMessage="validationErrorBag.getFirstFor('dpdAction')"
+        />
+        <NeTextInput
+          v-model="dpdDelay"
+          :label="t('DPD Delay')"
+          @input="onlyNumbers"
+          :invalidMessage="validationErrorBag.getFirstFor('dpdDelay')"
+        />
+        <NeTextInput
+          v-model="dpdTimeout"
+          :label="t('DPD Timeout')"
+          @input="onlyNumbers"
+          :invalidMessage="validationErrorBag.getFirstFor('dpdTimeout')"
         />
         <NeCombobox
           v-model="wanIpAddress"
