@@ -327,6 +327,10 @@ const navigation: Ref<MenuItem[]> = ref([
         to: "vpn/ipsec-tunnel",
       },
       {
+        name: "New Ipsec Tunnel",
+        to: "vpn/new-ipsec-tunnel",
+      },
+      {
         name: "L2TP",
         to: "vpn/l2tp",
       },
