@@ -90,6 +90,10 @@ const p3MatchPhase2 = ref('')
 const p3DestinationIpOrDomain = ref('')
 const p3EncryptInterface = ref('modem')
 
+// Phase options for phase3 dropdowns
+const phase1Options = ref<string[]>([])
+const phase2Options = ref<string[]>([])
+
 // -----------------------------------------------------------------------------
 // Helpers
 // -----------------------------------------------------------------------------
@@ -171,6 +175,10 @@ function resetForm() {
     p3MatchPhase2.value = ''
     p3DestinationIpOrDomain.value = ''
     p3EncryptInterface.value = 'modem'
+
+    // clear dropdown options
+    phase1Options.value = []
+    phase2Options.value = []
 }
 
 function loadFromItem(item: any) {
@@ -233,7 +241,42 @@ function loadFromItem(item: any) {
     }
 }
 
-// when drawer opens, reset + optionally load edit data
+// Load all phase1/phase2 policy names for phase3 dropdowns
+const loadPhaseOptions = async () => {
+    try {
+        const response = await axios.post(`${getSDControllerApiEndpoint()}/ipsec`, {
+            method: 'get-config',
+            payload: {}
+        })
+
+        if (response.data.code === 200) {
+            const result = response.data.data
+            const phases = Array.isArray(result.phase) ? result.phase : []
+
+            phase1Options.value = phases
+                .filter((p: any) => p.select === 'phase1' || p.select === 'Phase1')
+                .map((p: any) => p.policy_name)
+                .filter((name: any) => !!name)
+
+            phase2Options.value = phases
+                .filter((p: any) => p.select === 'phase2' || p.select === 'Phase2')
+                .map((p: any) => p.policy_name)
+                .filter((name: any) => !!name)
+
+            // ensure currently bound values (when editing) are in the lists
+            if (p3MatchPhase1.value && !phase1Options.value.includes(p3MatchPhase1.value)) {
+                phase1Options.value.push(p3MatchPhase1.value)
+            }
+            if (p3MatchPhase2.value && !phase2Options.value.includes(p3MatchPhase2.value)) {
+                phase2Options.value.push(p3MatchPhase2.value)
+            }
+        }
+    } catch (err) {
+        console.error('Error loading phase options:', getAxiosErrorMessage(err))
+    }
+}
+
+// when drawer opens, reset + optionally load edit data + load phase options
 watch(
     () => props.isShown,
     (shown) => {
@@ -242,6 +285,7 @@ watch(
             if (props.itemToEdit) {
                 loadFromItem(props.itemToEdit)
             }
+            loadPhaseOptions()
         }
     }
 )
@@ -719,9 +763,8 @@ const closeDrawer = () => {
                             <label class="block text-sm font-medium mb-1">Match Phase1</label>
                             <select v-model="p3MatchPhase1" class="w-full border rounded px-2 py-1">
                                 <option value="">Select phase1</option>
-                                <!-- options should be filled by parent when needed -->
-                                <option :value="p1PolicyName" v-if="p1PolicyName">
-                                    {{ p1PolicyName }}
+                                <option v-for="name in phase1Options" :key="name" :value="name">
+                                    {{ name }}
                                 </option>
                             </select>
                         </div>
@@ -730,8 +773,8 @@ const closeDrawer = () => {
                             <label class="block text-sm font-medium mb-1">Match Phase2</label>
                             <select v-model="p3MatchPhase2" class="w-full border rounded px-2 py-1">
                                 <option value="">Select phase2</option>
-                                <option :value="p2PolicyName" v-if="p2PolicyName">
-                                    {{ p2PolicyName }}
+                                <option v-for="name in phase2Options" :key="name" :value="name">
+                                    {{ name }}
                                 </option>
                             </select>
                         </div>
@@ -747,6 +790,8 @@ const closeDrawer = () => {
                             <option value="modem">modem</option>
                             <option value="br0">br0</option>
                             <option value="br-lan">br-lan</option>
+                            <option value="eth0">eth0</option>
+                            <option value="auto">auto</option>
                         </select>
                     </div>
                 </template>
