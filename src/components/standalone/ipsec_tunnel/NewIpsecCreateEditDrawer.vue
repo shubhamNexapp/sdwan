@@ -401,11 +401,14 @@ const saveRule = async () => {
         }
     }
 
+    // choose method depending on add / edit
+    const apiMethod = isEditMode.value ? 'edit-phase' : 'add-phase'
+
     try {
         loading.value.saveRule = true
 
         const response = await axios.post(`${getSDControllerApiEndpoint()}/ipsec`, {
-            method: 'set-config',
+            method: apiMethod,
             payload
         })
 
@@ -652,51 +655,28 @@ const closeDrawer = () => {
 
                     <!-- Local/Remote subnet section -->
                     <div class="mt-4">
-                        <NeTextInput
-                            v-model.trim="p2LocalSubnet"
-                            @input="cidrInputHandler"
-                            :invalidMessage="errorBag.p2LocalSubnet"
-                            label="Local Subnet"
-                            placeholder="eg. 192.168.6.0/24"
-                        />
+                        <NeTextInput v-model.trim="p2LocalSubnet" @input="cidrInputHandler"
+                            :invalidMessage="errorBag.p2LocalSubnet" label="Local Subnet"
+                            placeholder="eg. 192.168.6.0/24" />
                         <div class="mt-4">
                             <label class="block text-sm font-medium mb-1">Remote Subnet</label>
                             <div class="space-y-2">
-                                <div
-                                    v-for="(subnet, index) in p2RemoteSubnets"
-                                    :key="index"
-                                    class="flex items-center gap-2"
-                                >
-                                    <NeTextInput
-                                        v-model.trim="p2RemoteSubnets[index]"
-                                        @input="cidrInputHandler"
+                                <div v-for="(subnet, index) in p2RemoteSubnets" :key="index"
+                                    class="flex items-center gap-2">
+                                    <NeTextInput v-model.trim="p2RemoteSubnets[index]" @input="cidrInputHandler"
                                         :invalidMessage="p2RemoteSubnetErrors[index]"
-                                        :label="index === 0 ? '' : undefined"
-                                        class="flex-1"
-                                        placeholder="eg. 192.168.88.0/24"
-                                    />
-                                    <NeButton
-                                        v-if="p2RemoteSubnets.length > 1"
-                                        kind="tertiary"
-                                        size="sm"
-                                        @click.prevent="removeRemoteSubnet(index)"
-                                    >
+                                        :label="index === 0 ? '' : undefined" class="flex-1"
+                                        placeholder="eg. 192.168.88.0/24" />
+                                    <NeButton v-if="p2RemoteSubnets.length > 1" kind="tertiary" size="sm"
+                                        @click.prevent="removeRemoteSubnet(index)">
                                         -
                                     </NeButton>
                                 </div>
                             </div>
-                            <NeButton
-                                kind="primary"
-                                size="sm"
-                                class="mt-2"
-                                @click.prevent="addRemoteSubnet"
-                            >
+                            <NeButton kind="primary" size="sm" class="mt-2" @click.prevent="addRemoteSubnet">
                                 +
                             </NeButton>
-                            <p
-                                v-if="errorBag.p2RemoteSubnetGeneral"
-                                class="text-xs text-red-600 mt-1"
-                            >
+                            <p v-if="errorBag.p2RemoteSubnetGeneral" class="text-xs text-red-600 mt-1">
                                 {{ errorBag.p2RemoteSubnetGeneral }}
                             </p>
                         </div>

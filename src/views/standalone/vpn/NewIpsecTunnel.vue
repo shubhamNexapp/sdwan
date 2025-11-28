@@ -155,6 +155,9 @@ const confirmDeletePhase = (phaseKey: 'phase1' | 'phase2' | 'phase3') => {
 </script>
 
 <template>
+    <div class="flex flex-col justify-between md:flex-row md:items-center">
+        <NeHeading tag="h3" class="mb-7">IpsecTunnel</NeHeading>
+    </div>
     <div class="flex flex-col">
         <div class="space-y-6">
             <NeInlineNotification kind="error" :title="error.notificationTitle"
@@ -331,7 +334,7 @@ const confirmDeletePhase = (phaseKey: 'phase1' | 'phase2' | 'phase3') => {
         @tunnel-deleted="getLists" />
 
     <!-- drawer: add / edit IPsec phases -->
-    <NewIpsecCreateEditDrawer :item-to-edit="selectedTunnel" @close="closeModalsAndDrawers" :rule-type="'forward'" :known-tags="[]"
-        @add-edit-tunnel="reloadTunnels" :is-shown="showCreateEditDrawer" />
+    <NewIpsecCreateEditDrawer :item-to-edit="selectedTunnel" @close="closeModalsAndDrawers" :rule-type="'forward'"
+        :known-tags="[]" @add-edit-tunnel="reloadTunnels" :is-shown="showCreateEditDrawer" />
 
-   </template>
+</template>
