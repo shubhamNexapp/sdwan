@@ -89,6 +89,7 @@ const p3MatchPhase1 = ref('')
 const p3MatchPhase2 = ref('')
 const p3DestinationIpOrDomain = ref('')
 const p3EncryptInterface = ref('modem')
+const service = ref(true);
 
 // Phase options for phase3 dropdowns
 const phase1Options = ref<string[]>([])
@@ -238,6 +239,7 @@ function loadFromItem(item: any) {
         p3MatchPhase2.value = item.match_phase2 || ''
         p3DestinationIpOrDomain.value = item.destination_ip_or_domain || ''
         p3EncryptInterface.value = item.encrypt_interface || 'modem'
+        service.value = item.service === 'enable' ? true : false
     }
 }
 
@@ -454,7 +456,8 @@ const saveRule = async () => {
             match_phase1: p3MatchPhase1.value,
             match_phase2: p3MatchPhase2.value,
             destination_ip_or_domain: p3DestinationIpOrDomain.value,
-            encrypt_interface: p3EncryptInterface.value
+            encrypt_interface: p3EncryptInterface.value,
+            service: service.value ? "enable" : "disable",
         }
     }
 
@@ -764,6 +767,8 @@ const closeDrawer = () => {
                 <!-- ======================== PHASE 3 (IPSEC) ======================== -->
                 <template v-if="currentPhase === 'phase3'">
                     <div class="font-semibold">Basic Settings (Ipsec)</div>
+
+                    <NeToggle v-model="service" :label="service ? 'Enable' : 'Disable'" :topLabel="'Service'" />
 
                     <NeTextInput v-model.trim="p3InterfaceName" :invalidMessage="errorBag.p3InterfaceName"
                         label="Interface Name" placeholder="Max length is 12" />
