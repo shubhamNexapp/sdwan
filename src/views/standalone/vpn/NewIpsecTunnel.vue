@@ -297,8 +297,8 @@ const confirmDeletePhase = (phaseKey: 'phase1' | 'phase2' | 'phase3') => {
                             <NeTableCell>{{ phase3Data.match_phase2 }}</NeTableCell>
                             <NeTableCell>{{ phase3Data.destination_ip_or_domain }}</NeTableCell>
                             <NeTableCell>{{ phase3Data.encrypt_interface }}</NeTableCell>
-                            <NeTableCell>{{ phase3Data.status?.connet_status }}</NeTableCell>
-                            <NeTableCell>{{ phase3Data.status?.local_subnet }}</NeTableCell>
+                            <NeTableCell>{{ phase3Data.connect_status }}</NeTableCell>
+                            <NeTableCell>{{ phase3Data.local_subnet }}</NeTableCell>
                             <NeTableCell>
                                 {{
                                     phase3Data.status && Array.isArray(phase3Data.status.remote_subnet)
