@@ -303,30 +303,38 @@ const validate = () => {
             errorBag.value.p2Lifetime = 'Lifetime must be between 120 and 86400 seconds.'
         }
 
-        // validate local subnet
-        if (!p2LocalSubnet.value.trim()) {
-            errorBag.value.p2LocalSubnet = 'Local Subnet is required.'
-        } else if (p2LocalSubnet.value.length > 128) {
-            errorBag.value.p2LocalSubnet = 'Local Subnet max length is 128.'
-        }
+        // only validate subnets when transport mode is "tunnel"
+        // if (p2TransportMode.value === 'tunnel') {
+        //     // validate local subnet
+        //     if (!p2LocalSubnet.value.trim()) {
+        //         errorBag.value.p2LocalSubnet = 'Local Subnet is required.'
+        //     } else if (p2LocalSubnet.value.length > 128) {
+        //         errorBag.value.p2LocalSubnet = 'Local Subnet max length is 128.'
+        //     }
 
-        // validate remote subnets
-        p2RemoteSubnetErrors.value = p2RemoteSubnets.value.map(() => '')
-        let hasRemote = false
-        p2RemoteSubnets.value.forEach((sub, idx) => {
-            const val = sub.trim()
-            if (val) {
-                hasRemote = true
-                if (val.length > 128) {
-                    p2RemoteSubnetErrors.value[idx] = 'Remote Subnet max length is 128.'
-                }
-            }
-        })
-        if (!hasRemote) {
-            errorBag.value.p2RemoteSubnetGeneral = 'At least one Remote Subnet is required.'
-        } else if (p2RemoteSubnetErrors.value.some((e) => e)) {
-            errorBag.value.p2RemoteSubnetGeneral = 'Please fix invalid Remote Subnet values.'
-        }
+        //     // validate remote subnets
+        //     p2RemoteSubnetErrors.value = p2RemoteSubnets.value.map(() => '')
+        //     let hasRemote = false
+        //     p2RemoteSubnets.value.forEach((sub, idx) => {
+        //         const val = sub.trim()
+        //         if (val) {
+        //             hasRemote = true
+        //             if (val.length > 128) {
+        //                 p2RemoteSubnetErrors.value[idx] = 'Remote Subnet max length is 128.'
+        //             }
+        //         }
+        //     })
+        //     if (!hasRemote) {
+        //         errorBag.value.p2RemoteSubnetGeneral = 'At least one Remote Subnet is required.'
+        //     } else if (p2RemoteSubnetErrors.value.some((e) => e)) {
+        //         errorBag.value.p2RemoteSubnetGeneral = 'Please fix invalid Remote Subnet values.'
+        //     }
+        // } else {
+        //     // clear subnet-related errors when in transport mode
+        //     errorBag.value.p2LocalSubnet = ''
+        //     errorBag.value.p2RemoteSubnetGeneral = ''
+        //     p2RemoteSubnetErrors.value = p2RemoteSubnets.value.map(() => '')
+        // }
     } else if (currentPhase.value === 'phase3') {
         // Phase 3 validation
         if (!p3InterfaceName.value.trim() || p3InterfaceName.value.length > 12) {
@@ -372,6 +380,7 @@ const saveRule = async () => {
             dpd_action: p1DpdAction.value
         }
     } else if (currentPhase.value === 'phase2') {
+        // base payload for phase2
         payload = {
             ...payload,
             policy_name: p2PolicyName.value,
@@ -383,9 +392,13 @@ const saveRule = async () => {
             lifetime: p2Lifetime.value,
             local_protoport: `${p2LocalProto.value}${p2LocalPort.value ? ':' + p2LocalPort.value : ''}`,
             remote_protoport: `${p2RemoteProto.value}${p2RemotePort.value ? ':' + p2RemotePort.value : ''}`,
-            transport_mode: p2TransportMode.value,
-            local_subnet: p2LocalSubnet.value,
-            remote_subnet: p2RemoteSubnets.value
+            transport_mode: p2TransportMode.value
+        }
+
+        // only send subnet fields when transport mode is "tunnel"
+        if (p2TransportMode.value === 'tunnel') {
+            payload.local_subnet = p2LocalSubnet.value
+            payload.remote_subnet = p2RemoteSubnets.value
                 .map((s) => s.trim())
                 .filter((s) => s)
                 .map((s) => ({ subnet: s }))
@@ -664,9 +677,8 @@ const closeDrawer = () => {
                             <option value="tunnel">tunnel</option>
                         </select>
                     </div>
-
-                    <!-- Local/Remote subnet section -->
-                    <div class="mt-4">
+                    <!-- Local/Remote subnet section (only when transport mode is "tunnel") -->
+                    <div class="mt-4" v-if="p2TransportMode === 'tunnel'">
                         <NeTextInput v-model.trim="p2LocalSubnet" @input="cidrInputHandler"
                             :invalidMessage="errorBag.p2LocalSubnet" label="Local Subnet"
                             placeholder="eg. 192.168.6.0/24" />
