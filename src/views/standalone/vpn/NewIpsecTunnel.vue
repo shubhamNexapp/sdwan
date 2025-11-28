@@ -206,7 +206,7 @@ const getLists = async () => {
                         <NeTableHeadCell>Lifetime</NeTableHeadCell>
                         <NeTableHeadCell>Local Protoport</NeTableHeadCell>
                         <NeTableHeadCell>Remote Protoport</NeTableHeadCell>
-                        <NeTableHeadCell>Encryption Algorithm</NeTableHeadCell>
+                        <!-- <NeTableHeadCell>Encryption Algorithm</NeTableHeadCell> -->
                         <NeTableHeadCell>Transport Mode</NeTableHeadCell>
                         <NeTableHeadCell>Local Subnet</NeTableHeadCell>
                         <NeTableHeadCell>Remote Subnet(s)</NeTableHeadCell>
@@ -220,7 +220,7 @@ const getLists = async () => {
                             <NeTableCell>{{ phase2Data.lifetime }}</NeTableCell>
                             <NeTableCell>{{ phase2Data.local_protoport }}</NeTableCell>
                             <NeTableCell>{{ phase2Data.remote_protoport }}</NeTableCell>
-                            <NeTableCell>{{ phase2Data.encryption_algorithm }}</NeTableCell>
+                            <!-- <NeTableCell>{{ phase2Data.encryption_algorithm }}</NeTableCell> -->
                             <NeTableCell>{{ phase2Data.transport_mode }}</NeTableCell>
                             <NeTableCell>{{ phase2Data.local_subnet }}</NeTableCell>
                             <NeTableCell>

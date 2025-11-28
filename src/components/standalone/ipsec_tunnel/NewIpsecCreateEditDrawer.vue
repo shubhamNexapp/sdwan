@@ -58,6 +58,8 @@ const p1GroupName = ref('group768')
 const p1DpdService = ref<'enable' | 'disable'>('disable')
 const p1DpdDelay = ref('30')
 const p1DpdRetryTimes = ref('4')
+const p1DpdAction = ref('none')
+
 
 /**
  * Phase 2 fields
@@ -121,6 +123,7 @@ function resetForm() {
     p1DpdService.value = 'disable'
     p1DpdDelay.value = '30'
     p1DpdRetryTimes.value = '4'
+    p1DpdAction.value = 'none'
 
     // phase2 defaults
     p2PolicyName.value = ''
@@ -163,6 +166,7 @@ function loadFromItem(item: any) {
         p1DpdService.value = item.dpd_service === 'enable' ? 'enable' : 'disable'
         p1DpdDelay.value = item.dpd_delay || '30'
         p1DpdRetryTimes.value = item.dpd_retry_times || '4'
+        p1DpdAction.value = item.dpd_action || 'none'
     } else if (select === 'phase2' || select === 'Phase2') {
         currentPhase.value = 'phase2'
         p2PolicyName.value = item.policy_name || ''
@@ -290,7 +294,8 @@ const saveRule = async () => {
             group_name: p1GroupName.value,
             dpd_service: p1DpdService.value,
             dpd_delay: p1DpdDelay.value,
-            dpd_retry_times: p1DpdRetryTimes.value
+            dpd_retry_times: p1DpdRetryTimes.value,
+            dpd_action: p1DpdAction.value
         }
     } else if (currentPhase.value === 'phase2') {
         payload = {
@@ -418,7 +423,7 @@ const closeDrawer = () => {
                             <select v-model="p1Ike" class="w-full border rounded px-2 py-1">
                                 <option value="ikev1">ikev1</option>
                                 <option value="ikev2">ikev2</option>
-                                <option value="ike">ikev1 &amp; ikev2</option>
+                                <!-- <option value="ike">ikev1 &amp; ikev2</option> -->
                             </select>
                         </div>
                     </div>
@@ -465,6 +470,16 @@ const closeDrawer = () => {
 
                     <NeTextInput v-model.trim="p1DpdRetryTimes" @input="onlyNumbers"
                         :invalidMessage="errorBag.p1DpdRetryTimes" label="DPD Retry Times" placeholder="1-512 times" />
+                    <div>
+                        <label class="block text-sm font-medium mb-1">DPD Action</label>
+                        <select v-model="p1DpdAction" class="w-full border rounded px-2 py-1">
+                            <option value="none">none</option>
+                            <option value="clear">clear</option>
+                            <option value="hold">hold</option>
+                            <option value="restart">restart</option>
+                        </select>
+                    </div>
+
                 </template>
 
                 <!-- ======================== PHASE 2 ======================== -->
@@ -475,13 +490,13 @@ const closeDrawer = () => {
                         placeholder="Enter Policy Name (max 12)" />
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
+                        <!-- <div>
                             <label class="block text-sm font-medium mb-1">Encryption Protocol</label>
                             <select v-model="p2EncryptProtocol" class="w-full border rounded px-2 py-1">
                                 <option value="esp">esp</option>
                                 <option value="ah">ah</option>
                             </select>
-                        </div>
+                        </div> -->
 
                         <div>
                             <label class="block text-sm font-medium mb-1">Encrypt</label>
