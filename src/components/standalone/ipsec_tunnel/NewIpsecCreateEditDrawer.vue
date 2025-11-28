@@ -478,8 +478,18 @@ const closeDrawer = () => {
                             <select v-model="p1Encrypt" class="w-full border rounded px-2 py-1">
                                 <option value="des">des</option>
                                 <option value="3des">3des</option>
-                                <option value="aes128">aes128</option>
                                 <option value="aes256">aes256</option>
+                                <option value="aes192">aes192</option>
+                                <option value="aes128">aes128</option>
+                                <option value="aes128gcm8">aes128gcm8</option>
+                                <option value="aes128gcm12">aes128gcm12</option>
+                                <option value="aes128gcm16">aes128gcm16</option>
+                                <option value="aes192gcm8">aes192gcm8</option>
+                                <option value="aes192gcm12">aes192gcm12</option>
+                                <option value="aes192gcm16">aes192gcm16</option>
+                                <option value="aes256gcm8">aes256gcm8</option>
+                                <option value="aes256gcm12">aes256gcm12</option>
+                                <option value="aes256gcm16">aes256gcm16</option>
                             </select>
                         </div>
 
@@ -529,9 +539,11 @@ const closeDrawer = () => {
                                 <option value="group768">group768</option>
                                 <option value="group1024">group1024</option>
                                 <option value="group1536">group1536</option>
+                                <option value="group2048">group2048</option>
+                                <option value="group3072">group3072</option>
+                                <option value="group4096">group4096</option>
                             </select>
                         </div>
-
                         <div>
                             <label class="block text-sm font-medium mb-1">DPD Service</label>
                             <div class="flex items-center gap-4">
