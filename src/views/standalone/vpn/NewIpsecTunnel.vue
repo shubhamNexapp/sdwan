@@ -16,9 +16,8 @@ import {
 import { useUciPendingChangesStore } from '@/stores/standalone/uciPendingChanges'
 import { onMounted, onUnmounted, ref } from 'vue'
 import { ubusCall } from '@/lib/standalone/ubus'
-import DeleteTunnelModal from '@/components/standalone/l2tp/L2TPServerDeleteTunnelModal.vue'
-import L2TPAddDrawer from '@/components/standalone/ipsec_tunnel/NewIpsecCreateEditDrawer.vue'
-import L2TPEditDrawer from '@/components/standalone/l2tp/L2TPServerEditDrawer.vue'
+import DeleteTunnelModal from '@/components/standalone/ipsec_tunnel/NewIpsecDeleteTunnelModal.vue'
+import NewIpsecCreateEditDrawer from '@/components/standalone/ipsec_tunnel/NewIpsecCreateEditDrawer.vue'
 import axios from 'axios'
 import { getSDControllerApiEndpoint } from '@/lib/config'
 
@@ -38,7 +37,8 @@ const uciChangesStore = useUciPendingChangesStore()
 const RELOAD_INTERVAL = 10000
 const loading = ref(true)
 const tunnels = ref([])
-const selectedTunnel = ref<IpsecTunnel | null>(null)
+// use any | null so we can pass phase objects directly to the drawer
+const selectedTunnel = ref<any | null>(null)
 const showCreateEditDrawer = ref(false)
 const showDeleteModal = ref(false)
 const fetchTunnelsIntervalId = ref(0)
@@ -49,24 +49,24 @@ const error = ref({
     notificationDetails: ''
 })
 
-function openCreateEditDrawer(itemToEdit: IpsecTunnel | null) {
+function openCreateEditDrawer(itemToEdit: any | null) {
     selectedTunnel.value = itemToEdit
     showCreateEditDrawer.value = true
 }
 
-const selectedTunnelName = ref<string | null>(null);
+const selectedTunnelName = ref<string | null>(null)
 
 function openDeleteModal(tunnelName: string) {
     selectedTunnelName.value = tunnelName
     showDeleteModal.value = true
 }
 
-const selectedTunnels = ref();
-const showEditModals = ref(false);
+const selectedTunnels = ref()
+const showEditModals = ref(false)
 
 function openEditModal(tunnel: object) {
-    selectedTunnels.value = tunnel;
-    showEditModals.value = true;
+    selectedTunnels.value = tunnel
+    showEditModals.value = true
 }
 
 function closeModalsAndDrawers() {
@@ -91,8 +91,7 @@ async function reloadTunnels() {
 
 onMounted(() => {
     getLists()
-   })
-
+})
 
 const apiResponse = ref<any[]>([])
 
@@ -103,41 +102,60 @@ const phase3Data = ref<any | null>(null)
 
 const getLists = async () => {
     try {
-        loading.value = true;
+        loading.value = true
         const response = await axios.post(`${getSDControllerApiEndpoint()}/ipsec`, {
             method: 'get-config',
             payload: {}
-        });
+        })
 
         if (response.data.code === 200) {
-            const result = response.data.data;
-            loading.value = false;
+            const result = response.data.data
+            loading.value = false
 
             // store whole data if needed
-            apiResponse.value = Array.isArray(result) ? result : [result];
+            apiResponse.value = Array.isArray(result) ? result : [result]
 
             // extract phase array and split by select value
-            const phases = Array.isArray(result.phase) ? result.phase : [];
+            const phases = Array.isArray(result.phase) ? result.phase : []
 
-            phase1Data.value = phases.find((p: any) => p.select === 'phase1') || null;
-            phase2Data.value = phases.find((p: any) => p.select === 'phase2') || null;
-            phase3Data.value = phases.find((p: any) => p.select === 'phase3') || null;
+            phase1Data.value = phases.find((p: any) => p.select === 'phase1') || null
+            phase2Data.value = phases.find((p: any) => p.select === 'phase2') || null
+            phase3Data.value = phases.find((p: any) => p.select === 'phase3') || null
         }
-    } catch (err) {
-        loading.value = false;
+    } catch (err: any) {
+        loading.value = false
+        error.value.notificationTitle = 'Cannot retrieve IPsec configuration'
+        error.value.notificationDescription = getAxiosErrorMessage(err)
+        error.value.notificationDetails = String(err)
     }
-    loading.value = false;
-};
+    loading.value = false
+}
+
+// ---- edit helpers (open drawer with that phase) ----
+const editPhase = (phaseKey: 'phase1' | 'phase2' | 'phase3') => {
+    if (phaseKey === 'phase1' && phase1Data.value) {
+        openCreateEditDrawer(phase1Data.value)
+    } else if (phaseKey === 'phase2' && phase2Data.value) {
+        openCreateEditDrawer(phase2Data.value)
+    } else if (phaseKey === 'phase3' && phase3Data.value) {
+        openCreateEditDrawer(phase3Data.value)
+    }
+}
+
+// ---- delete helpers (open modal with policy_name) ----
+const confirmDeletePhase = (phaseKey: 'phase1' | 'phase2' | 'phase3') => {
+    if (phaseKey === 'phase1' && phase1Data.value) {
+        openDeleteModal(phase1Data.value.policy_name)
+    } else if (phaseKey === 'phase2' && phase2Data.value) {
+        openDeleteModal(phase2Data.value.policy_name)
+    } else if (phaseKey === 'phase3' && phase3Data.value) {
+        openDeleteModal(phase3Data.value.policy_name)
+    }
+}
 </script>
 
 <template>
     <div class="flex flex-col">
-        <!-- <div class="flex flex-col justify-between md:flex-row md:items-center">
-      <NeHeading tag="h3" class="mb-7">{{ t('standalone.l2tp.title') }}</NeHeading>
-    </div>
-    <p class="mb-6 max-w-2xl text-sm font-normal text-gray-500 dark:text-gray-400">
-      {{ t('standalone.ping_latency_monitor.description') }}
-    </p> -->
         <div class="space-y-6">
             <NeInlineNotification kind="error" :title="error.notificationTitle"
                 :description="error.notificationDescription" v-if="error.notificationTitle">
@@ -174,6 +192,7 @@ const getLists = async () => {
                         <NeTableHeadCell>DPD Service</NeTableHeadCell>
                         <NeTableHeadCell>DPD Delay</NeTableHeadCell>
                         <NeTableHeadCell>DPD Retry Times</NeTableHeadCell>
+                        <NeTableHeadCell>Actions</NeTableHeadCell>
                     </NeTableHead>
                     <NeTableBody>
                         <NeTableRow v-if="phase1Data">
@@ -189,6 +208,16 @@ const getLists = async () => {
                             <NeTableCell>{{ phase1Data.dpd_service }}</NeTableCell>
                             <NeTableCell>{{ phase1Data.dpd_delay }}</NeTableCell>
                             <NeTableCell>{{ phase1Data.dpd_retry_times }}</NeTableCell>
+                            <NeTableCell>
+                                <div class="flex gap-2">
+                                    <NeButton kind="tertiary" size="lg" @click="editPhase('phase1')">
+                                        {{ t('common.edit') }}
+                                    </NeButton>
+                                    <NeButton kind="tertiary" size="lg" @click="confirmDeletePhase('phase1')">
+                                        {{ t('common.delete') }}
+                                    </NeButton>
+                                </div>
+                            </NeTableCell>
                         </NeTableRow>
                     </NeTableBody>
                 </NeTable>
@@ -210,6 +239,7 @@ const getLists = async () => {
                         <NeTableHeadCell>Transport Mode</NeTableHeadCell>
                         <NeTableHeadCell>Local Subnet</NeTableHeadCell>
                         <NeTableHeadCell>Remote Subnet(s)</NeTableHeadCell>
+                        <NeTableHeadCell>Actions</NeTableHeadCell>
                     </NeTableHead>
                     <NeTableBody>
                         <NeTableRow v-if="phase2Data">
@@ -230,6 +260,16 @@ const getLists = async () => {
                                         : ''
                                 }}
                             </NeTableCell>
+                            <NeTableCell>
+                                <div class="flex gap-2">
+                                    <NeButton kind="tertiary" size="lg" @click="editPhase('phase2')">
+                                        {{ t('common.edit') }}
+                                    </NeButton>
+                                    <NeButton kind="tertiary" size="lg" @click="confirmDeletePhase('phase2')">
+                                        {{ t('common.delete') }}
+                                    </NeButton>
+                                </div>
+                            </NeTableCell>
                         </NeTableRow>
                     </NeTableBody>
                 </NeTable>
@@ -248,6 +288,7 @@ const getLists = async () => {
                         <NeTableHeadCell>Connect Status</NeTableHeadCell>
                         <NeTableHeadCell>Status Local Subnet</NeTableHeadCell>
                         <NeTableHeadCell>Status Remote Subnet(s)</NeTableHeadCell>
+                        <NeTableHeadCell>Actions</NeTableHeadCell>
                     </NeTableHead>
                     <NeTableBody>
                         <NeTableRow v-if="phase3Data">
@@ -268,6 +309,16 @@ const getLists = async () => {
                                         : ''
                                 }}
                             </NeTableCell>
+                            <NeTableCell>
+                                <div class="flex gap-2">
+                                    <NeButton kind="tertiary" size="lg" @click="editPhase('phase3')">
+                                        {{ t('common.edit') }}
+                                    </NeButton>
+                                    <NeButton kind="tertiary" size="lg" @click="confirmDeletePhase('phase3')">
+                                        {{ t('common.delete') }}
+                                    </NeButton>
+                                </div>
+                            </NeTableCell>
                         </NeTableRow>
                     </NeTableBody>
                 </NeTable>
@@ -275,10 +326,12 @@ const getLists = async () => {
         </div>
     </div>
 
+    <!-- delete modal for IPsec -->
     <DeleteTunnelModal :visible="showDeleteModal" :itemToDelete="selectedTunnelName" @close="showDeleteModal = false"
         @tunnel-deleted="getLists" />
-    <L2TPAddDrawer :item-to-edit="selectedTunnel" @close="closeModalsAndDrawers" :rule-type="'forward'" :known-tags="[]"
+
+    <!-- drawer: add / edit IPsec phases -->
+    <NewIpsecCreateEditDrawer :item-to-edit="selectedTunnel" @close="closeModalsAndDrawers" :rule-type="'forward'" :known-tags="[]"
         @add-edit-tunnel="reloadTunnels" :is-shown="showCreateEditDrawer" />
-    <L2TPEditDrawer :item-to-edit="selectedTunnels" @close="showEditModals = false" :rule-type="'forward'"
-        :known-tags="[]" @add-edit-tunnel="reloadTunnels" :is-shown="showEditModals" />
-</template>
+
+   </template>
