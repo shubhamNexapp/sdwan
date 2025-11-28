@@ -85,7 +85,7 @@ function cleanError() {
 
 async function reloadTunnels() {
     cleanError()
-    // await fetchTunnels()
+    await getLists()
     await uciChangesStore.getChanges()
 }
 
@@ -95,10 +95,10 @@ onMounted(() => {
 
 const apiResponse = ref<any[]>([])
 
-// new refs for phase-wise data
-const phase1Data = ref<any | null>(null)
-const phase2Data = ref<any | null>(null)
-const phase3Data = ref<any | null>(null)
+// new refs for phase-wise data (lists)
+const phase1List = ref<any[]>([])
+const phase2List = ref<any[]>([])
+const phase3List = ref<any[]>([])
 
 const getLists = async () => {
     try {
@@ -118,9 +118,9 @@ const getLists = async () => {
             // extract phase array and split by select value
             const phases = Array.isArray(result.phase) ? result.phase : []
 
-            phase1Data.value = phases.find((p: any) => p.select === 'phase1') || null
-            phase2Data.value = phases.find((p: any) => p.select === 'phase2') || null
-            phase3Data.value = phases.find((p: any) => p.select === 'phase3') || null
+            phase1List.value = phases.filter((p: any) => p.select === 'phase1' || p.select === 'Phase1')
+            phase2List.value = phases.filter((p: any) => p.select === 'phase2' || p.select === 'Phase2')
+            phase3List.value = phases.filter((p: any) => p.select === 'phase3' || p.select === 'Phase3')
         }
     } catch (err: any) {
         loading.value = false
@@ -131,26 +131,14 @@ const getLists = async () => {
     loading.value = false
 }
 
-// ---- edit helpers (open drawer with that phase) ----
-const editPhase = (phaseKey: 'phase1' | 'phase2' | 'phase3') => {
-    if (phaseKey === 'phase1' && phase1Data.value) {
-        openCreateEditDrawer(phase1Data.value)
-    } else if (phaseKey === 'phase2' && phase2Data.value) {
-        openCreateEditDrawer(phase2Data.value)
-    } else if (phaseKey === 'phase3' && phase3Data.value) {
-        openCreateEditDrawer(phase3Data.value)
-    }
+// ---- edit helpers (open drawer with that phase item) ----
+const editPhase = (item: any) => {
+    openCreateEditDrawer(item)
 }
 
 // ---- delete helpers (open modal with policy_name) ----
-const confirmDeletePhase = (phaseKey: 'phase1' | 'phase2' | 'phase3') => {
-    if (phaseKey === 'phase1' && phase1Data.value) {
-        openDeleteModal(phase1Data.value.policy_name)
-    } else if (phaseKey === 'phase2' && phase2Data.value) {
-        openDeleteModal(phase2Data.value.policy_name)
-    } else if (phaseKey === 'phase3' && phase3Data.value) {
-        openDeleteModal(phase3Data.value.policy_name)
-    }
+const confirmDeletePhase = (policyName: string) => {
+    openDeleteModal(policyName)
 }
 </script>
 
@@ -198,7 +186,7 @@ const confirmDeletePhase = (phaseKey: 'phase1' | 'phase2' | 'phase3') => {
                         <NeTableHeadCell>Actions</NeTableHeadCell>
                     </NeTableHead>
                     <NeTableBody>
-                        <NeTableRow v-if="phase1Data">
+                        <NeTableRow v-for="phase1Data in phase1List" :key="phase1Data.policy_name">
                             <NeTableCell>{{ phase1Data.policy_name }}</NeTableCell>
                             <NeTableCell>{{ phase1Data.initiate_mode }}</NeTableCell>
                             <NeTableCell>{{ phase1Data.hash }}</NeTableCell>
@@ -213,10 +201,11 @@ const confirmDeletePhase = (phaseKey: 'phase1' | 'phase2' | 'phase3') => {
                             <NeTableCell>{{ phase1Data.dpd_retry_times }}</NeTableCell>
                             <NeTableCell>
                                 <div class="flex gap-2">
-                                    <NeButton kind="tertiary" size="lg" @click="editPhase('phase1')">
+                                    <NeButton kind="tertiary" size="lg" @click="editPhase(phase1Data)">
                                         {{ t('common.edit') }}
                                     </NeButton>
-                                    <NeButton kind="tertiary" size="lg" @click="confirmDeletePhase('phase1')">
+                                    <NeButton kind="tertiary" size="lg"
+                                        @click="confirmDeletePhase(phase1Data.policy_name)">
                                         {{ t('common.delete') }}
                                     </NeButton>
                                 </div>
@@ -245,7 +234,7 @@ const confirmDeletePhase = (phaseKey: 'phase1' | 'phase2' | 'phase3') => {
                         <NeTableHeadCell>Actions</NeTableHeadCell>
                     </NeTableHead>
                     <NeTableBody>
-                        <NeTableRow v-if="phase2Data">
+                        <NeTableRow v-for="phase2Data in phase2List" :key="phase2Data.policy_name">
                             <NeTableCell>{{ phase2Data.policy_name }}</NeTableCell>
                             <NeTableCell>{{ phase2Data.hash }}</NeTableCell>
                             <NeTableCell>{{ phase2Data.pfs }}</NeTableCell>
@@ -265,10 +254,11 @@ const confirmDeletePhase = (phaseKey: 'phase1' | 'phase2' | 'phase3') => {
                             </NeTableCell>
                             <NeTableCell>
                                 <div class="flex gap-2">
-                                    <NeButton kind="tertiary" size="lg" @click="editPhase('phase2')">
+                                    <NeButton kind="tertiary" size="lg" @click="editPhase(phase2Data)">
                                         {{ t('common.edit') }}
                                     </NeButton>
-                                    <NeButton kind="tertiary" size="lg" @click="confirmDeletePhase('phase2')">
+                                    <NeButton kind="tertiary" size="lg"
+                                        @click="confirmDeletePhase(phase2Data.policy_name)">
                                         {{ t('common.delete') }}
                                     </NeButton>
                                 </div>
@@ -294,7 +284,7 @@ const confirmDeletePhase = (phaseKey: 'phase1' | 'phase2' | 'phase3') => {
                         <NeTableHeadCell>Actions</NeTableHeadCell>
                     </NeTableHead>
                     <NeTableBody>
-                        <NeTableRow v-if="phase3Data">
+                        <NeTableRow v-for="phase3Data in phase3List" :key="phase3Data.policy_name">
                             <NeTableCell>{{ phase3Data.policy_name }}</NeTableCell>
                             <NeTableCell>{{ phase3Data.match_phase1 }}</NeTableCell>
                             <NeTableCell>{{ phase3Data.match_phase2 }}</NeTableCell>
@@ -314,10 +304,11 @@ const confirmDeletePhase = (phaseKey: 'phase1' | 'phase2' | 'phase3') => {
                             </NeTableCell>
                             <NeTableCell>
                                 <div class="flex gap-2">
-                                    <NeButton kind="tertiary" size="lg" @click="editPhase('phase3')">
+                                    <NeButton kind="tertiary" size="lg" @click="editPhase(phase3Data)">
                                         {{ t('common.edit') }}
                                     </NeButton>
-                                    <NeButton kind="tertiary" size="lg" @click="confirmDeletePhase('phase3')">
+                                    <NeButton kind="tertiary" size="lg"
+                                        @click="confirmDeletePhase(phase3Data.policy_name)">
                                         {{ t('common.delete') }}
                                     </NeButton>
                                 </div>

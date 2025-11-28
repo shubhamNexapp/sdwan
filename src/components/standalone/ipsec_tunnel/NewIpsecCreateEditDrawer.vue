@@ -26,7 +26,7 @@ const props = defineProps({
     itemToEdit: { type: Object as PropType<any | null>, default: null }
 })
 
-const emit = defineEmits(['close', 'save'])
+const emit = defineEmits(['close', 'save', 'add-edit-tunnel'])
 
 const isEditMode = computed(() => !!props.itemToEdit)
 
@@ -94,6 +94,7 @@ const service = ref(true);
 // Phase options for phase3 dropdowns
 const phase1Options = ref<string[]>([])
 const phase2Options = ref<string[]>([])
+const upInterfaces = ref<string[]>([])
 
 // -----------------------------------------------------------------------------
 // Helpers
@@ -176,10 +177,12 @@ function resetForm() {
     p3MatchPhase2.value = ''
     p3DestinationIpOrDomain.value = ''
     p3EncryptInterface.value = 'modem'
+    service.value = true
 
     // clear dropdown options
     phase1Options.value = []
     phase2Options.value = []
+    upInterfaces.value = []
 }
 
 function loadFromItem(item: any) {
@@ -243,7 +246,7 @@ function loadFromItem(item: any) {
     }
 }
 
-// Load all phase1/phase2 policy names for phase3 dropdowns
+// Load all phase1/phase2 policy names + up_interface for phase3 dropdowns
 const loadPhaseOptions = async () => {
     try {
         const response = await axios.post(`${getSDControllerApiEndpoint()}/ipsec`, {
@@ -254,6 +257,7 @@ const loadPhaseOptions = async () => {
         if (response.data.code === 200) {
             const result = response.data.data
             const phases = Array.isArray(result.phase) ? result.phase : []
+            const upIf = Array.isArray(result.up_interface) ? result.up_interface : []
 
             phase1Options.value = phases
                 .filter((p: any) => p.select === 'phase1' || p.select === 'Phase1')
@@ -265,12 +269,19 @@ const loadPhaseOptions = async () => {
                 .map((p: any) => p.policy_name)
                 .filter((name: any) => !!name)
 
+            upInterfaces.value = upIf
+                .map((u: any) => u.ifname)
+                .filter((name: any) => !!name)
+
             // ensure currently bound values (when editing) are in the lists
             if (p3MatchPhase1.value && !phase1Options.value.includes(p3MatchPhase1.value)) {
                 phase1Options.value.push(p3MatchPhase1.value)
             }
             if (p3MatchPhase2.value && !phase2Options.value.includes(p3MatchPhase2.value)) {
                 phase2Options.value.push(p3MatchPhase2.value)
+            }
+            if (p3EncryptInterface.value && !upInterfaces.value.includes(p3EncryptInterface.value) && p3EncryptInterface.value !== 'auto') {
+                upInterfaces.value.push(p3EncryptInterface.value)
             }
         }
     } catch (err) {
@@ -479,6 +490,7 @@ const saveRule = async () => {
                 kind: 'success'
             })
             emit('save', payload)
+            emit('add-edit-tunnel', payload)
             emit('close')
         }
     } catch (err) {
@@ -538,9 +550,9 @@ const closeDrawer = () => {
                             <select v-model="p1Encrypt" class="w-full border rounded px-2 py-1">
                                 <option value="des">des</option>
                                 <option value="3des">3des</option>
-                                <option value="aes256">aes256</option>
-                                <option value="aes192">aes192</option>
-                                <option value="aes128">aes128</option>
+                                <option value="aes256cbc">aes256cbc</option>
+                                <option value="aes192cbc">aes192cbc</option>
+                                <option value="aes128cbc">aes128cbc</option>
                                 <option value="aes128gcm8">aes128gcm8</option>
                                 <option value="aes128gcm12">aes128gcm12</option>
                                 <option value="aes128gcm16">aes128gcm16</option>
@@ -802,11 +814,10 @@ const closeDrawer = () => {
                     <div>
                         <label class="block text-sm font-medium mb-1">Encrypt Interface</label>
                         <select v-model="p3EncryptInterface" class="w-full border rounded px-2 py-1">
-                            <option value="modem">modem</option>
-                            <option value="br0">br0</option>
-                            <option value="br-lan">br-lan</option>
-                            <option value="eth0">eth0</option>
                             <option value="auto">auto</option>
+                            <option v-for="iface in upInterfaces" :key="iface" :value="iface">
+                                {{ iface }}
+                            </option>
                         </select>
                     </div>
                 </template>

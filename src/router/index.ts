@@ -282,7 +282,7 @@ const standaloneRoutes = [
   },
   // {
   //   path: 'vpn/ipsec-tunnel',
-  //   name: 'IPsecTunnel',
+  //   name: 'IP',
   //   component: () => import('../views/standalone/vpn/IPsecTunnelView.vue')
   // },
   {

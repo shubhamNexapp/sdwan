@@ -323,7 +323,7 @@ const navigation: Ref<MenuItem[]> = ref([
         to: "vpn/openvpn-tunnel",
       },
       // {
-      //   name: "standalone.ipsec_tunnel.title",
+      //   name: "IP",
       //   to: "vpn/ipsec-tunnel",
       // },
       {
