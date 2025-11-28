@@ -654,8 +654,18 @@ const closeDrawer = () => {
                             <select v-model="p2Encrypt" class="w-full border rounded px-2 py-1">
                                 <option value="des">des</option>
                                 <option value="3des">3des</option>
-                                <option value="aes128">aes128</option>
                                 <option value="aes256">aes256</option>
+                                <option value="aes192">aes192</option>
+                                <option value="aes128">aes128</option>
+                                <option value="aes128gcm8">aes128gcm8</option>
+                                <option value="aes128gcm12">aes128gcm12</option>
+                                <option value="aes128gcm16">aes128gcm16</option>
+                                <option value="aes192gcm8">aes192gcm8</option>
+                                <option value="aes192gcm12">aes192gcm12</option>
+                                <option value="aes192gcm16">aes192gcm16</option>
+                                <option value="aes256gcm8">aes256gcm8</option>
+                                <option value="aes256gcm12">aes256gcm12</option>
+                                <option value="aes256gcm16">aes256gcm16</option>
                             </select>
                         </div>
 
