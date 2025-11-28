@@ -60,7 +60,6 @@ const p1DpdDelay = ref('30')
 const p1DpdRetryTimes = ref('4')
 const p1DpdAction = ref('none')
 
-
 /**
  * Phase 2 fields
  */
@@ -76,6 +75,11 @@ const p2LocalPort = ref('')
 const p2RemoteProto = ref('')
 const p2RemotePort = ref('')
 const p2TransportMode = ref('transport')
+
+// Phase 2 subnet fields
+const p2LocalSubnet = ref('')
+const p2RemoteSubnets = ref<string[]>([''])
+const p2RemoteSubnetErrors = ref<string[]>([''])
 
 /**
  * Phase 3 (Ipsec) fields
@@ -101,6 +105,27 @@ const ipDomainInputHandler = (event: Event) => {
     if (input.value.length > 64) {
         input.value = input.value.slice(0, 64)
     }
+}
+
+// NEW: allow only CIDR-like input 0-9 . and /
+const cidrInputHandler = (event: Event) => {
+    const input = event.target as HTMLInputElement
+    // keep only digits, dots and slash
+    let value = input.value.replace(/[^0-9./]/g, '')
+
+    // ensure at most one slash
+    const parts = value.split('/')
+    if (parts.length > 2) {
+        value = parts[0] + '/' + parts[1]
+    }
+
+    input.value = value
+}
+
+function resetPhase2Subnets() {
+    p2LocalSubnet.value = ''
+    p2RemoteSubnets.value = ['']
+    p2RemoteSubnetErrors.value = ['']
 }
 
 function resetForm() {
@@ -138,6 +163,7 @@ function resetForm() {
     p2RemoteProto.value = ''
     p2RemotePort.value = ''
     p2TransportMode.value = 'transport'
+    resetPhase2Subnets()
 
     // phase3 defaults
     p3InterfaceName.value = ''
@@ -187,6 +213,15 @@ function loadFromItem(item: any) {
             p2RemotePort.value = port || ''
         }
         p2TransportMode.value = item.transport_mode || 'transport'
+
+        // load subnets
+        p2LocalSubnet.value = item.local_subnet || ''
+        if (Array.isArray(item.remote_subnet) && item.remote_subnet.length > 0) {
+            p2RemoteSubnets.value = item.remote_subnet.map((r: any) => r.subnet || '')
+        } else {
+            p2RemoteSubnets.value = ['']
+        }
+        p2RemoteSubnetErrors.value = p2RemoteSubnets.value.map(() => '')
     } else {
         // phase3 / ipsec
         currentPhase.value = 'phase3'
@@ -210,6 +245,20 @@ watch(
         }
     }
 )
+
+// -----------------------------------------------------------------------------
+// Phase 2 subnet helpers
+// -----------------------------------------------------------------------------
+const addRemoteSubnet = () => {
+    p2RemoteSubnets.value.push('')
+    p2RemoteSubnetErrors.value.push('')
+}
+
+const removeRemoteSubnet = (index: number) => {
+    if (p2RemoteSubnets.value.length === 1) return
+    p2RemoteSubnets.value.splice(index, 1)
+    p2RemoteSubnetErrors.value.splice(index, 1)
+}
 
 // -----------------------------------------------------------------------------
 // Validation
@@ -253,6 +302,31 @@ const validate = () => {
         if (isNaN(life) || life < 120 || life > 86400) {
             errorBag.value.p2Lifetime = 'Lifetime must be between 120 and 86400 seconds.'
         }
+
+        // validate local subnet
+        if (!p2LocalSubnet.value.trim()) {
+            errorBag.value.p2LocalSubnet = 'Local Subnet is required.'
+        } else if (p2LocalSubnet.value.length > 128) {
+            errorBag.value.p2LocalSubnet = 'Local Subnet max length is 128.'
+        }
+
+        // validate remote subnets
+        p2RemoteSubnetErrors.value = p2RemoteSubnets.value.map(() => '')
+        let hasRemote = false
+        p2RemoteSubnets.value.forEach((sub, idx) => {
+            const val = sub.trim()
+            if (val) {
+                hasRemote = true
+                if (val.length > 128) {
+                    p2RemoteSubnetErrors.value[idx] = 'Remote Subnet max length is 128.'
+                }
+            }
+        })
+        if (!hasRemote) {
+            errorBag.value.p2RemoteSubnetGeneral = 'At least one Remote Subnet is required.'
+        } else if (p2RemoteSubnetErrors.value.some((e) => e)) {
+            errorBag.value.p2RemoteSubnetGeneral = 'Please fix invalid Remote Subnet values.'
+        }
     } else if (currentPhase.value === 'phase3') {
         // Phase 3 validation
         if (!p3InterfaceName.value.trim() || p3InterfaceName.value.length > 12) {
@@ -267,7 +341,7 @@ const validate = () => {
         }
     }
 
-    return Object.keys(errorBag.value).length === 0
+    return Object.keys(errorBag.value).length === 0 && !p2RemoteSubnetErrors.value.some((e) => e)
 }
 
 // -----------------------------------------------------------------------------
@@ -309,7 +383,12 @@ const saveRule = async () => {
             lifetime: p2Lifetime.value,
             local_protoport: `${p2LocalProto.value}${p2LocalPort.value ? ':' + p2LocalPort.value : ''}`,
             remote_protoport: `${p2RemoteProto.value}${p2RemotePort.value ? ':' + p2RemotePort.value : ''}`,
-            transport_mode: p2TransportMode.value
+            transport_mode: p2TransportMode.value,
+            local_subnet: p2LocalSubnet.value,
+            remote_subnet: p2RemoteSubnets.value
+                .map((s) => s.trim())
+                .filter((s) => s)
+                .map((s) => ({ subnet: s }))
         }
     } else {
         payload = {
@@ -569,6 +648,58 @@ const closeDrawer = () => {
                             <option value="transport">transport</option>
                             <option value="tunnel">tunnel</option>
                         </select>
+                    </div>
+
+                    <!-- Local/Remote subnet section -->
+                    <div class="mt-4">
+                        <NeTextInput
+                            v-model.trim="p2LocalSubnet"
+                            @input="cidrInputHandler"
+                            :invalidMessage="errorBag.p2LocalSubnet"
+                            label="Local Subnet"
+                            placeholder="eg. 192.168.6.0/24"
+                        />
+                        <div class="mt-4">
+                            <label class="block text-sm font-medium mb-1">Remote Subnet</label>
+                            <div class="space-y-2">
+                                <div
+                                    v-for="(subnet, index) in p2RemoteSubnets"
+                                    :key="index"
+                                    class="flex items-center gap-2"
+                                >
+                                    <NeTextInput
+                                        v-model.trim="p2RemoteSubnets[index]"
+                                        @input="cidrInputHandler"
+                                        :invalidMessage="p2RemoteSubnetErrors[index]"
+                                        :label="index === 0 ? '' : undefined"
+                                        class="flex-1"
+                                        placeholder="eg. 192.168.88.0/24"
+                                    />
+                                    <NeButton
+                                        v-if="p2RemoteSubnets.length > 1"
+                                        kind="tertiary"
+                                        size="sm"
+                                        @click.prevent="removeRemoteSubnet(index)"
+                                    >
+                                        -
+                                    </NeButton>
+                                </div>
+                            </div>
+                            <NeButton
+                                kind="primary"
+                                size="sm"
+                                class="mt-2"
+                                @click.prevent="addRemoteSubnet"
+                            >
+                                +
+                            </NeButton>
+                            <p
+                                v-if="errorBag.p2RemoteSubnetGeneral"
+                                class="text-xs text-red-600 mt-1"
+                            >
+                                {{ errorBag.p2RemoteSubnetGeneral }}
+                            </p>
+                        </div>
                     </div>
                 </template>
 

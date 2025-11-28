@@ -322,12 +322,12 @@ const navigation: Ref<MenuItem[]> = ref([
         name: "standalone.openvpn_tunnel.title",
         to: "vpn/openvpn-tunnel",
       },
+      // {
+      //   name: "standalone.ipsec_tunnel.title",
+      //   to: "vpn/ipsec-tunnel",
+      // },
       {
-        name: "standalone.ipsec_tunnel.title",
-        to: "vpn/ipsec-tunnel",
-      },
-      {
-        name: "New Ipsec Tunnel",
+        name: "IPsecTunnel",
         to: "vpn/new-ipsec-tunnel",
       },
       {

@@ -80,7 +80,7 @@ function goTo(path: string) {
     <!-- ipsec tunnels -->
     <OpenVpnTunnelOrIpsecCard method="ipsec-tunnels">
       <template #title>
-        <NeLink @click="goTo('/vpn/ipsec-tunnel')" class="text-primary-900">
+        <NeLink @click="goTo('/vpn/new-ipsec-tunnel')" class="text-primary-900">
           {{ t("standalone.ipsec_tunnel.title") }}
         </NeLink>
       </template>

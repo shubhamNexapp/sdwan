@@ -280,14 +280,14 @@ const standaloneRoutes = [
     name: 'OpenVPNTunnel',
     component: () => import('../views/standalone/vpn/OpenvpnTunnelView.vue')
   },
-  {
-    path: 'vpn/ipsec-tunnel',
-    name: 'IPsecTunnel',
-    component: () => import('../views/standalone/vpn/IPsecTunnelView.vue')
-  },
+  // {
+  //   path: 'vpn/ipsec-tunnel',
+  //   name: 'IPsecTunnel',
+  //   component: () => import('../views/standalone/vpn/IPsecTunnelView.vue')
+  // },
   {
     path: 'vpn/new-ipsec-tunnel',
-    name: 'New Ipsec Tunnel',
+    name: 'IPsecTunnel',
     component: () => import('../views/standalone/vpn/NewIpsecTunnel.vue')
   },
   {
