@@ -7,7 +7,9 @@ import {
     getAxiosErrorMessage,
     NeTooltip
 } from '@nethesis/vue-components'
-import { ref, watch, computed, PropType } from 'vue'
+import { ref, watch, computed } from 'vue'
+import type { PropType } from 'vue'
+
 import { useNotificationsStore } from '../../../stores/notifications'
 import { getSDControllerApiEndpoint } from '@/lib/config'
 import axios from 'axios'
