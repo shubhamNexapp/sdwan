@@ -156,7 +156,7 @@ const confirmDeletePhase = (phaseKey: 'phase1' | 'phase2' | 'phase3') => {
 
 <template>
     <div class="flex flex-col justify-between md:flex-row md:items-center">
-        <NeHeading tag="h3" class="mb-7">IpsecTunnel</NeHeading>
+        <NeHeading tag="h3" class="mb-7">IPSec Tunnel</NeHeading>
     </div>
     <div class="flex flex-col">
         <div class="space-y-6">
