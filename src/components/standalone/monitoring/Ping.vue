@@ -4,7 +4,8 @@
         <div class="p-4 mt-4 bg-gray-100 dark:text-gray-700 border border-gray-300 rounded">
             <strong>Ping an IP Address:</strong>
             <div class="flex items-center gap-2 mt-2">
-                <NeTextInput v-model="pingIP" placeholder="Enter IP to ping" />
+                <NeTextInput v-model="sipIP" placeholder="Enter Source IP" />
+                <NeTextInput v-model="pingIP" placeholder="Enter Destination IP" />
                 <NeButton @click="saveNetworkConfig" kind="secondary">Ping</NeButton>
                 <NeButton @click="stopFetching" kind="danger">Stop</NeButton>
             </div>
@@ -37,6 +38,8 @@ import { getSDControllerApiEndpoint } from '@/lib/config'
 const notificationsStore = useNotificationsStore()
 
 const pingIP = ref('')
+const sipIP = ref('')
+
 const apiResponses = ref<string[]>([])
 const responseContainer = ref<HTMLElement | null>(null)
 const loading = ref({ saveRule: false })
@@ -69,12 +72,26 @@ const getLists = async () => {
             method: 'get-config',
             payload: {}
         })
-        const result = response.data.data.result
+
         if (response.data.code !== 200) {
             getAxiosErrorMessage.value = `Error: ${response.data.message || 'Unknown error'}`
             return
         }
+
+        const result = response.data.data?.result
+
+        // ❌ If there is no result at all, stop polling
+        if (!result || String(result).trim() === '') {
+            stopFetching()
+            return
+        }
+
         apiResponses.value.push(result) // Add newest at the top
+
+        // ❌ If bind error appears, stop polling as well
+        if (String(result).includes('ping: bind: Address not available')) {
+            stopFetching()
+        }
 
         // ✅ Check if response indicates completion
         if (isPingComplete(result)) {
@@ -93,7 +110,8 @@ const saveNetworkConfig = async () => {
     apiResponses.value = []
 
     try {
-        if (!pingIP.value) {
+        // ⚠️ If source or destination IP missing, show warning and do nothing
+        if (!pingIP.value || !sipIP.value) {
             notificationsStore.createNotification({
                 title: 'warning',
                 description: 'Please enter IP',
@@ -105,7 +123,7 @@ const saveNetworkConfig = async () => {
         const payload = {
             method: 'set-config',
             payload: {
-                sip: '',
+                sip: sipIP.value,
                 dip: pingIP.value
             }
         }

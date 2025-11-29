@@ -4,7 +4,8 @@
         <div class="p-4 mt-4 bg-gray-100 dark:text-gray-700 border border-gray-300 rounded">
             <strong>Traceroute an IP Address:</strong>
             <div class="flex items-center gap-2 mt-2">
-                <NeTextInput v-model="pingIP" placeholder="Enter IP to Traceroute" />
+                <NeTextInput v-model="sipIP" placeholder="Enter Source IP" />
+                <NeTextInput v-model="pingIP" placeholder="Enter Destination IP" />
                 <NeButton @click="saveNetworkConfig" kind="secondary">Traceroute</NeButton>
                 <NeButton @click="stopFetching" kind="danger">Stop</NeButton>
             </div>
@@ -37,6 +38,8 @@ import { getSDControllerApiEndpoint } from '@/lib/config'
 const notificationsStore = useNotificationsStore()
 
 const pingIP = ref('')
+const sipIP = ref('')
+
 const apiResponses = ref<string[]>([])
 const responseContainer = ref<HTMLElement | null>(null)
 const loading = ref({ saveRule: false })
@@ -65,21 +68,35 @@ const getLists = async () => {
             method: 'get-config',
             payload: {}
         })
-        const result = response.data.data.result
-        // Only add the response if it's not an empty string
-        if (response.data.code === 200 && result.trim() !== '') {
-            apiResponses.value.push(result); // Add only valid response
 
-            responseCount++  // Increment response count
+        if (response.data.code !== 200) {
+            getAxiosErrorMessage.value = `Error: ${response.data.message || 'Unknown error'}`
+            return
+        }
 
-            // ✅ Skip the first response
-            if (responseCount > 1) {
-                const ipMatch = result.match(/\(([^)]+)\)/)
-                if (ipMatch && ipMatch[1] === pingIP.value.trim()) {
-                    stopFetching()
-                }
+        const result = response.data.data?.result
+
+        // ❌ If there is no result or it's empty, stop polling
+        if (!result || String(result).trim() === '') {
+            stopFetching()
+            return
+        }
+
+        apiResponses.value.push(result) // Add only valid response
+        responseCount++ // Increment response count
+
+        // ❌ If bind error appears, stop polling as well
+        if (String(result).includes('ping: bind: Address not available')) {
+            stopFetching()
+            return
+        }
+
+        // ✅ Skip the first response, then check if traceroute reached destination IP
+        if (responseCount > 1) {
+            const ipMatch = result.match(/\(([^)]+)\)/)
+            if (ipMatch && ipMatch[1] === pingIP.value.trim()) {
+                stopFetching()
             }
-
         }
     } catch (err) {
         console.error('Error fetching data:', err)
@@ -91,9 +108,11 @@ const saveNetworkConfig = async () => {
     loading.value.saveRule = true
     getAxiosErrorMessage.value = ''
     apiResponses.value = []
+    responseCount = 0
 
     try {
-        if (!pingIP.value) {
+        // ⚠️ If destination IP missing, show warning and do nothing
+        if (!pingIP.value || !sipIP.value) {
             notificationsStore.createNotification({
                 title: 'warning',
                 description: 'Please enter IP',
@@ -105,7 +124,7 @@ const saveNetworkConfig = async () => {
         const payload = {
             method: 'set-config',
             payload: {
-                sip: '',
+                sip: sipIP.value,
                 dip: pingIP.value
             }
         }
