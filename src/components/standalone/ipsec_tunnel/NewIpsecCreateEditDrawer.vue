@@ -568,6 +568,7 @@ const closeDrawer = () => {
                             </select>
                         </div>
 
+
                         <div>
                             <label class="block text-sm font-medium mb-1">Hash</label>
                             <select v-model="p1Hash" class="w-full border rounded px-2 py-1">
