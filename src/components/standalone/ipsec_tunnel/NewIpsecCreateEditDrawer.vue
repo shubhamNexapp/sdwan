@@ -420,6 +420,7 @@ const saveRule = async () => {
     if (currentPhase.value === 'phase1') {
         payload = {
             ...payload,
+            select: "phase1",
             policy_name: p1PolicyName.value,
             initiate_mode: p1InitiateMode.value,
             encrypt: p1Encrypt.value,
@@ -440,6 +441,7 @@ const saveRule = async () => {
         // base payload for phase2
         payload = {
             ...payload,
+            select: "phase2",
             policy_name: p2PolicyName.value,
             encryption_protocol: p2EncryptProtocol.value,
             encrypt: p2Encrypt.value,
@@ -463,6 +465,7 @@ const saveRule = async () => {
     } else {
         payload = {
             ...payload,
+            select: "phase3",
             policy_name: p3InterfaceName.value,
             match_phase1: p3MatchPhase1.value,
             match_phase2: p3MatchPhase2.value,
