@@ -707,6 +707,9 @@ const closeDrawer = () => {
                                 <option value="group768">group768</option>
                                 <option value="group1024">group1024</option>
                                 <option value="group1536">group1536</option>
+                                <option value="group2048">group2048</option>
+                                <option value="group3072">group3072</option>
+                                <option value="group4096">group4096</option>
                             </select>
                         </div>
                     </div>
