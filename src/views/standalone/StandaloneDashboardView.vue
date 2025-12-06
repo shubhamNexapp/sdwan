@@ -21,6 +21,8 @@ import SDControllerCard from "@/components/standalone/dashboard/SDControllerCard
 import SNMPCard from "@/components/standalone/dashboard/SNMPCard.vue";
 import ZeroTierCard from "@/components/standalone/dashboard/ZeroTierCard.vue";
 import AntiVirusCard from "@/components/standalone/dashboard/AntiVirusCard.vue";
+import IpsecCard from "@/components/standalone/dashboard/IpsecCard.vue"; // ⬅️ NEW
+
 const { t } = useI18n();
 const route = useRoute();
 
@@ -78,13 +80,21 @@ function goTo(path: string) {
       </template>
     </ServiceCard>
     <!-- ipsec tunnels -->
-    <OpenVpnTunnelOrIpsecCard method="ipsec-tunnels">
+    <!-- <OpenVpnTunnelOrIpsecCard method="ipsec-tunnels">
       <template #title>
         <NeLink @click="goTo('/vpn/new-ipsec-tunnel')" class="text-primary-900">
           {{ t("standalone.ipsec_tunnel.title") }}
         </NeLink>
       </template>
-    </OpenVpnTunnelOrIpsecCard>
+    </OpenVpnTunnelOrIpsecCard> -->
+    <!-- IPsec tunnels: use IpsecCard so only this card uses the SD-controller logic -->
+    <IpsecCard>
+      <template #title>
+        <NeLink @click="goTo('/vpn/new-ipsec-tunnel')" class="text-primary-900">
+          {{ t("standalone.ipsec_tunnel.title") }}
+        </NeLink>
+      </template>
+    </IpsecCard>
     <OpenVpnTunnelOrIpsecCard method="ipsec-tunnels">
       <template #title>
         <NeLink @click="goTo('/vpn/wire-guard')" class="text-primary-900">
