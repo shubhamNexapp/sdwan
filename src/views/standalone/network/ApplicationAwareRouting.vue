@@ -106,7 +106,7 @@ const getLists = async () => {
     </div>
 
     <p class="mb-6 max-w-2xl text-sm text-gray-500 dark:text-gray-400">
-      {{ t("Configure VRF interfaces and routing rules.") }}
+      {{ t("Configure Application Aware Routing interfaces and routing rules.") }}
     </p>
 
     <div class="space-y-6">

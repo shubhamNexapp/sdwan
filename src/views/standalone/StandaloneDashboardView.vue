@@ -95,7 +95,7 @@ function goTo(path: string) {
         </NeLink>
       </template>
     </IpsecCard>
-    <OpenVpnTunnelOrIpsecCard method="ipsec-tunnels">
+    <OpenVpnTunnelOrIpsecCard method="wireguard-tunnels">
       <template #title>
         <NeLink @click="goTo('/vpn/wire-guard')" class="text-primary-900">
           {{ t("standalone.wire_guard.title") }}

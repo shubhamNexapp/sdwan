@@ -376,10 +376,22 @@ function isCurrentRoute(itemPath: string) {
 
 function toggleExpand(menuItem: MenuItem) {
   const newValue = !menuExpanded.value[menuItem.to];
-  menuExpanded.value[menuItem.to] = newValue;
   const username = loginStore.username || "root";
-  savePreference(`${menuItem.to}MenuExpanded`, newValue, username);
+
+  // Close all menus first
+  for (const key of Object.keys(menuExpanded.value)) {
+    menuExpanded.value[key] = false;
+    // persist the closed state for each menu
+    savePreference(`${key}MenuExpanded`, false, username);
+  }
+
+  // If the clicked menu should be opened, open it (others already closed)
+  if (newValue) {
+    menuExpanded.value[menuItem.to] = true;
+    savePreference(`${menuItem.to}MenuExpanded`, true, username);
+  }
 }
+
 
 function loadMenuItemsExpanded() {
   const username = loginStore.username || "root";
@@ -398,63 +410,45 @@ function loadMenuItemsExpanded() {
   <li v-for="item in navigation" :key="item.name">
     <!-- simple link -->
     <template v-if="isEmpty(item.children)">
-      <router-link
-        :to="`${getStandaloneRoutePrefix()}/${item.to}`"
-        :class="[
-          isCurrentRoute(item.to)
-            ? 'border-l-4 border-primary-700 bg-gray-100 text-orange-900 dark:border-primary-500 dark:text-gray-50 dark:text-orange-600'
-            : 'side-bar-grey text-white-900 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-50',
-          'group flex cursor-pointer items-center gap-x-3 rounded-md px-3 py-2 text-sm font-semibold leading-6 hover:bg-gray-100 ',
-        ]"
-      >
-        <font-awesome-icon
-          :icon="[isCurrentRoute(item.to) ? 'fas' : 'fal', item.icon]"
-          class="h-6 w-8 shrink-0"
-          aria-hidden="true"
-        />
+      <router-link :to="`${getStandaloneRoutePrefix()}/${item.to}`" :class="[
+        isCurrentRoute(item.to)
+          ? 'border-l-4 border-primary-700 bg-gray-100 text-orange-900 dark:border-primary-500 dark:text-gray-50 dark:text-orange-600'
+          : 'side-bar-grey text-white-900 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-50',
+        'group flex cursor-pointer items-center gap-x-3 rounded-md px-3 py-2 text-sm font-semibold leading-6 hover:bg-gray-100 ',
+      ]">
+        <font-awesome-icon :icon="[isCurrentRoute(item.to) ? 'fas' : 'fal', item.icon]" class="h-6 w-8 shrink-0"
+          aria-hidden="true" />
         {{ t(item.name) }}
       </router-link>
     </template>
     <!-- open submenu -->
     <template v-else>
-      <a
-        @click="toggleExpand(item)"
-        :class="[
-          isCurrentRoute(item.to)
-            ? 'text-orange-600 text-orange-600'
-            : 'side-bar-grey dark:dark-orange-600 text-white-900 hover:text-gray-900 dark:text-gray-300',
-          'group flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm font-semibold leading-6 hover:bg-gray-100 ',
-        ]"
-      >
+      <a @click="toggleExpand(item)" :class="[
+        isCurrentRoute(item.to)
+          ? 'text-orange-600 text-orange-600'
+          : 'side-bar-grey dark:dark-orange-600 text-white-900 hover:text-gray-900 dark:text-gray-300',
+        'group flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm font-semibold leading-6 hover:bg-gray-100 ',
+      ]">
         <div class="flex items-center gap-x-3">
-          <font-awesome-icon
-            :icon="[isCurrentRoute(item.to) ? 'fas' : 'fal', item.icon]"
-            class="h-6 w-8 shrink-0"
-            aria-hidden="true"
-          />
+          <font-awesome-icon :icon="[isCurrentRoute(item.to) ? 'fas' : 'fal', item.icon]" class="h-6 w-8 shrink-0"
+            aria-hidden="true" />
           <span>
             {{ t(item.name) }}
           </span>
         </div>
-        <font-awesome-icon
-          :icon="['fas', menuExpanded[item.to] ? 'chevron-up' : 'chevron-down']"
-          class="ml-2 h-3 w-3 shrink-0"
-          aria-hidden="true"
-        />
+        <font-awesome-icon :icon="['fas', menuExpanded[item.to] ? 'chevron-up' : 'chevron-down']"
+          class="ml-2 h-3 w-3 shrink-0" aria-hidden="true" />
       </a>
       <Transition name="slide-down">
         <ul v-show="menuExpanded[item.to]" role="list" class="mt-2 space-y-1">
           <li v-for="child in item.children" :key="child.name">
             <div class="ml-10">
-              <router-link
-                :to="`${getStandaloneRoutePrefix()}/${child.to}`"
-                :class="[
-                  isCurrentRoute(child.to)
-                    ? 'border-l-4 border-primary-700 bg-gray-100 text-orange-900  dark:text-gray-50 dark:text-orange-600'
-                    : 'side-bar-grey text-white-900 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-50',
-                  'group flex cursor-pointer items-center gap-x-3 rounded-md px-3 py-1 text-sm font-semibold leading-6 hover:bg-gray-100 ',
-                ]"
-              >
+              <router-link :to="`${getStandaloneRoutePrefix()}/${child.to}`" :class="[
+                isCurrentRoute(child.to)
+                  ? 'border-l-4 border-primary-700 bg-gray-100 text-orange-900  dark:text-gray-50 dark:text-orange-600'
+                  : 'side-bar-grey text-white-900 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-50',
+                'group flex cursor-pointer items-center gap-x-3 rounded-md px-3 py-1 text-sm font-semibold leading-6 hover:bg-gray-100 ',
+              ]">
                 {{ t(child.name) }}
               </router-link>
             </div>
