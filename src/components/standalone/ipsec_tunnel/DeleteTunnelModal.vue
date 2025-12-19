@@ -42,55 +42,55 @@ const error = ref({
 const isDeleting = ref(false)
 
 
-// async function deleteTunnel() {
-//   console.log("itemToDelete.value======",itemToDelete.value)
-//   if (itemToDelete.value) {
-//     try {
-//       error.value = {
-//         notificationDescription: '',
-//         notificationDetails: ''
-//       }
-//       isDeleting.value = true
-//       await ubusCall('ns.ipsectunnel', 'delete-tunnel', { id: itemToDelete.value.id })
-//       emit('tunnel-deleted')
-//       emit('close')
-//     } catch (err: any) {
-//       error.value.notificationDescription = t(getAxiosErrorMessage(err))
-//       error.value.notificationDetails = err.toString()
-//     } finally {
-//       isDeleting.value = false
-//     }
-//   }
-// }
-
 async function deleteTunnel() {
+  console.log("itemToDelete.value======",itemToDelete.value)
   if (itemToDelete.value) {
     try {
-      const payload = {
-        "id": itemToDelete.value.id,
+      error.value = {
+        notificationDescription: '',
+        notificationDetails: ''
       }
-
-      const response = await axios.post(`${getSDControllerApiEndpoint()}/ipsec`, {
-        method: "delete-tunnel",
-        payload
-      });
-
-      if (response.data.code === 200) {
-        notificationsStore.createNotification({
-          title: 'Success',
-          description: 'Configuration deleted successfully.',
-          kind: 'success'
-        });
-        close()
-        emit('tunnel-deleted')
-      } else {
-        throw new Error('Failed to delete configuration.');
-      }
-
-    } catch (err) {
+      isDeleting.value = true
+      await ubusCall('ns.ipsectunnel', 'delete-tunnel', { id: itemToDelete.value.id })
+      emit('tunnel-deleted')
+      emit('close')
+    } catch (err: any) {
+      error.value.notificationDescription = t(getAxiosErrorMessage(err))
+      error.value.notificationDetails = err.toString()
+    } finally {
+      isDeleting.value = false
     }
   }
 }
+
+// async function deleteTunnel() {
+//   if (itemToDelete.value) {
+//     try {
+//       const payload = {
+//         "id": itemToDelete.value.id,
+//       }
+
+//       const response = await axios.post(`${getSDControllerApiEndpoint()}/ipsec`, {
+//         method: "delete-tunnel",
+//         payload
+//       });
+
+//       if (response.data.code === 200) {
+//         notificationsStore.createNotification({
+//           title: 'Success',
+//           description: 'Configuration deleted successfully.',
+//           kind: 'success'
+//         });
+//         close()
+//         emit('tunnel-deleted')
+//       } else {
+//         throw new Error('Failed to delete configuration.');
+//       }
+
+//     } catch (err) {
+//     }
+//   }
+// }
 
 
 function close() {
@@ -112,7 +112,7 @@ function close() {
       })
     }}
     <NeInlineNotification v-if="error.notificationDescription" kind="error" :title="t('error.cannot_delete_tunnel')"
-      :description="error.notificationDescription" class="my-2"><template #details v-if="error.notificationDetails">
+      :description="error.notificationDescription" class="my-2"><template v-if="error.notificationDetails">
         {{ error.notificationDetails }}
       </template></NeInlineNotification>
   </NeModal>

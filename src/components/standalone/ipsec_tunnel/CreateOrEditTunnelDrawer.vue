@@ -58,6 +58,7 @@ type CreateEditIpsecTunnelPayload = {
   ipcomp: string
   dpdaction: 'restart' | 'none'
   dpddelay: string
+  keyingtries: string
   dpdtimeout: string
   remote_subnet: string[]
   local_subnet: string[]
@@ -69,6 +70,8 @@ type CreateEditIpsecTunnelPayload = {
   enabled: '0' | '1'
   remote_identifier: string
   pre_shared_key: string
+  mobike: string
+  routing_based: string
 }
 
 const { t } = useI18n()
@@ -99,15 +102,18 @@ const localNetworks = ref<NeComboboxOption[]>([])
 const remoteNetworks = ref<string[]>([''])
 const localIdentifier = ref('')
 const remoteIdentifier = ref('')
-const dpdAction = ref('')
+const dpdAction = ref('restart')
 const dpdDelay = ref('')
 const dpdTimeout = ref('')
+const keyingtries = ref('')
 
 // Step 2 fields
 const presharedKeyMode = ref<'generate' | 'import'>('generate')
 const presharedKey = ref('')
 const dpd = ref(false)
 const enableCompression = ref(false)
+const mobike = ref(false)
+const routingBased = ref(false)
 
 // Step 3 fields
 const ikeVersion = ref('')
@@ -133,6 +139,32 @@ const ikeVersionOptions: NeComboboxOption[] = [
   {
     id: 'ikev2',
     label: 'IKEv2'
+  }
+]
+
+const dpdActionOptions: NeComboboxOption[] = [
+  {
+    id: 'none',
+    label: 'none'
+  },
+  {
+    id: 'clear',
+    label: 'clear'
+  },
+  {
+    id: 'restart',
+    label: 'restart'
+  },
+  {
+    id: 'trap',
+    label: 'trap'
+  },
+  {
+    id: 'hold',
+    label: 'hold'
+  }, {
+    id: 'start',
+    label: 'start'
   }
 ]
 const presharedKeyOptions = [
@@ -248,12 +280,15 @@ async function resetForm() {
   enabled.value = tunnelData ? tunnelData.enabled === '1' : true
   dpdAction.value = tunnelData?.dpdaction ?? ''
   dpdDelay.value = tunnelData?.dpddelay ?? ''
+  keyingtries.value = tunnelData?.keyingtries ?? ''
   dpdTimeout.value = tunnelData?.dpdtimeout ?? ''
   wanIpAddress.value = tunnelData?.local_ip ?? ''
   remoteIpAddress.value = tunnelData?.gateway ?? ''
   remoteNetworks.value = tunnelData?.remote_subnet ?? ['']
   dpd.value = tunnelData ? tunnelData.dpdaction == 'restart' : false
   enableCompression.value = tunnelData ? tunnelData.ipcomp === 'true' : false
+  mobike.value = tunnelData ? tunnelData.mobike === 'true' : false
+  routingBased.value = false
   ikeVersion.value = tunnelData?.keyexchange ?? ikeVersionOptions[0].id
   ikeEncryptionAlgorithm.value = tunnelData?.ike.encryption_algorithm ?? 'aes256'
   ikeIntegrityAlgorithm.value = tunnelData?.ike.hash_algorithm ?? 'sha256'
@@ -299,7 +334,7 @@ function validateNetworkFields(
         validationResult = false
       } else {
         // check if remote network is already in local networks
-        if (localNetworks.value.find((x :  any) => x.id === networkEntry)) {
+        if (localNetworks.value.find((x: any) => x.id === networkEntry)) {
           validationErrors[index] = t(
             'standalone.ipsec_tunnel.ipsec_network_already_used_in_local_networks'
           )
@@ -339,8 +374,8 @@ function validateFormByStep(step: number): boolean {
         ],
         'localNetworks'
       ],
-      [[validateRequired(localIdentifier.value)], 'localIdentifier'],
-      [[validateRequired(remoteIdentifier.value)], 'remoteIdentifier']
+      // [[validateRequired(localIdentifier.value)], 'localIdentifier'],
+      // [[validateRequired(remoteIdentifier.value)], 'remoteIdentifier']
     ]
 
     return (
@@ -380,6 +415,7 @@ function validateFormByStep(step: number): boolean {
       .map(([validator, label]) => runValidators(validator, label))
       .every((result) => result)
   }
+  return true
 }
 
 function handleNextStep() {
@@ -421,13 +457,16 @@ async function createOrEditTunnel() {
       rekeytime: espKeyLifetime.value
     },
     ipcomp: enableCompression.value ? 'true' : 'false',
+    routing_based: routingBased.value ? '1' : '0',
+    mobike: mobike.value ? 'yes' : 'no',
     enabled: enabled.value ? '1' : '0',
     dpdaction: dpd.value ? 'restart' : 'none',
     dpddelay: dpdDelay.value,
+    keyingtries: keyingtries.value,
     dpdtimeout: dpdTimeout.value,
     keyexchange: ikeVersion.value,
     remote_subnet: remoteNetworks.value.filter((x) => x != ''),
-    local_subnet: localNetworks.value.filter((x:  any) => x.id != '').map((x :  any) => x.id),
+    local_subnet: localNetworks.value.filter((x: any) => x.id != '').map((x: any) => x.id),
     gateway: remoteIpAddress.value,
     local_identifier: localIdentifier.value,
     remote_identifier: remoteIdentifier.value,
@@ -487,66 +526,39 @@ const onlyNumbers = (event: Event) => {
   const input = event.target as HTMLInputElement;
   input.value = input.value.replace(/[^0-9]/g, ""); // Allow only numbers
 };
+
 </script>
 
 <template>
-  <NeSideDrawer
-    :is-shown="isShown"
-    @close="close()"
-    :closeAriaLabel="t('common.shell.close_side_drawer')"
-    :title="
-      id
-        ? t('standalone.ipsec_tunnel.edit_ipsec_tunnel')
-        : t('standalone.ipsec_tunnel.add_ipsec_tunnel')
-    "
-  >
-    <NeInlineNotification
-      v-if="error.notificationTitle"
-      :title="error.notificationTitle"
-      :description="error.notificationDescription"
-      class="mb-6"
-      kind="error"
-    >
+  <NeSideDrawer :is-shown="isShown" @close="close()" :closeAriaLabel="t('common.shell.close_side_drawer')" :title="id
+      ? t('standalone.ipsec_tunnel.edit_ipsec_tunnel')
+      : t('standalone.ipsec_tunnel.add_ipsec_tunnel')
+    ">
+    <NeInlineNotification v-if="error.notificationTitle" :title="error.notificationTitle"
+      :description="error.notificationDescription" class="mb-6" kind="error">
       <template #details v-if="error.notificationDetails">
         {{ error.notificationDetails }}
-      </template></NeInlineNotification
-    >
+      </template>
+    </NeInlineNotification>
     <NeSkeleton :lines="20" v-if="loading" />
     <div class="flex flex-col gap-y-6" v-else>
       <NeStepper :currentStep="step" :totalSteps="3" :stepLabel="t('common.step')" />
       <template v-if="step == 1">
         <div>
           <NeFormItemLabel>{{ t('standalone.ipsec_tunnel.status') }}</NeFormItemLabel>
-          <NeToggle
-            :label="
-              enabled ? t('standalone.ipsec_tunnel.enabled') : t('standalone.ipsec_tunnel.disabled')
-            "
-            v-model="enabled"
-          />
+          <NeToggle :label="enabled ? t('standalone.ipsec_tunnel.enabled') : t('standalone.ipsec_tunnel.disabled')
+            " v-model="enabled" />
         </div>
-        <NeTextInput
-          v-model="name"
-          :disabled="id != ''"
-          :label="t('standalone.ipsec_tunnel.tunnel_name')"
-          :invalidMessage="validationErrorBag.getFirstFor('name')"
-        />
-        <NeTextInput
-          v-model="dpdAction"
-          :label="t('DPD Action')"
-          :invalidMessage="validationErrorBag.getFirstFor('dpdAction')"
-        />
-        <NeTextInput
-          v-model="dpdDelay"
-          :label="t('DPD Delay')"
-          @input="onlyNumbers"
-          :invalidMessage="validationErrorBag.getFirstFor('dpdDelay')"
-        />
-        <NeTextInput
-          v-model="dpdTimeout"
-          :label="t('DPD Timeout')"
-          @input="onlyNumbers"
-          :invalidMessage="validationErrorBag.getFirstFor('dpdTimeout')"
-        />
+         <div>
+          <!-- <NeFormItemLabel>{{ t('Routing Based') }}</NeFormItemLabel> -->
+          <NeToggle :label="routingBased
+              ? t('Policy-based')
+              : t('Route-based')
+            " v-model="routingBased" />
+        </div>
+        <NeTextInput v-model="name" :disabled="id != ''" :label="t('standalone.ipsec_tunnel.tunnel_name')"
+          :invalidMessage="validationErrorBag.getFirstFor('name')" />
+
         <NeCombobox
           v-model="wanIpAddress"
           :label="t('standalone.ipsec_tunnel.wan_ip_address')"
@@ -560,198 +572,118 @@ const onlyNumbers = (event: Event) => {
           :user-input-label="t('ne_combobox.user_input_label')"
           :optionalLabel="t('common.optional')"
         />
-        <NeTextInput
-          v-model="remoteIpAddress"
-          :label="t('standalone.ipsec_tunnel.remote_ip_address')"
-          :invalidMessage="validationErrorBag.getFirstFor('remoteIpAddress')"
-          ><template #tooltip>
-            <NeTooltip
-              ><template #content>{{
-                t('standalone.ipsec_tunnel.remote_ip_address_tooltip')
-              }}</template></NeTooltip
-            >
+        <!-- <NeTextInput v-model="wanIpAddress" :label="t('standalone.ipsec_tunnel.wan_ip_address')"
+          :invalidMessage="validationErrorBag.getFirstFor('wanIpAddress')">
+        </NeTextInput> -->
+        <NeTextInput v-model="remoteIpAddress" :label="t('standalone.ipsec_tunnel.remote_ip_address')"
+          :invalidMessage="validationErrorBag.getFirstFor('remoteIpAddress')"><template #tooltip>
+            <NeTooltip><template #content>{{
+              t('standalone.ipsec_tunnel.remote_ip_address_tooltip')
+                }}</template></NeTooltip>
           </template>
         </NeTextInput>
-        <NeCombobox
-          :label="t('standalone.ipsec_tunnel.local_networks')"
-          :placeholder="t('standalone.ipsec_tunnel.choose_network')"
-          :multiple="true"
-          :options="localNetworksOptions"
-          v-model="localNetworks"
-          :invalid-message="validationErrorBag.getFirstFor('localNetworks')"
-          :no-options-label="t('ne_combobox.no_options_label')"
-          :no-results-label="t('ne_combobox.no_results')"
-          :show-selected-label="true"
-          :selected-label="t('ne_combobox.selected')"
-          :user-input-label="t('ne_combobox.user_input_label')"
-          :accept-user-input="true"
-          :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
-          :optionalLabel="t('common.optional')"
-        />
-        <NeMultiTextInput
-          v-model="remoteNetworks"
-          :add-item-label="t('standalone.ipsec_tunnel.add_network')"
-          :title="t('standalone.ipsec_tunnel.remote_networks')"
-          :invalid-messages="remoteNetworksValidationErrors"
+        <NeCombobox 
+        :label="t('standalone.ipsec_tunnel.local_networks')"
+          :placeholder="t('standalone.ipsec_tunnel.choose_network')" :multiple="true" :options="localNetworksOptions"
+          v-model="localNetworks" :invalid-message="validationErrorBag.getFirstFor('localNetworks')"
+          :no-options-label="t('ne_combobox.no_options_label')" :no-results-label="t('ne_combobox.no_results')"
+          :show-selected-label="true" :selected-label="t('ne_combobox.selected')"
+          :user-input-label="t('ne_combobox.user_input_label')" :accept-user-input="true"
+          :limitedOptionsLabel="t('ne_combobox.limited_options_label')" :optionalLabel="t('common.optional')" />
+        <NeMultiTextInput v-model="remoteNetworks" :add-item-label="t('standalone.ipsec_tunnel.add_network')"
+          :title="t('standalone.ipsec_tunnel.remote_networks')" :invalid-messages="remoteNetworksValidationErrors"
           :general-invalid-message="validationErrorBag.getFirstFor('remoteNetworks')"
-          @add-item="validationErrorBag.delete('remoteNetworks')"
-        />
-        <NeTextInput
-          v-model="localIdentifier"
-          :label="t('standalone.ipsec_tunnel.local_identifier')"
-          :invalidMessage="validationErrorBag.getFirstFor('localIdentifier')"
-          ><template #tooltip>
-            <NeTooltip
-              ><template #content>{{
-                t('standalone.ipsec_tunnel.local_identifier_tooltip')
-              }}</template></NeTooltip
-            >
-          </template>
+          @add-item="validationErrorBag.delete('remoteNetworks')" />
+        <NeTextInput v-model="localIdentifier" :label="t('standalone.ipsec_tunnel.local_identifier')"
+          :invalidMessage="validationErrorBag.getFirstFor('localIdentifier')">
         </NeTextInput>
-        <NeTextInput
-          v-model="remoteIdentifier"
-          :label="t('standalone.ipsec_tunnel.remote_identifier')"
-          :invalidMessage="validationErrorBag.getFirstFor('remoteIdentifier')"
-        />
+        <NeTextInput v-model="remoteIdentifier" :label="t('standalone.ipsec_tunnel.remote_identifier')"
+          :invalidMessage="validationErrorBag.getFirstFor('remoteIdentifier')" />
       </template>
       <template v-else-if="step == 2">
-        <NeRadioSelection
-          v-if="!id"
-          :label="t('standalone.ipsec_tunnel.pre_shared_key')"
-          :options="presharedKeyOptions"
-          v-model="presharedKeyMode"
-          :card="true"
-          :grid-style="'grid-cols-1 sm:grid-cols-2 gap-3'"
-        />
+        <NeRadioSelection v-if="!id" :label="t('standalone.ipsec_tunnel.pre_shared_key')" :options="presharedKeyOptions"
+          v-model="presharedKeyMode" :card="true" :grid-style="'grid-cols-1 sm:grid-cols-2 gap-3'" />
 
-        <NeTextInput
-          v-model="presharedKey"
-          :invalidMessage="validationErrorBag.getFirstFor('presharedKey')"
-          :label="id ? t('standalone.ipsec_tunnel.pre_shared_key') : ''"
-          v-if="presharedKeyMode == 'import'"
-        />
+        <NeTextInput v-model="presharedKey" :invalidMessage="validationErrorBag.getFirstFor('presharedKey')"
+          :label="id ? t('standalone.ipsec_tunnel.pre_shared_key') : ''" v-if="presharedKeyMode == 'import'" />
         <NeCopyField v-else :value="generatedPresharedKey" />
+        <div>
+          <NeFormItemLabel>{{ t('IPsec compression') }}</NeFormItemLabel>
+          <NeToggle :label="enableCompression
+              ? t('standalone.ipsec_tunnel.enabled')
+              : t('standalone.ipsec_tunnel.disabled')
+            " v-model="enableCompression" />
+        </div>
+        <div>
+          <NeFormItemLabel>{{ t('NAT Traversal') }}</NeFormItemLabel>
+          <NeToggle :label="mobike
+              ? t('standalone.ipsec_tunnel.enabled')
+              : t('standalone.ipsec_tunnel.disabled')
+            " v-model="mobike" />
+        </div>
+       
+        <NeCombobox v-model="dpdAction" :label="t('Dead Peer Detection')" :placeholder="t('Choose DPD Action')"
+          :invalidMessage="validationErrorBag.getFirstFor('dpdAction')" :options="dpdActionOptions"
+          :noOptionsLabel="t('ne_combobox.no_options_label')" :noResultsLabel="t('ne_combobox.no_results')"
+          :limitedOptionsLabel="t('ne_combobox.limited_options_label')" :selected-label="t('ne_combobox.selected')"
+          :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" />
+        <NeTextInput v-model="dpdDelay" :label="t('DPD Retry Interval')" @input="onlyNumbers"
+          :invalidMessage="validationErrorBag.getFirstFor('dpdDelay')" />
+        <NeTextInput v-model="keyingtries" :label="t('DPD Retry Count')" @input="onlyNumbers"
+          :invalidMessage="validationErrorBag.getFirstFor('keyingtries')" />
 
-        <div>
-          <NeFormItemLabel>{{
-            t('standalone.ipsec_tunnel.dpd_dead_peer_detection')
-          }}</NeFormItemLabel>
-          <NeToggle
-            :label="
-              dpd ? t('standalone.ipsec_tunnel.enabled') : t('standalone.ipsec_tunnel.disabled')
-            "
-            v-model="dpd"
-          />
-        </div>
-        <div>
-          <NeFormItemLabel>{{ t('standalone.ipsec_tunnel.compression') }}</NeFormItemLabel>
-          <NeToggle
-            :label="
-              enableCompression
-                ? t('standalone.ipsec_tunnel.enabled')
-                : t('standalone.ipsec_tunnel.disabled')
-            "
-            v-model="enableCompression"
-          />
-        </div>
       </template>
       <template v-else>
         <NeHeading tag="h6" class="mb-1.5">{{
           t('standalone.ipsec_tunnel.phase_one_ike')
-        }}</NeHeading>
-        <NeCombobox
-          v-model="ikeVersion"
-          :label="t('standalone.ipsec_tunnel.ike_version')"
+          }}</NeHeading>
+        <NeCombobox v-model="ikeVersion" :label="t('standalone.ipsec_tunnel.ike_version')"
           :invalidMessage="validationErrorBag.getFirstFor('ikeVersion')"
-          :noOptionsLabel="t('ne_combobox.no_options_label')"
-          :noResultsLabel="t('ne_combobox.no_results')"
-          :options="ikeVersionOptions"
-          :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
-          :selected-label="t('ne_combobox.selected')"
-          :user-input-label="t('ne_combobox.user_input_label')"
-          :optionalLabel="t('common.optional')"
-        />
-        <NeCombobox
-          v-model="ikeEncryptionAlgorithm"
-          :label="t('standalone.ipsec_tunnel.encryption_algorithm')"
+          :noOptionsLabel="t('ne_combobox.no_options_label')" :noResultsLabel="t('ne_combobox.no_results')"
+          :options="ikeVersionOptions" :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
+          :selected-label="t('ne_combobox.selected')" :user-input-label="t('ne_combobox.user_input_label')"
+          :optionalLabel="t('common.optional')" />
+        <NeCombobox v-model="ikeEncryptionAlgorithm" :label="t('standalone.ipsec_tunnel.encryption_algorithm')"
           :invalidMessage="validationErrorBag.getFirstFor('ikeEncryptionAlgorithm')"
-          :noOptionsLabel="t('ne_combobox.no_options_label')"
-          :noResultsLabel="t('ne_combobox.no_results')"
-          :options="encryptionOptions"
-          :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
-          :selected-label="t('ne_combobox.selected')"
-          :user-input-label="t('ne_combobox.user_input_label')"
-          :optionalLabel="t('common.optional')"
-        />
-        <NeCombobox
-          v-model="ikeIntegrityAlgorithm"
-          :label="t('standalone.ipsec_tunnel.integrity_algorithm')"
+          :noOptionsLabel="t('ne_combobox.no_options_label')" :noResultsLabel="t('ne_combobox.no_results')"
+          :options="encryptionOptions" :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
+          :selected-label="t('ne_combobox.selected')" :user-input-label="t('ne_combobox.user_input_label')"
+          :optionalLabel="t('common.optional')" />
+        <NeCombobox v-model="ikeIntegrityAlgorithm" :label="t('standalone.ipsec_tunnel.integrity_algorithm')"
           :invalidMessage="validationErrorBag.getFirstFor('ikeIntegrityAlgorithm')"
-          :noOptionsLabel="t('ne_combobox.no_options_label')"
-          :noResultsLabel="t('ne_combobox.no_results')"
-          :options="integrityOptions"
-          :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
-          :selected-label="t('ne_combobox.selected')"
-          :user-input-label="t('ne_combobox.user_input_label')"
-          :optionalLabel="t('common.optional')"
-        />
-        <NeCombobox
-          v-model="ikeDiffieHellmanGroup"
-          :label="t('standalone.ipsec_tunnel.diffie_hellman_group')"
+          :noOptionsLabel="t('ne_combobox.no_options_label')" :noResultsLabel="t('ne_combobox.no_results')"
+          :options="integrityOptions" :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
+          :selected-label="t('ne_combobox.selected')" :user-input-label="t('ne_combobox.user_input_label')"
+          :optionalLabel="t('common.optional')" />
+        <NeCombobox v-model="ikeDiffieHellmanGroup" :label="t('standalone.ipsec_tunnel.diffie_hellman_group')"
           :invalidMessage="validationErrorBag.getFirstFor('ikeDiffieHellmanGroup')"
-          :noOptionsLabel="t('ne_combobox.no_options_label')"
-          :noResultsLabel="t('ne_combobox.no_results')"
-          :options="diffieHellmanOptions.filter((x :  any) => x.id != '')"
-          :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
-          :selected-label="t('ne_combobox.selected')"
-          :user-input-label="t('ne_combobox.user_input_label')"
-          :optionalLabel="t('common.optional')"
-        />
-        <NeTextInput
-          v-model="ikeKeyLifetime"
-          type="number"
-          :label="t('standalone.ipsec_tunnel.key_life_time_seconds')"
-          :invalidMessage="validationErrorBag.getFirstFor('ikeKeyLifetime')"
-        />
+          :noOptionsLabel="t('ne_combobox.no_options_label')" :noResultsLabel="t('ne_combobox.no_results')"
+          :options="diffieHellmanOptions.filter((x: any) => x.id != '')"
+          :limitedOptionsLabel="t('ne_combobox.limited_options_label')" :selected-label="t('ne_combobox.selected')"
+          :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" />
+        <NeTextInput v-model="ikeKeyLifetime" type="number" :label="t('standalone.ipsec_tunnel.key_life_time_seconds')"
+          :invalidMessage="validationErrorBag.getFirstFor('ikeKeyLifetime')" />
         <NeHeading tag="h6" class="mb-1.5">{{
           t('standalone.ipsec_tunnel.phase_two_esp')
-        }}</NeHeading>
-        <NeCombobox
-          v-model="espEncryptionAlgorithm"
-          :label="t('standalone.ipsec_tunnel.encryption_algorithm')"
+          }}</NeHeading>
+        <NeCombobox v-model="espEncryptionAlgorithm" :label="t('standalone.ipsec_tunnel.encryption_algorithm')"
           :invalidMessage="validationErrorBag.getFirstFor('espEncryptionAlgorithm')"
-          :noOptionsLabel="t('ne_combobox.no_options_label')"
-          :noResultsLabel="t('ne_combobox.no_results')"
-          :options="encryptionOptions"
-          :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
-          :selected-label="t('ne_combobox.selected')"
-          :user-input-label="t('ne_combobox.user_input_label')"
-          :optionalLabel="t('common.optional')"
-        />
-        <NeCombobox
-          v-model="espIntegrityAlgorithm"
-          :label="t('standalone.ipsec_tunnel.integrity_algorithm')"
+          :noOptionsLabel="t('ne_combobox.no_options_label')" :noResultsLabel="t('ne_combobox.no_results')"
+          :options="encryptionOptions" :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
+          :selected-label="t('ne_combobox.selected')" :user-input-label="t('ne_combobox.user_input_label')"
+          :optionalLabel="t('common.optional')" />
+        <NeCombobox v-model="espIntegrityAlgorithm" :label="t('standalone.ipsec_tunnel.integrity_algorithm')"
           :invalidMessage="validationErrorBag.getFirstFor('espIntegrityAlgorithm')"
-          :noOptionsLabel="t('ne_combobox.no_options_label')"
-          :noResultsLabel="t('ne_combobox.no_results')"
-          :options="integrityOptions"
-          :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
-          :selected-label="t('ne_combobox.selected')"
-          :user-input-label="t('ne_combobox.user_input_label')"
-          :optionalLabel="t('common.optional')"
-        />
-        <NeCombobox
-          v-model="espDiffieHellmanGroup"
-          :label="t('standalone.ipsec_tunnel.diffie_hellman_group_pfs')"
+          :noOptionsLabel="t('ne_combobox.no_options_label')" :noResultsLabel="t('ne_combobox.no_results')"
+          :options="integrityOptions" :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
+          :selected-label="t('ne_combobox.selected')" :user-input-label="t('ne_combobox.user_input_label')"
+          :optionalLabel="t('common.optional')" />
+        <NeCombobox v-model="espDiffieHellmanGroup" :label="t('standalone.ipsec_tunnel.diffie_hellman_group_pfs')"
           :invalidMessage="validationErrorBag.getFirstFor('espDiffieHellmanGroup')"
-          :noOptionsLabel="t('ne_combobox.no_options_label')"
-          :noResultsLabel="t('ne_combobox.no_results')"
-          :options="diffieHellmanOptions"
-          :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
-          :selected-label="t('ne_combobox.selected')"
-          :user-input-label="t('ne_combobox.user_input_label')"
-          :optionalLabel="t('common.optional')"
-        >
+          :noOptionsLabel="t('ne_combobox.no_options_label')" :noResultsLabel="t('ne_combobox.no_results')"
+          :options="diffieHellmanOptions" :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
+          :selected-label="t('ne_combobox.selected')" :user-input-label="t('ne_combobox.user_input_label')"
+          :optionalLabel="t('common.optional')">
           <template #tooltip>
             <NeTooltip>
               <template #content>
@@ -760,31 +692,21 @@ const onlyNumbers = (event: Event) => {
             </NeTooltip>
           </template>
         </NeCombobox>
-        <NeTextInput
-          v-model="espKeyLifetime"
-          type="number"
-          :label="t('standalone.ipsec_tunnel.key_life_time_seconds')"
-          :invalidMessage="validationErrorBag.getFirstFor('espKeyLifetime')"
-        />
+        <NeTextInput v-model="espKeyLifetime" type="number" :label="t('standalone.ipsec_tunnel.key_life_time_seconds')"
+          :invalidMessage="validationErrorBag.getFirstFor('espKeyLifetime')" />
       </template>
       <hr />
       <div class="flex justify-end">
         <NeButton kind="tertiary" class="mr-4" @click="handlePreviousStep">{{
           step == 1 ? t('common.cancel') : t('common.previous')
+          }}</NeButton>
+        <NeButton kind="primary" @click="handleNextStep" :disabled="isSavingChanges" :loading="isSavingChanges">{{
+          step === 3
+            ? id
+              ? t('common.save')
+              : t('standalone.ipsec_tunnel.add_tunnel')
+            : t('common.next')
         }}</NeButton>
-        <NeButton
-          kind="primary"
-          @click="handleNextStep"
-          :disabled="isSavingChanges"
-          :loading="isSavingChanges"
-          >{{
-            step === 3
-              ? id
-                ? t('common.save')
-                : t('standalone.ipsec_tunnel.add_tunnel')
-              : t('common.next')
-          }}</NeButton
-        >
       </div>
     </div>
   </NeSideDrawer>
