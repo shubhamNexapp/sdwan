@@ -287,8 +287,8 @@ async function resetForm() {
   remoteNetworks.value = tunnelData?.remote_subnet ?? ['']
   dpd.value = tunnelData ? tunnelData.dpdaction == 'restart' : false
   enableCompression.value = tunnelData ? tunnelData.ipcomp === 'true' : false
-  mobike.value = tunnelData ? tunnelData.mobike === 'true' : false
-  routingBased.value = false
+  mobike.value = tunnelData?.mobike === 'yes'
+  routingBased.value = tunnelData?.routing_based === '1'
   ikeVersion.value = tunnelData?.keyexchange ?? ikeVersionOptions[0].id
   ikeEncryptionAlgorithm.value = tunnelData?.ike.encryption_algorithm ?? 'aes256'
   ikeIntegrityAlgorithm.value = tunnelData?.ike.hash_algorithm ?? 'sha256'
@@ -358,7 +358,7 @@ function validateFormByStep(step: number): boolean {
     )
     remoteNetworksValidationErrors.value = remoteValidationError
 
-    const localNetworksCidrValidation = localNetworks.value.map((x :  any) => validateIp4Cidr(x.id))
+    const localNetworksCidrValidation = localNetworks.value.map((x: any) => validateIp4Cidr(x.id))
 
     const step1Validators: [validationOutput[], string][] = [
       [[validateRequired(name.value)], 'name'],
@@ -370,7 +370,7 @@ function validateFormByStep(step: number): boolean {
       [
         [
           validateRequiredOption(localNetworks.value),
-          localNetworksCidrValidation.find((x :  any) => !x.valid) ?? { valid: true }
+          localNetworksCidrValidation.find((x: any) => !x.valid) ?? { valid: true }
         ],
         'localNetworks'
       ],
@@ -531,8 +531,8 @@ const onlyNumbers = (event: Event) => {
 
 <template>
   <NeSideDrawer :is-shown="isShown" @close="close()" :closeAriaLabel="t('common.shell.close_side_drawer')" :title="id
-      ? t('standalone.ipsec_tunnel.edit_ipsec_tunnel')
-      : t('standalone.ipsec_tunnel.add_ipsec_tunnel')
+    ? t('standalone.ipsec_tunnel.edit_ipsec_tunnel')
+    : t('standalone.ipsec_tunnel.add_ipsec_tunnel')
     ">
     <NeInlineNotification v-if="error.notificationTitle" :title="error.notificationTitle"
       :description="error.notificationDescription" class="mb-6" kind="error">
@@ -549,29 +549,22 @@ const onlyNumbers = (event: Event) => {
           <NeToggle :label="enabled ? t('standalone.ipsec_tunnel.enabled') : t('standalone.ipsec_tunnel.disabled')
             " v-model="enabled" />
         </div>
-         <div>
+        <div>
           <!-- <NeFormItemLabel>{{ t('Routing Based') }}</NeFormItemLabel> -->
           <NeToggle :label="routingBased
-              ? t('Policy-based')
-              : t('Route-based')
+            ? t('Policy-based')
+            : t('Route-based')
             " v-model="routingBased" />
         </div>
         <NeTextInput v-model="name" :disabled="id != ''" :label="t('standalone.ipsec_tunnel.tunnel_name')"
           :invalidMessage="validationErrorBag.getFirstFor('name')" />
 
-        <NeCombobox
-          v-model="wanIpAddress"
-          :label="t('standalone.ipsec_tunnel.wan_ip_address')"
+        <NeCombobox v-model="wanIpAddress" :label="t('standalone.ipsec_tunnel.wan_ip_address')"
           :placeholder="t('standalone.ipsec_tunnel.choose_wan')"
-          :invalidMessage="validationErrorBag.getFirstFor('wanIpAddress')"
-          :options="wanOptions"
-          :noOptionsLabel="t('ne_combobox.no_options_label')"
-          :noResultsLabel="t('ne_combobox.no_results')"
-          :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
-          :selected-label="t('ne_combobox.selected')"
-          :user-input-label="t('ne_combobox.user_input_label')"
-          :optionalLabel="t('common.optional')"
-        />
+          :invalidMessage="validationErrorBag.getFirstFor('wanIpAddress')" :options="wanOptions"
+          :noOptionsLabel="t('ne_combobox.no_options_label')" :noResultsLabel="t('ne_combobox.no_results')"
+          :limitedOptionsLabel="t('ne_combobox.limited_options_label')" :selected-label="t('ne_combobox.selected')"
+          :user-input-label="t('ne_combobox.user_input_label')" :optionalLabel="t('common.optional')" />
         <!-- <NeTextInput v-model="wanIpAddress" :label="t('standalone.ipsec_tunnel.wan_ip_address')"
           :invalidMessage="validationErrorBag.getFirstFor('wanIpAddress')">
         </NeTextInput> -->
@@ -582,8 +575,7 @@ const onlyNumbers = (event: Event) => {
                 }}</template></NeTooltip>
           </template>
         </NeTextInput>
-        <NeCombobox 
-        :label="t('standalone.ipsec_tunnel.local_networks')"
+        <NeCombobox :label="t('standalone.ipsec_tunnel.local_networks')"
           :placeholder="t('standalone.ipsec_tunnel.choose_network')" :multiple="true" :options="localNetworksOptions"
           v-model="localNetworks" :invalid-message="validationErrorBag.getFirstFor('localNetworks')"
           :no-options-label="t('ne_combobox.no_options_label')" :no-results-label="t('ne_combobox.no_results')"
@@ -610,18 +602,18 @@ const onlyNumbers = (event: Event) => {
         <div>
           <NeFormItemLabel>{{ t('IPsec compression') }}</NeFormItemLabel>
           <NeToggle :label="enableCompression
-              ? t('standalone.ipsec_tunnel.enabled')
-              : t('standalone.ipsec_tunnel.disabled')
+            ? t('standalone.ipsec_tunnel.enabled')
+            : t('standalone.ipsec_tunnel.disabled')
             " v-model="enableCompression" />
         </div>
         <div>
           <NeFormItemLabel>{{ t('NAT Traversal') }}</NeFormItemLabel>
           <NeToggle :label="mobike
-              ? t('standalone.ipsec_tunnel.enabled')
-              : t('standalone.ipsec_tunnel.disabled')
+            ? t('standalone.ipsec_tunnel.enabled')
+            : t('standalone.ipsec_tunnel.disabled')
             " v-model="mobike" />
         </div>
-       
+
         <NeCombobox v-model="dpdAction" :label="t('Dead Peer Detection')" :placeholder="t('Choose DPD Action')"
           :invalidMessage="validationErrorBag.getFirstFor('dpdAction')" :options="dpdActionOptions"
           :noOptionsLabel="t('ne_combobox.no_options_label')" :noResultsLabel="t('ne_combobox.no_results')"
