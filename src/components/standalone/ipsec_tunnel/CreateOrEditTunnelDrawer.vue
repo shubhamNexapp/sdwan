@@ -56,7 +56,7 @@ type CreateEditIpsecTunnelPayload = {
     rekeytime: string
   }
   ipcomp: string
-  dpdaction: 'restart' | 'none'
+  dpdaction: string
   dpddelay: string
   keyingtries: string
   dpdtimeout: string
@@ -474,7 +474,7 @@ async function createOrEditTunnel() {
     routing_based: routingBased.value ? '1' : '0',
     mobike: mobike.value ? 'yes' : 'no',
     enabled: enabled.value ? '1' : '0',
-    dpdaction: dpd.value ? 'restart' : 'none',
+    dpdaction: dpdAction.value,
     ike_mode: ikeMode.value,
     dpddelay: dpdDelay.value,
     keyingtries: keyingtries.value,
