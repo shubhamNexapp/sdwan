@@ -124,10 +124,6 @@ onUnmounted(() => {
 <template>
   <div class="flex flex-col">
     <div class="flex flex-col justify-between md:flex-row md:items-center">
-      <!-- <NeHeading tag="h3" class="mb-7">{{ t('standalone.ipsec_tunnel.title') }}</NeHeading> -->
-      <!-- <div class="mb-6 text-sm text-gray-500 dark:text-gray-400">
-        {{ t('common.data_updated_every_seconds', { seconds: RELOAD_INTERVAL / 1000 }) }}
-      </div> -->
     </div>
     <div class="space-y-6">
       <div class="flex flex-col items-start justify-between gap-6 lg:flex-row">
@@ -158,7 +154,7 @@ onUnmounted(() => {
           {{ error.notificationDetails }}
         </template></NeInlineNotification
       >
-      <!-- <NeSkeleton v-if="loading" :lines="8" size="lg" /> -->
+      <NeSkeleton v-if="loading" :lines="8" size="lg" />
       <template v-else>
         <NeEmptyState
           v-if="tunnels.length == 0"

@@ -72,6 +72,7 @@ type CreateEditIpsecTunnelPayload = {
   pre_shared_key: string
   mobike: string
   routing_based: string
+  ike_mode: string
 }
 
 const { t } = useI18n()
@@ -106,6 +107,7 @@ const dpdAction = ref('restart')
 const dpdDelay = ref('')
 const dpdTimeout = ref('')
 const keyingtries = ref('')
+const ikeMode = ref('aggr')
 
 // Step 2 fields
 const presharedKeyMode = ref<'generate' | 'import'>('generate')
@@ -167,6 +169,18 @@ const dpdActionOptions: NeComboboxOption[] = [
     label: 'start'
   }
 ]
+
+const ikeModeOptions: NeComboboxOption[] = [
+  {
+    id: 'main',
+    label: 'main'
+  },
+  {
+    id: 'aggr',
+    label: 'aggr'
+  }
+]
+
 const presharedKeyOptions = [
   {
     id: 'generate',
@@ -279,6 +293,7 @@ async function resetForm() {
   name.value = tunnelData?.ns_name ?? ''
   enabled.value = tunnelData ? tunnelData.enabled === '1' : true
   dpdAction.value = tunnelData?.dpdaction ?? ''
+  ikeMode.value = tunnelData?.ike_mode ?? 'aggr'
   dpdDelay.value = tunnelData?.dpddelay ?? ''
   keyingtries.value = tunnelData?.keyingtries ?? ''
   dpdTimeout.value = tunnelData?.dpdtimeout ?? ''
@@ -415,7 +430,6 @@ function validateFormByStep(step: number): boolean {
       .map(([validator, label]) => runValidators(validator, label))
       .every((result) => result)
   }
-  return true
 }
 
 function handleNextStep() {
@@ -461,6 +475,7 @@ async function createOrEditTunnel() {
     mobike: mobike.value ? 'yes' : 'no',
     enabled: enabled.value ? '1' : '0',
     dpdaction: dpd.value ? 'restart' : 'none',
+    ike_mode: ikeMode.value,
     dpddelay: dpdDelay.value,
     keyingtries: keyingtries.value,
     dpdtimeout: dpdTimeout.value,
@@ -628,11 +643,17 @@ const onlyNumbers = (event: Event) => {
       <template v-else>
         <NeHeading tag="h6" class="mb-1.5">{{
           t('standalone.ipsec_tunnel.phase_one_ike')
-          }}</NeHeading>
+        }}</NeHeading>
         <NeCombobox v-model="ikeVersion" :label="t('standalone.ipsec_tunnel.ike_version')"
           :invalidMessage="validationErrorBag.getFirstFor('ikeVersion')"
           :noOptionsLabel="t('ne_combobox.no_options_label')" :noResultsLabel="t('ne_combobox.no_results')"
           :options="ikeVersionOptions" :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
+          :selected-label="t('ne_combobox.selected')" :user-input-label="t('ne_combobox.user_input_label')"
+          :optionalLabel="t('common.optional')" />
+        <NeCombobox v-model="ikeMode" :label="t('IKE Mode')"
+          :invalidMessage="validationErrorBag.getFirstFor('ikeMode')"
+          :noOptionsLabel="t('ne_combobox.no_options_label')" :noResultsLabel="t('ne_combobox.no_results')"
+          :options="ikeModeOptions" :limitedOptionsLabel="t('ne_combobox.limited_options_label')"
           :selected-label="t('ne_combobox.selected')" :user-input-label="t('ne_combobox.user_input_label')"
           :optionalLabel="t('common.optional')" />
         <NeCombobox v-model="ikeEncryptionAlgorithm" :label="t('standalone.ipsec_tunnel.encryption_algorithm')"
@@ -657,7 +678,7 @@ const onlyNumbers = (event: Event) => {
           :invalidMessage="validationErrorBag.getFirstFor('ikeKeyLifetime')" />
         <NeHeading tag="h6" class="mb-1.5">{{
           t('standalone.ipsec_tunnel.phase_two_esp')
-          }}</NeHeading>
+        }}</NeHeading>
         <NeCombobox v-model="espEncryptionAlgorithm" :label="t('standalone.ipsec_tunnel.encryption_algorithm')"
           :invalidMessage="validationErrorBag.getFirstFor('espEncryptionAlgorithm')"
           :noOptionsLabel="t('ne_combobox.no_options_label')" :noResultsLabel="t('ne_combobox.no_results')"
@@ -691,7 +712,7 @@ const onlyNumbers = (event: Event) => {
       <div class="flex justify-end">
         <NeButton kind="tertiary" class="mr-4" @click="handlePreviousStep">{{
           step == 1 ? t('common.cancel') : t('common.previous')
-          }}</NeButton>
+        }}</NeButton>
         <NeButton kind="primary" @click="handleNextStep" :disabled="isSavingChanges" :loading="isSavingChanges">{{
           step === 3
             ? id
