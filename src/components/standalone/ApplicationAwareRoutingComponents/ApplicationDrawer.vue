@@ -115,12 +115,15 @@ const selectApp = (option: { id: number; name: string; category: string }) => {
 // Validation
 const validate = () => {
   errorBag.value = {};
-  if (!props.itemToEdit && !ruleName.value.trim()) {
-    errorBag.value.ruleName = "Rule name is required.";
+  if (service.value) {
+    if (!props.itemToEdit && !ruleName.value.trim()) {
+      errorBag.value.ruleName = "Rule name is required.";
+    }
+    if (!appName.value.trim()) errorBag.value.appName = "App name is required.";
+    if (!sourceInterface.value.trim())
+      errorBag.value.sourceInterface = "Interface is required.";
   }
-  if (!appName.value.trim()) errorBag.value.appName = "App name is required.";
-  if (!sourceInterface.value.trim())
-    errorBag.value.sourceInterface = "Interface is required.";
+
   return Object.keys(errorBag.value).length === 0;
 };
 
@@ -171,44 +174,52 @@ const closeDrawer = () => emit("close");
 <template>
   <NeSideDrawer :isShown="isShown" :title="props.itemToEdit ? 'Edit Application' : 'Add Application'"
     closeAriaLabel="Close" @close="closeDrawer">
+
     <form @submit.prevent="saveRule">
+
       <div class="space-y-6">
+
+
         <!-- Service Toggle -->
         <NeToggle v-model="service" :label="service ? 'Enable' : 'Disable'" :topLabel="'Service'" />
 
-        <!-- Rule Name -->
-        <NeTextInput v-model.trim="ruleName" :label="t('Rule Name')" placeholder="Enter Rule Name"
-          :invalidMessage="errorBag.ruleName" :readonly="!!props.itemToEdit" />
+        <template v-if="service">
+          <!-- Rule Name -->
+          <NeTextInput v-model.trim="ruleName" :label="t('Rule Name')" placeholder="Enter Rule Name"
+            :invalidMessage="errorBag.ruleName" :readonly="!!props.itemToEdit" />
 
-        <!-- App Name with Suggestions -->
-        <div class="relative">
-          <NeTextInput v-model.trim="appName" :label="t('App Name')" placeholder="Search App..."
-            :invalidMessage="errorBag.appName" @focus="showDropdown = appOptions.length > 0" />
+          <!-- App Name with Suggestions -->
+          <div class="relative">
+            <NeTextInput v-model.trim="appName" :label="t('App Name')" placeholder="Search App..."
+              :invalidMessage="errorBag.appName" @focus="showDropdown = appOptions.length > 0" />
 
-          <!-- Dropdown -->
-          <ul v-if="showDropdown"
-            class="absolute z-10 max-h-60 w-full overflow-y-auto rounded border border-gray-300 bg-white shadow">
-            <li v-for="option in appOptions" :key="option.id" @click="selectApp(option)"
-              class="cursor-pointer px-4 py-2 hover:bg-gray-100">
-              <div class="font-medium">{{ option.name }}</div>
-              <div class="text-xs text-gray-500">
-                Category: {{ option.category }}
-              </div>
-            </li>
-          </ul>
-        </div>
+            <!-- Dropdown -->
+            <ul v-if="showDropdown"
+              class="absolute z-10 max-h-60 w-full overflow-y-auto rounded border border-gray-300 bg-white shadow">
+              <li v-for="option in appOptions" :key="option.id" @click="selectApp(option)"
+                class="cursor-pointer px-4 py-2 hover:bg-gray-100">
+                <div class="font-medium">{{ option.name }}</div>
+                <div class="text-xs text-gray-500">
+                  Category: {{ option.category }}
+                </div>
+              </li>
+            </ul>
+          </div>
 
-        <!-- Interface -->
-        <NeCombobox v-model="sourceInterface" :options="props.sourceInterfaces" :label="t('Interface Name')"
-          class="grow" />
-        <span v-if="errorBag.sourceInterface" class="text-sm text-red-600">
-          {{ errorBag.sourceInterface }}
-        </span>
+          <!-- Interface -->
+          <NeCombobox v-model="sourceInterface" :options="props.sourceInterfaces" :label="t('Interface Name')"
+            class="grow" />
+          <span v-if="errorBag.sourceInterface" class="text-sm text-red-600">
+            {{ errorBag.sourceInterface }}
+          </span>
+
+
+          <!-- Gateway -->
+          <NeTextInput v-model.trim="gateway" :label="t('Gateway')" placeholder="Enter Gateway"
+            :invalidMessage="errorBag.gateway" />
+
+        </template>
       </div>
-
-      <!-- Gateway -->
-      <NeTextInput v-model.trim="gateway" :label="t('Gateway')" placeholder="Enter Gateway"
-        :invalidMessage="errorBag.gateway"  />
 
       <!-- Buttons -->
       <div class="mt-6 flex justify-end">
@@ -217,11 +228,12 @@ const closeDrawer = () => emit("close");
         </NeButton>
         <NeButton class="ml-1" :disabled="loading.saveRule" :loading="loading.saveRule" kind="primary" size="lg"
           @click.prevent="saveRule">
-                      <FontAwesomeIcon :icon="['fas', 'floppy-disk']" aria-hidden="true" class="mr-2" />
+          <FontAwesomeIcon :icon="['fas', 'floppy-disk']" aria-hidden="true" class="mr-2" />
 
           {{ t("common.save") }}
         </NeButton>
       </div>
+
     </form>
   </NeSideDrawer>
 </template>
