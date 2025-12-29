@@ -92,15 +92,17 @@ const removeRoute = (index: number) => routes.value.splice(index, 1);
 
 const validate = () => {
   errorBag.value = {};
-  if (!name.value.trim()) errorBag.value.name = "Name is required.";
-  if (!sourceInterface.value.trim())
-    errorBag.value.sourceInterface = "Interface is required.";
-  routes.value.forEach((r, idx) => {
-    if (!r.network)
-      errorBag.value[`route_network_${idx}`] = "Network required.";
-    if (!r.via) errorBag.value[`route_via_${idx}`] = "Via required.";
-    if (!r.dev) errorBag.value[`route_dev_${idx}`] = "Dev required.";
-  });
+  if (service.value) {
+    if (!name.value.trim()) errorBag.value.name = "Name is required.";
+    if (!sourceInterface.value.trim())
+      errorBag.value.sourceInterface = "Interface is required.";
+    routes.value.forEach((r, idx) => {
+      if (!r.network)
+        errorBag.value[`route_network_${idx}`] = "Network required.";
+      if (!r.via) errorBag.value[`route_via_${idx}`] = "Via required.";
+      if (!r.dev) errorBag.value[`route_dev_${idx}`] = "Dev required.";
+    });
+  }
   return Object.keys(errorBag.value).length === 0;
 };
 
@@ -141,93 +143,45 @@ const closeDrawer = () => emit("close");
 </script>
 
 <template>
-  <NeSideDrawer
-    :isShown="isShown"
-    :title="props.itemToEdit ? 'Edit VRF' : 'Add VRF'"
-    closeAriaLabel="Close"
-    @close="closeDrawer"
-  >
+  <NeSideDrawer :isShown="isShown" :title="props.itemToEdit ? 'Edit VRF' : 'Add VRF'" closeAriaLabel="Close"
+    @close="closeDrawer">
     <form @submit.prevent="saveRule">
       <div class="space-y-6">
-        <NeToggle
-          v-model="service"
-          :label="service ? 'Enable' : 'Disable'"
-          :topLabel="'Service'"
-        />
+        <NeToggle v-model="service" :label="service ? 'Enable' : 'Disable'" :topLabel="'Service'" />
+        <template v-if="service">
+          <NeTextInput v-model.trim="name" :label="t('Name')" placeholder="Enter Name"
+            :invalidMessage="errorBag.name" />
 
-        <NeTextInput
-          v-model.trim="name"
-          :label="t('Name')"
-          placeholder="Enter Name"
-          :invalidMessage="errorBag.name"
-        />
+          <NeCombobox v-model="sourceInterface" :options="sourceInterfaceOptions" :label="t('Interface Name')"
+            class="grow" />
+          <span v-if="errorBag.sourceInterface" class="text-sm text-red-600">{{
+            errorBag.sourceInterface
+          }}</span>
 
-        <NeCombobox
-          v-model="sourceInterface"
-          :options="sourceInterfaceOptions"
-          :label="t('Interface Name')"
-          class="grow"
-        />
-        <span v-if="errorBag.sourceInterface" class="text-sm text-red-600">{{
-          errorBag.sourceInterface
-        }}</span>
-
-        <div class="mt-6 rounded-md border p-4">
-          <h3 class="mb-2 font-semibold">Route Table</h3>
-          <div
-            v-for="(route, index) in routes"
-            :key="index"
-            class="mb-3 flex gap-2"
-          >
-            <NeTextInput
-              v-model.trim="route.network"
-              label="Network"
-              placeholder="192.168.1.0/24"
-              :invalidMessage="errorBag[`route_network_${index}`]"
-              class="grow"
-            />
-            <NeTextInput
-              v-model.trim="route.via"
-              label="Via"
-              placeholder="192.168.1.1"
-              :invalidMessage="errorBag[`route_via_${index}`]"
-              class="grow"
-            />
-            <NeTextInput
-              v-model.trim="route.dev"
-              label="Dev"
-              placeholder="br1"
-              :invalidMessage="errorBag[`route_dev_${index}`]"
-              class="grow"
-            />
-            <NeButton
-              kind="tertiary"
-              size="sm"
-              @click.prevent="removeRoute(index)"
-              v-if="routes.length > 1"
-            >
-              <FontAwesomeIcon :icon="faTrash" />
+          <div class="mt-6 rounded-md border p-4">
+            <h3 class="mb-2 font-semibold">Route Table</h3>
+            <div v-for="(route, index) in routes" :key="index" class="mb-3 flex gap-2">
+              <NeTextInput v-model.trim="route.network" label="Network" placeholder="192.168.1.0/24"
+                :invalidMessage="errorBag[`route_network_${index}`]" class="grow" />
+              <NeTextInput v-model.trim="route.via" label="Via" placeholder="192.168.1.1"
+                :invalidMessage="errorBag[`route_via_${index}`]" class="grow" />
+              <NeTextInput v-model.trim="route.dev" label="Dev" placeholder="br1"
+                :invalidMessage="errorBag[`route_dev_${index}`]" class="grow" />
+              <NeButton kind="tertiary" size="sm" @click.prevent="removeRoute(index)" v-if="routes.length > 1">
+                <FontAwesomeIcon :icon="faTrash" />
+              </NeButton>
+            </div>
+            <NeButton kind="secondary" size="sm" @click.prevent="addRoute">
+              <FontAwesomeIcon :icon="faPlus" class="mr-1" /> Add Route
             </NeButton>
           </div>
-          <NeButton kind="secondary" size="sm" @click.prevent="addRoute">
-            <FontAwesomeIcon :icon="faPlus" class="mr-1" /> Add Route
-          </NeButton>
-        </div>
+        </template>
       </div>
-
       <div class="mt-6 flex justify-end">
-        <NeButton kind="tertiary" @click.prevent="closeDrawer" class="mr-3"
-          >Cancel</NeButton
-        >
-        <NeButton
-          class="ml-1"
-          :disabled="loading.saveRule"
-          :loading="loading.saveRule"
-          kind="primary"
-          size="lg"
-          @click.prevent="saveRule()"
-        >
-                      <FontAwesomeIcon :icon="['fas', 'floppy-disk']" aria-hidden="true" class="mr-2" />
+        <NeButton kind="tertiary" @click.prevent="closeDrawer" class="mr-3">Cancel</NeButton>
+        <NeButton class="ml-1" :disabled="loading.saveRule" :loading="loading.saveRule" kind="primary" size="lg"
+          @click.prevent="saveRule()">
+          <FontAwesomeIcon :icon="['fas', 'floppy-disk']" aria-hidden="true" class="mr-2" />
           {{ t("common.save") }}
         </NeButton>
       </div>
