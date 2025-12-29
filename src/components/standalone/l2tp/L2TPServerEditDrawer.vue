@@ -144,24 +144,21 @@ const validate = () => {
     errorBag.value.clear();
     let isValid = true;
 
-    const requiredFields = [
-        // { key: 'interfaceName', value: interfaceName, ref: interfaceNameRef },
-        // { key: 'serverIP', value: serverIP, ref: serverIPRef },
-        // { key: 'userName', value: userName, ref: userNameRef },
-        // { key: 'password', value: password, ref: passwordRef },
-        { key: 'ipStart', value: ipStart, ref: ipStartRef },
-        { key: 'ipEnd', value: ipEnd, ref: ipEndRef },
-        { key: 'localIP', value: localIP, ref: localIPRef },
-    ];
+    if (service.value) {
+        const requiredFields = [
+            { key: 'ipStart', value: ipStart, ref: ipStartRef },
+            { key: 'ipEnd', value: ipEnd, ref: ipEndRef },
+            { key: 'localIP', value: localIP, ref: localIPRef },
+        ];
 
-    requiredFields.forEach((field) => {
-        const validation = validateRequired(field.value.value);
-        if (!validation.valid) {
-            errorBag.value.set(field.key, t("required"));
-            isValid = false;
-        }
-    });
-
+        requiredFields.forEach((field) => {
+            const validation = validateRequired(field.value.value);
+            if (!validation.valid) {
+                errorBag.value.set(field.key, t("required"));
+                isValid = false;
+            }
+        });
+    }
     return isValid;
 };
 
@@ -250,58 +247,64 @@ async function saveRule() {
                 <!-- service -->
                 <NeToggle v-model="service" label="Enable Service" />
 
-                <!-- IP Start -->
-                <NeTextInput :label="t('standalone.l2tp.ip_start')" v-model.trim="ipStart"
-                    :invalidMessage="errorBag.getFirstFor('ipStart')" :disabled="loading.saveRule" />
-                <!-- IP End -->
-                <NeTextInput :label="t('standalone.l2tp.ip_end')" v-model.trim="ipEnd"
-                    :invalidMessage="errorBag.getFirstFor('ipEnd')" :disabled="loading.saveRule" />
-                <!-- userName -->
-                <NeTextInput :label="t('standalone.l2tp.userName')" v-model.trim="userName"
-                    :invalidMessage="errorBag.getFirstFor('userName')" :disabled="loading.saveRule" ref="userNameRef" />
-                <!-- password -->
-                <NeTextInput :label="t('standalone.l2tp.password')" v-model.trim="password"
-                    :invalidMessage="errorBag.getFirstFor('password')" :disabled="loading.saveRule" ref="passwordRef" />
-                <!-- MTU -->
-                <NeTextInput :label="t('standalone.l2tp.mtu')" v-model.trim="mtu"
-                    :invalidMessage="errorBag.getFirstFor('mtu')" :disabled="loading.saveRule" />
+                <!-- Show form fields only if service is enabled -->
+                <template v-if="service">
 
-                <!-- MRU -->
-                <NeTextInput :label="t('standalone.l2tp.mru')" v-model.trim="mru"
-                    :invalidMessage="errorBag.getFirstFor('mru')" :disabled="loading.saveRule" />
+                    <!-- IP Start -->
+                    <NeTextInput :label="t('standalone.l2tp.ip_start')" v-model.trim="ipStart"
+                        :invalidMessage="errorBag.getFirstFor('ipStart')" :disabled="loading.saveRule" />
+                    <!-- IP End -->
+                    <NeTextInput :label="t('standalone.l2tp.ip_end')" v-model.trim="ipEnd"
+                        :invalidMessage="errorBag.getFirstFor('ipEnd')" :disabled="loading.saveRule" />
+                    <!-- userName -->
+                    <NeTextInput :label="t('standalone.l2tp.userName')" v-model.trim="userName"
+                        :invalidMessage="errorBag.getFirstFor('userName')" :disabled="loading.saveRule"
+                        ref="userNameRef" />
+                    <!-- password -->
+                    <NeTextInput :label="t('standalone.l2tp.password')" v-model.trim="password"
+                        :invalidMessage="errorBag.getFirstFor('password')" :disabled="loading.saveRule"
+                        ref="passwordRef" />
+                    <!-- MTU -->
+                    <NeTextInput :label="t('standalone.l2tp.mtu')" v-model.trim="mtu"
+                        :invalidMessage="errorBag.getFirstFor('mtu')" :disabled="loading.saveRule" />
 
-                <!-- lcp_interval -->
-                <NeTextInput :label="t('standalone.l2tp.lcp_interval')" v-model.trim="lcpInterval"
-                    :invalidMessage="errorBag.getFirstFor('lcpInterval')" :disabled="loading.saveRule" />
+                    <!-- MRU -->
+                    <NeTextInput :label="t('standalone.l2tp.mru')" v-model.trim="mru"
+                        :invalidMessage="errorBag.getFirstFor('mru')" :disabled="loading.saveRule" />
 
-                <!-- lcp_failure -->
-                <NeTextInput :label="t('standalone.l2tp.lcp_failure')" v-model.trim="lcpFailure"
-                    :invalidMessage="errorBag.getFirstFor('lcpFailure')" :disabled="loading.saveRule" />
+                    <!-- lcp_interval -->
+                    <NeTextInput :label="t('standalone.l2tp.lcp_interval')" v-model.trim="lcpInterval"
+                        :invalidMessage="errorBag.getFirstFor('lcpInterval')" :disabled="loading.saveRule" />
 
-                <div class="grid grid-cols-2 gap-4">
-                    <label><input type="checkbox" v-model.trim="chap" class="form-checkbox mr-2" />Chap</label>
-                    <label><input type="checkbox" v-model.trim="pap" class="form-checkbox mr-2" />Pap</label>
-                    <!-- <label><input type="checkbox" v-model.trim="msChap" class="form-checkbox mr-2" />Require
+                    <!-- lcp_failure -->
+                    <NeTextInput :label="t('standalone.l2tp.lcp_failure')" v-model.trim="lcpFailure"
+                        :invalidMessage="errorBag.getFirstFor('lcpFailure')" :disabled="loading.saveRule" />
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <label><input type="checkbox" v-model.trim="chap" class="form-checkbox mr-2" />Chap</label>
+                        <label><input type="checkbox" v-model.trim="pap" class="form-checkbox mr-2" />Pap</label>
+                        <!-- <label><input type="checkbox" v-model.trim="msChap" class="form-checkbox mr-2" />Require
                         MSCHAP</label> -->
-                    <!-- <label><input type="checkbox" v-model.trim="ms2Chap" class="form-checkbox mr-2" />Require
+                        <!-- <label><input type="checkbox" v-model.trim="ms2Chap" class="form-checkbox mr-2" />Require
                         MSCHAP 2</label> -->
-                    <label><input type="checkbox" v-model.trim="auth" class="form-checkbox mr-2" />Auth</label>
-                    <label><input type="checkbox" v-model.trim="requireMschapv2" class="form-checkbox mr-2" />Require
-                        MSCHAP v2</label>
-                    <label><input type="checkbox" v-model.trim="requireChap" class="form-checkbox mr-2" />Require
-                        CHAP</label>
-                    <label><input type="checkbox" v-model.trim="requirePap" class="form-checkbox mr-2" />Require
-                        PAP</label>
-                    <label><input type="checkbox" v-model.trim="defaultroute" class="form-checkbox mr-2" />Default
-                        Route</label>
-                    <label><input type="checkbox" v-model.trim="ipdefault" class="form-checkbox mr-2" />IP
-                        Default</label>
-                    <label><input type="checkbox" v-model.trim="proxyarp" class="form-checkbox mr-2" />Proxy ARP</label>
-                </div>
-
+                        <label><input type="checkbox" v-model.trim="auth" class="form-checkbox mr-2" />Auth</label>
+                        <label><input type="checkbox" v-model.trim="requireMschapv2"
+                                class="form-checkbox mr-2" />Require
+                            MSCHAP v2</label>
+                        <label><input type="checkbox" v-model.trim="requireChap" class="form-checkbox mr-2" />Require
+                            CHAP</label>
+                        <label><input type="checkbox" v-model.trim="requirePap" class="form-checkbox mr-2" />Require
+                            PAP</label>
+                        <label><input type="checkbox" v-model.trim="defaultroute" class="form-checkbox mr-2" />Default
+                            Route</label>
+                        <label><input type="checkbox" v-model.trim="ipdefault" class="form-checkbox mr-2" />IP
+                            Default</label>
+                        <label><input type="checkbox" v-model.trim="proxyarp" class="form-checkbox mr-2" />Proxy
+                            ARP</label>
+                    </div>
+                </template>
             </div>
             <!-- footer -->
-            <hr class="my-8 border-gray-200 dark:border-gray-700" />
             <div class="flex justify-end">
                 <NeButton kind="tertiary" size="lg" @click.prevent="closeDrawer" :disabled="loading.saveRule"
                     class="mr-3">
@@ -311,12 +314,12 @@ async function saveRule() {
                     :loading="loading.saveRule">
                     {{ t('standalone.wire_guard.save') }}
                 </NeButton> -->
-                    <NeButton class=" ml-1" :disabled="loading.saveRule" :loading="loading.saveRule" kind="primary"
-                        size="lg" @click.prevent="saveRule()">
-                                   <FontAwesomeIcon :icon="['fas', 'floppy-disk']" aria-hidden="true" class="mr-2" />
+                <NeButton class=" ml-1" :disabled="loading.saveRule" :loading="loading.saveRule" kind="primary"
+                    size="lg" @click.prevent="saveRule()">
+                    <FontAwesomeIcon :icon="['fas', 'floppy-disk']" aria-hidden="true" class="mr-2" />
 
-                        {{ t('common.save') }}
-                    </NeButton>
+                    {{ t('common.save') }}
+                </NeButton>
             </div>
         </form>
     </NeSideDrawer>
