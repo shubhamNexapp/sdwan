@@ -336,30 +336,28 @@ const addRuleNewApi = async () => {
 };
 
 
-const deleteRule = async (itemToDelete: string) => {
+const deleteRule = async (index: number, ruleName: string) => {
     try {
-        const payload = {
-            "name": itemToDelete
-        }
+        // 1️⃣ Remove row from UI immediately
+        modeDetails.value.splice(index, 1)
+
+        // 2️⃣ Call API only if rule exists on backend
+        if (!ruleName) return
 
         const response = await axios.post(`${getSDControllerApiEndpoint()}/qos`, {
             method: "delete-config",
-            payload
-        });
+            payload: { name: ruleName }
+        })
 
         if (response.data.code === 200) {
             notificationsStore.createNotification({
                 title: Success,
                 description: Delete,
                 kind: 'success'
-            });
-            getLists()
-            close()
-        } else {
-            throw new Error('Failed to delete configuration.');
+            })
         }
-
     } catch (err) {
+        console.error(err)
     }
 }
 
@@ -436,13 +434,13 @@ const deleteRule = async (itemToDelete: string) => {
 
         <div class="mt-4 flex justify-end">
             <!-- Submit button (left aligned) -->
-                <NeButton class="ml-1" :disabled="loading.saveRule" :loading="loading.saveRule" kind="primary" size="lg"
-                    @click.prevent="saveNetworkConfig()">
-                    <template #prefix>
-                        <FontAwesomeIcon :icon="faSave" />
-                    </template>
-                    {{ t('common.save') }}
-                </NeButton>
+            <NeButton class="ml-1" :disabled="loading.saveRule" :loading="loading.saveRule" kind="primary" size="lg"
+                @click.prevent="saveNetworkConfig()">
+                <template #prefix>
+                    <FontAwesomeIcon :icon="faSave" />
+                </template>
+                {{ t('common.save') }}
+            </NeButton>
         </div>
 
         <template v-if="service">
@@ -508,7 +506,7 @@ const deleteRule = async (itemToDelete: string) => {
                             <NeToggle v-model="item.rule_service" label="Enable" />
                         </NeTableCell>
                         <NeTableCell>
-                            <NeButton size="sm" @click="deleteRule(item.rule_name)">
+                            <NeButton size="sm" @click="deleteRule(index, item.rule_name)">
                                 <font-awesome-icon :icon="['fas', 'trash']" class="h-4 w-4" aria-hidden="true" />
                             </NeButton>
                         </NeTableCell>
@@ -518,13 +516,13 @@ const deleteRule = async (itemToDelete: string) => {
 
             <div class="mt-4 flex justify-end">
                 <!-- Submit button (left aligned) -->
-                    <NeButton class="ml-1" :disabled="loading.addRuleLoading" :loading="loading.addRuleLoading"
-                        kind="primary" size="lg" @click.prevent="addRule()">
-                        <template #prefix>
-                            <FontAwesomeIcon :icon="faSave" />
-                        </template>
-                        {{ t('Add Rule') }}
-                    </NeButton>
+                <NeButton class="ml-1" :disabled="loading.addRuleLoading" :loading="loading.addRuleLoading"
+                    kind="primary" size="lg" @click.prevent="addRule()">
+                    <template #prefix>
+                        <FontAwesomeIcon :icon="faSave" />
+                    </template>
+                    {{ t('Add Rule') }}
+                </NeButton>
             </div>
         </template>
     </div>
